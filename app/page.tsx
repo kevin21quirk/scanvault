@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp } from "lucide-react";
+import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import MuxPlayer from "@mux/mux-player-react";
 
@@ -280,6 +280,216 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Comprehensive Scanning Services Section */}
+      <section className="py-32 bg-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-red-50 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gray-50 rounded-full blur-3xl"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 rounded-full mb-6">
+              <Layers className="h-4 w-4 text-scanvault-red" />
+              <span className="text-sm font-medium text-scanvault-red">Complete Solutions</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-scanvault-black mb-6">
+              Professional Scanning Services
+            </h2>
+            <p className="text-xl text-gray-600">
+              From digitization to secure destruction, we provide end-to-end document management solutions tailored to your needs.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {/* Scan to SharePoint */}
+            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-scanvault-red to-red-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Share2 className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-scanvault-black mb-4">Scan to SharePoint</h3>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                Seamlessly integrate your digitized documents directly into Microsoft SharePoint for instant collaboration and accessibility across your organization.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-scanvault-red flex-shrink-0 mt-0.5" />
+                  <span>Direct SharePoint integration</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-scanvault-red flex-shrink-0 mt-0.5" />
+                  <span>Automated folder structure</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-scanvault-red flex-shrink-0 mt-0.5" />
+                  <span>Metadata tagging included</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Scan to Cloud */}
+            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Cloud className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-scanvault-black mb-4">Scan to Cloud</h3>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                Upload your documents to popular cloud platforms including Google Drive, Dropbox, OneDrive, and more for flexible access anywhere.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <span>Multi-platform support</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <span>Secure encrypted transfer</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <span>Automatic synchronization</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Bespoke Platform */}
+            <div className="group bg-gradient-to-br from-scanvault-red to-red-600 text-white rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+              <div className="relative">
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Database className="h-8 w-8 text-white" />
+                </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full mb-3">
+                  <Star className="h-3 w-3" />
+                  <span className="text-xs font-semibold">EXCLUSIVE</span>
+                </div>
+                <h3 className="text-2xl font-bold mb-4">ScanVault Platform</h3>
+                <p className="leading-relaxed mb-4 text-white/90">
+                  Access our proprietary document management platform, custom-built for maximum security, searchability, and workflow automation.
+                </p>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                    <span>AI-powered search</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                    <span>Custom workflows</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                    <span>Advanced analytics</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Secure Shredding */}
+            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Trash2 className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-scanvault-black mb-4">Secure Shredding</h3>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                Professional document destruction services with full chain of custody. We handle the shredding so you can focus on your business.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                  <span>On-site or off-site shredding</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                  <span>GDPR compliant</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                  <span>Eco-friendly recycling</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Certificate of Destruction */}
+            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <FileCheck className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-scanvault-black mb-4">Certificate of Destruction</h3>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                Receive official documentation certifying the secure destruction of your sensitive documents, ensuring compliance and peace of mind.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Legal proof of destruction</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Audit trail documentation</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Digital certificate delivery</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Risk Assessment */}
+            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <ClipboardCheck className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-scanvault-black mb-4">Risk Assessment</h3>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                Comprehensive pre-work risk assessment forms provided and agreed upon by both parties before any project commences.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span>Detailed risk analysis</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span>Mutual agreement required</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span>Signed documentation</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Professional Standards Banner */}
+          <div className="mt-20 bg-gradient-to-r from-scanvault-black via-gray-900 to-scanvault-black text-white rounded-3xl p-12 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-scanvault-red rounded-full blur-3xl opacity-20"></div>
+            <div className="relative z-10 text-center max-w-3xl mx-auto">
+              <Shield className="h-16 w-16 text-scanvault-red mx-auto mb-6" />
+              <h3 className="text-3xl font-bold mb-4">Professional Standards & Compliance</h3>
+              <p className="text-lg text-gray-300 mb-8">
+                Every project begins with a comprehensive risk assessment form, ensuring complete transparency and mutual agreement before work commences. Our processes are fully compliant with GDPR, ISO standards, and industry best practices.
+              </p>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                  <Lock className="h-8 w-8 text-scanvault-red mx-auto mb-3" />
+                  <p className="font-semibold mb-2">GDPR Compliant</p>
+                  <p className="text-sm text-gray-400">Full data protection compliance</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                  <FileCheck className="h-8 w-8 text-scanvault-red mx-auto mb-3" />
+                  <p className="font-semibold mb-2">ISO Certified</p>
+                  <p className="text-sm text-gray-400">Quality management standards</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                  <ClipboardCheck className="h-8 w-8 text-scanvault-red mx-auto mb-3" />
+                  <p className="font-semibold mb-2">Risk Assessed</p>
+                  <p className="text-sm text-gray-400">Pre-approved by both parties</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
