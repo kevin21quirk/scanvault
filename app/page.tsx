@@ -25,8 +25,24 @@ export default function Home() {
 
   return (
     <div className="flex flex-col overflow-hidden">
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-scanvault-black via-gray-900 to-scanvault-red overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Video */}
+        <div className="absolute inset-0 w-full h-full">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="https://cdn.coverr.co/videos/coverr-office-documents-and-paperwork-5361/1080p.mp4" type="video/mp4" />
+            {/* Fallback for browsers that don't support video */}
+          </video>
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-scanvault-black/90 via-gray-900/85 to-scanvault-red/80"></div>
+        </div>
+        
+        {/* Animated blobs */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-scanvault-red rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
         <div className="absolute top-40 right-10 w-72 h-72 bg-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-red-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
@@ -168,10 +184,16 @@ export default function Home() {
                 </div>
               </div>
               <div className="order-1 md:order-2">
-                <div className="relative">
+                <div className="relative group overflow-hidden rounded-2xl shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-br from-scanvault-red to-red-600 blur-3xl opacity-20"></div>
-                  <div className="relative bg-gradient-to-br from-scanvault-red to-red-600 p-12 aspect-square flex items-center justify-center">
-                    <div className="text-9xl font-bold text-white/20">HR</div>
+                  <img 
+                    src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop&q=80" 
+                    alt="Human Resources Management"
+                    className="w-full h-full object-cover aspect-square group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-scanvault-black/60 to-transparent"></div>
+                  <div className="absolute bottom-6 left-6 text-white">
+                    <p className="text-2xl font-bold">HR Management</p>
                   </div>
                 </div>
               </div>
@@ -179,10 +201,16 @@ export default function Home() {
 
             <div className="grid md:grid-cols-2 gap-16 items-center">
               <div>
-                <div className="relative">
+                <div className="relative group overflow-hidden rounded-2xl shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-scanvault-red blur-3xl opacity-20"></div>
-                  <div className="relative bg-gradient-to-br from-red-600 to-scanvault-red p-12 aspect-square flex items-center justify-center">
-                    <div className="text-9xl font-bold text-white/20">AD</div>
+                  <img 
+                    src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80" 
+                    alt="Administrative Excellence"
+                    className="w-full h-full object-cover aspect-square group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-scanvault-black/60 to-transparent"></div>
+                  <div className="absolute bottom-6 left-6 text-white">
+                    <p className="text-2xl font-bold">Administrative Excellence</p>
                   </div>
                 </div>
               </div>
@@ -218,10 +246,16 @@ export default function Home() {
                 </div>
               </div>
               <div className="order-1 md:order-2">
-                <div className="relative">
+                <div className="relative group overflow-hidden rounded-2xl shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-br from-scanvault-red to-red-700 blur-3xl opacity-20"></div>
-                  <div className="relative bg-gradient-to-br from-scanvault-red to-red-700 p-12 aspect-square flex items-center justify-center">
-                    <div className="text-9xl font-bold text-white/20">CL</div>
+                  <img 
+                    src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&auto=format&fit=crop&q=80" 
+                    alt="Client Data Protection"
+                    className="w-full h-full object-cover aspect-square group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-scanvault-black/60 to-transparent"></div>
+                  <div className="absolute bottom-6 left-6 text-white">
+                    <p className="text-2xl font-bold">Client Records</p>
                   </div>
                 </div>
               </div>
