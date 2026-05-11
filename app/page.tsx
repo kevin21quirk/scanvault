@@ -286,7 +286,7 @@ export default function Home() {
       </section>
 
       {/* Comprehensive Scanning Services Section */}
-      <section className="py-32 bg-white relative overflow-hidden">
+      <section className="py-20 bg-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-red-50 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-gray-50 rounded-full blur-3xl"></div>
         
@@ -471,18 +471,13 @@ export default function Home() {
               <Shield className="h-16 w-16 text-scanvault-red mx-auto mb-6" />
               <h3 className="text-3xl font-bold mb-4">Professional Standards & Compliance</h3>
               <p className="text-lg text-gray-300 mb-8">
-                Every project begins with a comprehensive risk assessment form, ensuring complete transparency and mutual agreement before work commences. Our processes are fully compliant with GDPR, ISO standards, and industry best practices.
+                Every project begins with a comprehensive risk assessment form, ensuring complete transparency and mutual agreement before work commences. Our processes are fully compliant with GDPR and industry best practices.
               </p>
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                   <Lock className="h-8 w-8 text-scanvault-red mx-auto mb-3" />
                   <p className="font-semibold mb-2">GDPR Compliant</p>
                   <p className="text-sm text-gray-400">Full data protection compliance</p>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                  <FileCheck className="h-8 w-8 text-scanvault-red mx-auto mb-3" />
-                  <p className="font-semibold mb-2">ISO Certified</p>
-                  <p className="text-sm text-gray-400">Quality management standards</p>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                   <ClipboardCheck className="h-8 w-8 text-scanvault-red mx-auto mb-3" />
