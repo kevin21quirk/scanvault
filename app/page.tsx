@@ -25,7 +25,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col overflow-hidden">
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-scanvault-black via-gray-900 to-scanvault-red">
         {/* Background Video */}
         <div className="absolute inset-0 w-full h-full">
           <video
@@ -33,10 +33,18 @@ export default function Home() {
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover"
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover opacity-0"
+            onLoadedData={(e) => {
+              (e.target as HTMLVideoElement).style.opacity = '1';
+            }}
+            onError={(e) => {
+              console.log('Video failed to load, using fallback background');
+              (e.target as HTMLVideoElement).style.display = 'none';
+            }}
           >
-            <source src="https://cdn.coverr.co/videos/coverr-office-documents-and-paperwork-5361/1080p.mp4" type="video/mp4" />
-            {/* Fallback for browsers that don't support video */}
+            <source src="/hero-video.mp4" type="video/mp4" />
+            <source src="https://storage.coverr.co/videos/coverr-office-documents-and-paperwork-5361/preview" type="video/mp4" />
           </video>
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-gradient-to-br from-scanvault-black/90 via-gray-900/85 to-scanvault-red/80"></div>
