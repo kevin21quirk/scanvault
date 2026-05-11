@@ -34,7 +34,7 @@ export default function Home() {
             muted
             playsInline
             preload="auto"
-            className="absolute inset-0 w-full h-full object-cover opacity-0"
+            className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
             onLoadedData={(e) => {
               (e.target as HTMLVideoElement).style.opacity = '1';
             }}
@@ -43,8 +43,7 @@ export default function Home() {
               (e.target as HTMLVideoElement).style.display = 'none';
             }}
           >
-            <source src="/hero-video.mp4" type="video/mp4" />
-            <source src="https://storage.coverr.co/videos/coverr-office-documents-and-paperwork-5361/preview" type="video/mp4" />
+            <source src="https://stream.mux.com/maver7qtAkM1D851kcQFFmj01BcWGYFlrIB8tlSDLHRA/high.mp4" type="video/mp4" />
           </video>
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-gradient-to-br from-scanvault-black/90 via-gray-900/85 to-scanvault-red/80"></div>
