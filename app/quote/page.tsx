@@ -164,9 +164,9 @@ export default function Quote() {
                   Our team is ready to answer any questions you may have about our services.
                 </p>
                 <div className="space-y-3 text-sm">
-                  <p><strong>Phone:</strong> 0333 555 100</p>
-                  <p><strong>Email:</strong> info@scanvault.com</p>
-                  <p><strong>Hours:</strong> Mon-Fri, 6am-6pm</p>
+                  <p><strong>Phone:</strong> +44 7359 969266</p>
+                  <p><strong>Email:</strong> info@scanvault.co.uk</p>
+                  <p><strong>Hours:</strong> Mon-Fri, 9am-5pm</p>
                 </div>
               </div>
             </div>

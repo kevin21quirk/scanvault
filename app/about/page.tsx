@@ -101,7 +101,7 @@ export default function About() {
             <p className="text-lg mb-8 opacity-90">
               Join the many organisations that trust ScanVault with their most important documents.
             </p>
-            <a href="mailto:info@scanvault.com" className="inline-block bg-white text-scanvault-red px-8 py-3 rounded-md font-semibold hover:bg-gray-100 transition-colors">
+            <a href="mailto:info@scanvault.co.uk" className="inline-block bg-white text-scanvault-red px-8 py-3 rounded-md font-semibold hover:bg-gray-100 transition-colors">
               Contact Us Today
             </a>
           </div>
