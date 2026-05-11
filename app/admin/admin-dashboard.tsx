@@ -277,6 +277,25 @@ export default function AdminDashboard() {
 
   const clientUsers = users.filter(u => u.role === "CLIENT");
 
+  // Calculate overdue invoices
+  const overdueInvoices = invoices.filter(invoice => {
+    if (invoice.status === 'PAID' || invoice.status === 'CANCELLED') return false;
+    const dueDate = new Date(invoice.dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    dueDate.setHours(0, 0, 0, 0);
+    return dueDate < today;
+  });
+
+  // Auto-update overdue invoices status
+  useEffect(() => {
+    overdueInvoices.forEach(invoice => {
+      if (invoice.status !== 'OVERDUE') {
+        handleStatusChange(invoice.id, 'OVERDUE');
+      }
+    });
+  }, [invoices]);
+
   return (
     <div className="space-y-6">
       <Tabs defaultValue="overview">
@@ -284,6 +303,14 @@ export default function AdminDashboard() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="invoices">Invoices</TabsTrigger>
+          <TabsTrigger value="overdue" className="relative">
+            Overdue
+            {overdueInvoices.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {overdueInvoices.length}
+              </span>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="receipts">Receipts</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
@@ -307,7 +334,13 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{invoices.length}</div>
-                <p className="text-xs text-muted-foreground">Total invoices issued</p>
+                <p className="text-xs text-muted-foreground">
+                  {overdueInvoices.length > 0 ? (
+                    <span className="text-red-600 font-semibold">{overdueInvoices.length} overdue</span>
+                  ) : (
+                    "All up to date"
+                  )}
+                </p>
               </CardContent>
             </Card>
             <Card>
@@ -535,6 +568,88 @@ export default function AdminDashboard() {
               </Card>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="overdue" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-red-600">Overdue Invoices</h2>
+              <p className="text-sm text-gray-600 mt-1">Invoices past their due date that require attention</p>
+            </div>
+            {overdueInvoices.length > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+                <p className="text-red-700 font-semibold">{overdueInvoices.length} Overdue Invoice{overdueInvoices.length !== 1 ? 's' : ''}</p>
+              </div>
+            )}
+          </div>
+          <Card>
+            <CardContent className="pt-6">
+              {overdueInvoices.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <p className="text-lg font-semibold text-green-600">No overdue invoices!</p>
+                  <p className="text-sm mt-2">All invoices are up to date</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {overdueInvoices.map((invoice) => {
+                    const dueDate = new Date(invoice.dueDate);
+                    const today = new Date();
+                    const daysOverdue = Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+                    
+                    return (
+                      <div key={invoice.id} className="border-2 border-red-200 bg-red-50 rounded-lg p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-lg">{invoice.invoiceNumber}</p>
+                              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                {daysOverdue} day{daysOverdue !== 1 ? 's' : ''} overdue
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-700 mt-1">{invoice.user.email}</p>
+                            <p className="text-sm text-gray-600">{invoice.description}</p>
+                            <div className="mt-2 text-xs text-gray-600">
+                              <p>Due Date: <span className="font-semibold text-red-600">{new Date(invoice.dueDate).toLocaleDateString('en-GB')}</span></p>
+                              <p className="mt-1">Subtotal: £{invoice.subtotal.toFixed(2)}</p>
+                              <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
+                            </div>
+                          </div>
+                          <div className="text-right flex flex-col items-end gap-2">
+                            <div>
+                              <p className="font-bold text-xl text-red-700">£{invoice.total.toFixed(2)}</p>
+                              <div className="mt-1">
+                                <select
+                                  value={invoice.status}
+                                  onChange={(e) => handleStatusChange(invoice.id, e.target.value)}
+                                  disabled={updatingStatus === invoice.id}
+                                  className="text-sm px-2 py-1 border rounded bg-red-100 text-red-700 border-red-300"
+                                >
+                                  <option value="PENDING">Pending</option>
+                                  <option value="PAID">Paid</option>
+                                  <option value="OVERDUE">Overdue</option>
+                                  <option value="CANCELLED">Cancelled</option>
+                                </select>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-300 text-red-700 hover:bg-red-100"
+                              onClick={() => window.open(`/api/invoices/${invoice.id}/download`, '_blank')}
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download PDF
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="receipts" className="space-y-4">
