@@ -54,11 +54,11 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { userId, invoiceNumber, amount, description, issueDate, dueDate } = body;
+    const { userId, invoiceNumber, subtotal, vatRate, description, items, issueDate, dueDate, notes } = body;
 
-    if (!userId || !invoiceNumber || !amount || !description || !issueDate || !dueDate) {
+    if (!userId || !invoiceNumber || !subtotal || !description || !issueDate || !dueDate) {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: "All required fields must be provided" },
         { status: 400 }
       );
     }
@@ -75,14 +75,25 @@ export async function POST(request: Request) {
       );
     }
 
+    // Calculate VAT
+    const subtotalAmount = parseFloat(subtotal);
+    const vat = parseFloat(vatRate || "20.0");
+    const vatAmount = (subtotalAmount * vat) / 100;
+    const total = subtotalAmount + vatAmount;
+
     const invoice = await prisma.invoice.create({
       data: {
         userId,
         invoiceNumber,
-        amount: parseFloat(amount),
+        subtotal: subtotalAmount,
+        vatRate: vat,
+        vatAmount,
+        total,
         description,
+        items: items || null,
         issueDate: new Date(issueDate),
         dueDate: new Date(dueDate),
+        notes: notes || null,
         status: "PENDING",
       },
       include: {
@@ -90,6 +101,7 @@ export async function POST(request: Request) {
           select: {
             email: true,
             name: true,
+            companyName: true,
           },
         },
       },

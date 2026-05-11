@@ -27,13 +27,18 @@ model Invoice {
   invoiceNumber String    @unique
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount        Float
+  subtotal      Float
+  vatRate       Float     @default(20.0)
+  vatAmount     Float
+  total         Float
   description   String
+  items         Json?
   status        InvoiceStatus @default(PENDING)
   issueDate     DateTime
   dueDate       DateTime
   paidDate      DateTime?
   fileUrl       String?
+  notes         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   

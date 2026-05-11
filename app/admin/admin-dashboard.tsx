@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Edit, Loader2 } from "lucide-react";
+import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Edit, Loader2, Download } from "lucide-react";
 
 interface User {
   id: string;
@@ -19,11 +19,15 @@ interface User {
 interface Invoice {
   id: string;
   invoiceNumber: string;
-  amount: number;
+  subtotal: number;
+  vatRate: number;
+  vatAmount: number;
+  total: number;
   description: string;
   issueDate: string;
   dueDate: string;
   status: string;
+  notes: string | null;
   user: { email: string; name: string | null };
 }
 
@@ -60,7 +64,7 @@ export default function AdminDashboard() {
   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
   const [userForm, setUserForm] = useState({ name: "", email: "", password: "", role: "CLIENT", companyName: "" });
-  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", amount: "", description: "", issueDate: "", dueDate: "" });
+  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", subtotal: "", vatRate: "20", description: "", issueDate: "", dueDate: "", notes: "" });
   const [receiptForm, setReceiptForm] = useState({ userId: "", receiptNumber: "", amount: "", description: "", paymentMethod: "Bank Transfer", date: "" });
   const [documentForm, setDocumentForm] = useState({ userId: "", title: "", description: "", category: "OTHER", fileUrl: "" });
 
@@ -132,7 +136,7 @@ export default function AdminDashboard() {
         const newInvoice = await res.json();
         setInvoices([newInvoice, ...invoices]);
         setShowInvoiceModal(false);
-        setInvoiceForm({ userId: "", invoiceNumber: "", amount: "", description: "", issueDate: "", dueDate: "" });
+        setInvoiceForm({ userId: "", invoiceNumber: "", subtotal: "", vatRate: "20", description: "", issueDate: "", dueDate: "", notes: "" });
         alert("Invoice created successfully!");
       } else {
         const error = await res.json();
@@ -368,14 +372,28 @@ export default function AdminDashboard() {
                   {invoices.map((invoice) => (
                     <div key={invoice.id} className="border rounded-lg p-4">
                       <div className="flex justify-between items-start">
-                        <div>
+                        <div className="flex-1">
                           <p className="font-semibold">{invoice.invoiceNumber}</p>
                           <p className="text-sm text-gray-600">{invoice.user.email}</p>
                           <p className="text-sm text-gray-600">{invoice.description}</p>
+                          <div className="mt-2 text-xs text-gray-500">
+                            <p>Subtotal: £{invoice.subtotal.toFixed(2)}</p>
+                            <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold text-lg">£{invoice.amount.toFixed(2)}</p>
-                          <p className="text-sm text-gray-600">{invoice.status}</p>
+                        <div className="text-right flex flex-col items-end gap-2">
+                          <div>
+                            <p className="font-bold text-lg">£{invoice.total.toFixed(2)}</p>
+                            <p className="text-sm text-gray-600">{invoice.status}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(`/api/invoices/${invoice.id}/download`, '_blank')}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download PDF
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -423,9 +441,19 @@ export default function AdminDashboard() {
                       <Label htmlFor="description">Description *</Label>
                       <textarea id="description" required className="w-full px-3 py-2 border rounded-md" rows={3} value={invoiceForm.description} onChange={(e) => setInvoiceForm({...invoiceForm, description: e.target.value})} placeholder="Service description..."></textarea>
                     </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="subtotal">Subtotal (£) *</Label>
+                        <Input id="subtotal" type="number" step="0.01" required value={invoiceForm.subtotal} onChange={(e) => setInvoiceForm({...invoiceForm, subtotal: e.target.value})} placeholder="0.00" />
+                      </div>
+                      <div>
+                        <Label htmlFor="vatRate">VAT Rate (%) *</Label>
+                        <Input id="vatRate" type="number" step="0.01" required value={invoiceForm.vatRate} onChange={(e) => setInvoiceForm({...invoiceForm, vatRate: e.target.value})} placeholder="20" />
+                      </div>
+                    </div>
                     <div>
-                      <Label htmlFor="amount">Amount (£) *</Label>
-                      <Input id="amount" type="number" step="0.01" required value={invoiceForm.amount} onChange={(e) => setInvoiceForm({...invoiceForm, amount: e.target.value})} placeholder="0.00" />
+                      <Label htmlFor="notes">Notes (Optional)</Label>
+                      <textarea id="notes" className="w-full px-3 py-2 border rounded-md" rows={2} value={invoiceForm.notes} onChange={(e) => setInvoiceForm({...invoiceForm, notes: e.target.value})} placeholder="Additional notes..."></textarea>
                     </div>
                     <div className="flex gap-2 justify-end">
                       <Button type="button" variant="outline" onClick={() => setShowInvoiceModal(false)}>Cancel</Button>
