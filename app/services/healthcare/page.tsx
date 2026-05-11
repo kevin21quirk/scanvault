@@ -29,7 +29,7 @@ export default function Healthcare() {
               <div>
                 <h2 className="text-3xl font-bold text-scanvault-black mb-6">Healthcare Document Management</h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Specialized document management solutions for the healthcare industry. We understand the unique 
+                  Specialised document management solutions for the healthcare industry. We understand the unique 
                   challenges of managing patient records, medical charts, and healthcare documentation while 
                   maintaining strict HIPAA compliance.
                 </p>
@@ -104,7 +104,7 @@ export default function Healthcare() {
             </div>
 
             <div className="bg-scanvault-red text-white p-12 rounded-lg text-center">
-              <h2 className="text-3xl font-bold mb-4">Modernize Your Healthcare Records</h2>
+              <h2 className="text-3xl font-bold mb-4">Modernise Your Healthcare Records</h2>
               <p className="text-xl mb-8 text-white/90">
                 Secure, compliant document management for healthcare providers.
               </p>

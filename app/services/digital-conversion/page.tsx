@@ -103,7 +103,7 @@ export default function DigitalConversion() {
             </div>
 
             <div className="bg-scanvault-red text-white p-12 rounded-lg text-center">
-              <h2 className="text-3xl font-bold mb-4">Modernize Your Archives</h2>
+              <h2 className="text-3xl font-bold mb-4">Modernise Your Archives</h2>
               <p className="text-xl mb-8 text-white/90">
                 Contact us for a free assessment of your digital conversion needs.
               </p>

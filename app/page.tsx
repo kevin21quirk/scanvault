@@ -321,7 +321,7 @@ export default function Home() {
               </div>
               <h3 className="text-3xl font-bold text-scanvault-black mb-4 group-hover:text-scanvault-red transition-colors">Smart Workflows</h3>
               <p className="text-gray-600 leading-relaxed text-lg">
-                Intelligent categorization and AI-powered workflow systems for seamless access and management.
+                Intelligent categorisation and AI-powered workflow systems for seamless access and management.
               </p>
             </div>
           </div>

@@ -79,7 +79,7 @@ export default function Government() {
                 </div>
                 <h3 className="text-xl font-bold text-scanvault-black mb-3">Public Sector Expertise</h3>
                 <p className="text-gray-600">
-                  Specialized knowledge of government requirements.
+                  Specialised knowledge of government requirements.
                 </p>
               </div>
               <div className="text-center p-6">
@@ -103,7 +103,7 @@ export default function Government() {
             </div>
 
             <div className="bg-scanvault-red text-white p-12 rounded-lg text-center">
-              <h2 className="text-3xl font-bold mb-4">Modernize Government Records</h2>
+              <h2 className="text-3xl font-bold mb-4">Modernise Government Records</h2>
               <p className="text-xl mb-8 text-white/90">
                 Secure, compliant document management for the public sector.
               </p>

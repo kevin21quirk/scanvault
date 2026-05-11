@@ -29,7 +29,7 @@ export default function Finance() {
               <div>
                 <h2 className="text-3xl font-bold text-scanvault-black mb-6">Financial Document Management</h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Specialized solutions for the financial services industry. We handle loan documents, account records, 
+                  Specialised solutions for the financial services industry. We handle loan documents, account records, 
                   compliance documentation, and all financial paperwork with bank-level security.
                 </p>
                 <p className="text-gray-600 mb-6 leading-relaxed">

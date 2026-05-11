@@ -72,7 +72,7 @@ export function Navbar() {
                           </ul>
                         </div>
                         <div>
-                          <h3 className="font-bold text-scanvault-black mb-4 text-base">Specialized Solutions</h3>
+                          <h3 className="font-bold text-scanvault-black mb-4 text-base">Specialised Solutions</h3>
                           <ul className="space-y-3">
                             <li><Link href="/services/hr-records" className="text-sm text-gray-600 hover:text-scanvault-red block py-1">HR Records Management</Link></li>
                             <li><Link href="/services/financial-documents" className="text-sm text-gray-600 hover:text-scanvault-red block py-1">Financial Documents</Link></li>

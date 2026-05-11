@@ -29,7 +29,7 @@ export default function FinancialDocuments() {
               <div>
                 <h2 className="text-3xl font-bold text-scanvault-black mb-6">Financial Records Digitalisation</h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Transform your financial document management with our specialized services. We handle invoices, receipts, 
+                  Transform your financial document management with our specialised services. We handle invoices, receipts, 
                   bank statements, tax records, and all accounting documentation with the highest security standards.
                 </p>
                 <p className="text-gray-600 mb-6 leading-relaxed">
@@ -103,7 +103,7 @@ export default function FinancialDocuments() {
             </div>
 
             <div className="bg-scanvault-red text-white p-12 rounded-lg text-center">
-              <h2 className="text-3xl font-bold mb-4">Modernize Your Financial Records</h2>
+              <h2 className="text-3xl font-bold mb-4">Modernise Your Financial Records</h2>
               <p className="text-xl mb-8 text-white/90">
                 Get started with secure financial document management today.
               </p>

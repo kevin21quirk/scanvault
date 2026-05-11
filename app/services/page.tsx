@@ -116,7 +116,7 @@ export default function Services() {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-gray-600">
-                  <li>• Custom categorization systems</li>
+                  <li>• Custom categorisation systems</li>
                   <li>• Advanced search capabilities</li>
                   <li>• Access control and permissions</li>
                   <li>• Integration with existing systems</li>
@@ -158,7 +158,7 @@ export default function Services() {
                 </div>
                 <h3 className="font-semibold text-scanvault-black mb-2">Organisation</h3>
                 <p className="text-gray-600 text-sm">
-                  Intelligent categorization and workflow setup.
+                  Intelligent categorisation and workflow setup.
                 </p>
               </div>
               <div>

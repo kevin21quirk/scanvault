@@ -29,7 +29,7 @@ export default function Legal() {
               <div>
                 <h2 className="text-3xl font-bold text-scanvault-black mb-6">Legal Document Management</h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Specialized solutions for the legal industry. We handle case files, contracts, court documents, 
+                  Specialised solutions for the legal industry. We handle case files, contracts, court documents, 
                   and legal correspondence with the highest security and confidentiality standards.
                 </p>
                 <p className="text-gray-600 mb-6 leading-relaxed">
