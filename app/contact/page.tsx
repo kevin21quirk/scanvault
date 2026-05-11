@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -114,8 +114,8 @@ export default function Contact() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-scanvault-black mb-1">Phone</h4>
-                      <p className="text-gray-600">0333 555 100</p>
-                      <p className="text-sm text-gray-500">Mon-Fri, 6am-6pm</p>
+                      <p className="text-gray-600">+44 7359 969266</p>
+                      <p className="text-sm text-gray-500">Mon-Fri, 9am-5pm</p>
                     </div>
                   </div>
 
@@ -125,37 +125,11 @@ export default function Contact() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-scanvault-black mb-1">Email</h4>
-                      <p className="text-gray-600">info@scanvault.com</p>
+                      <p className="text-gray-600">info@scanvault.co.uk</p>
                       <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-scanvault-red/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <MapPin className="h-6 w-6 text-scanvault-red" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-scanvault-black mb-1">Address</h4>
-                      <p className="text-gray-600">
-                        ScanVault Headquarters<br />
-                        123 Business Park<br />
-                        London, UK
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-scanvault-red/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Clock className="h-6 w-6 text-scanvault-red" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-scanvault-black mb-1">Business Hours</h4>
-                      <p className="text-gray-600">
-                        Monday - Friday: 6:00 AM - 6:00 PM<br />
-                        Saturday - Sunday: Closed
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
 
