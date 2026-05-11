@@ -271,16 +271,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
-            <div className="text-center py-16">
-              <h3 className="text-3xl font-bold text-scanvault-black mb-6">Ready to Transform Your Archives?</h3>
-              <Link href="/services">
-                <Button size="lg" className="bg-gradient-to-r from-scanvault-red to-red-600 hover:from-red-700 hover:to-red-800 text-white px-12 py-6 text-lg rounded-full shadow-2xl hover:shadow-red-500/50 transition-all duration-300 hover:scale-105">
-                  Explore All Services
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
           </div>
         </div>
       </section>
