@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Phone, ChevronDown } from "lucide-react";
+import { LogOut, User, Phone, ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 export function Navbar() {
   const { data: session } = useSession();
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
 
   return (
     <>
@@ -16,15 +18,15 @@ export function Navbar() {
       <div className="bg-scanvault-black text-white py-2">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                <span className="font-semibold">+44 7359 969266</span>
+                <span className="font-semibold text-xs sm:text-sm">+44 7359 969266</span>
               </div>
-              <span className="text-gray-400">Total Information Management</span>
+              <span className="text-gray-400 hidden md:inline">Total Information Management</span>
             </div>
             <Link href="/quote">
-              <Button size="sm" className="bg-yellow-500 hover:bg-yellow-600 text-scanvault-black font-bold">
+              <Button size="sm" className="bg-yellow-500 hover:bg-yellow-600 text-scanvault-black font-bold text-xs sm:text-sm px-2 sm:px-4">
                 FREE Quick Quote
               </Button>
             </Link>
@@ -37,12 +39,22 @@ export function Navbar() {
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold text-scanvault-black">
+              <span className="text-xl sm:text-2xl font-bold text-scanvault-black">
                 Scan<span className="text-scanvault-red">Vault</span>
               </span>
             </Link>
 
-            <div className="flex items-center space-x-8">
+            {/* Hamburger Menu Button - Mobile Only */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 text-scanvault-black hover:text-scanvault-red transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-8">
               <Link href="/" className="text-sm font-medium text-scanvault-black hover:text-scanvault-red transition-colors">
                 Home
               </Link>
@@ -136,6 +148,129 @@ export function Navbar() {
               )}
             </div>
           </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden border-t border-gray-200 py-4">
+              <div className="flex flex-col space-y-4">
+                <Link 
+                  href="/" 
+                  className="text-base font-medium text-scanvault-black hover:text-scanvault-red transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Home
+                </Link>
+
+                {/* Mobile Services Accordion */}
+                <div>
+                  <button
+                    onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                    className="w-full flex items-center justify-between text-base font-medium text-scanvault-black hover:text-scanvault-red transition-colors px-2 py-2"
+                  >
+                    Services
+                    <ChevronDown className={`h-4 w-4 transition-transform ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {mobileServicesOpen && (
+                    <div className="mt-2 ml-4 space-y-3 pb-3">
+                      <div>
+                        <h4 className="text-sm font-semibold text-scanvault-black mb-2">Document Services</h4>
+                        <div className="space-y-2">
+                          <Link href="/services/document-scanning" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Document Scanning</Link>
+                          <Link href="/services/document-archiving" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Document Archiving</Link>
+                          <Link href="/services/digital-conversion" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Digital Conversion</Link>
+                          <Link href="/services/data-capture" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Data Capture</Link>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="text-sm font-semibold text-scanvault-black mb-2">Specialised Solutions</h4>
+                        <div className="space-y-2">
+                          <Link href="/services/hr-records" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>HR Records Management</Link>
+                          <Link href="/services/financial-documents" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Financial Documents</Link>
+                          <Link href="/services/client-records" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Client Records</Link>
+                          <Link href="/services/compliance" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Compliance Solutions</Link>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="text-sm font-semibold text-scanvault-black mb-2">Industries</h4>
+                        <div className="space-y-2">
+                          <Link href="/services/healthcare" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Healthcare</Link>
+                          <Link href="/services/legal" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Legal</Link>
+                          <Link href="/services/finance" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Finance</Link>
+                          <Link href="/services/government" className="block text-sm text-gray-600 hover:text-scanvault-red py-1" onClick={() => setMobileMenuOpen(false)}>Government</Link>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <Link 
+                  href="/about" 
+                  className="text-base font-medium text-scanvault-black hover:text-scanvault-red transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About Us
+                </Link>
+
+                <Link 
+                  href="/services" 
+                  className="text-base font-medium text-scanvault-black hover:text-scanvault-red transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Resources
+                </Link>
+
+                <Link 
+                  href="/contact" 
+                  className="text-base font-medium text-scanvault-black hover:text-scanvault-red transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Contact Us
+                </Link>
+
+                {session ? (
+                  <>
+                    <Link 
+                      href="/portal" 
+                      className="text-base font-medium text-scanvault-black hover:text-scanvault-red transition-colors px-2 py-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Portal
+                    </Link>
+                    {session.user.role === "ADMIN" && (
+                      <Link 
+                        href="/admin" 
+                        className="text-base font-medium text-scanvault-black hover:text-scanvault-red transition-colors px-2 py-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Admin
+                      </Link>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        signOut();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="border-scanvault-red text-scanvault-red hover:bg-scanvault-red hover:text-white mx-2"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <Link href="/login" className="mx-2" onClick={() => setMobileMenuOpen(false)}>
+                    <Button size="sm" className="w-full bg-scanvault-red hover:bg-red-700 text-white font-semibold">
+                      Client Login
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </nav>
     </>
