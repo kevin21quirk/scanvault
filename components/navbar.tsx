@@ -43,6 +43,10 @@ export function Navbar() {
             </Link>
 
             <div className="flex items-center space-x-8">
+              <Link href="/" className="text-sm font-medium text-scanvault-black hover:text-scanvault-red transition-colors">
+                Home
+              </Link>
+
               {/* Services Mega Menu */}
               <div 
                 className="relative group"
