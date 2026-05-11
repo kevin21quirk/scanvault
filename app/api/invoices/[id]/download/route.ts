@@ -99,10 +99,18 @@ export async function GET(
       head: [['Description', 'Quantity', 'Rate', 'Amount']],
       body: tableData,
       theme: 'striped',
-      headStyles: { fillColor: [220, 38, 38], textColor: 255 },
-      styles: { fontSize: 10 },
+      headStyles: { 
+        fillColor: [220, 38, 38], 
+        textColor: 255,
+        fontSize: 10,
+        fontStyle: 'bold'
+      },
+      styles: { 
+        fontSize: 10,
+        cellPadding: 3
+      },
       columnStyles: {
-        0: { cellWidth: 90 },
+        0: { cellWidth: 90, halign: 'left' },
         1: { cellWidth: 30, halign: 'center' },
         2: { cellWidth: 35, halign: 'right' },
         3: { cellWidth: 35, halign: 'right' }

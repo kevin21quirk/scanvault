@@ -74,6 +74,23 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
+  const fetchNextInvoiceNumber = async () => {
+    try {
+      const res = await fetch("/api/invoices/next-number");
+      if (res.ok) {
+        const data = await res.json();
+        setInvoiceForm(prev => ({ ...prev, invoiceNumber: data.invoiceNumber }));
+      }
+    } catch (error) {
+      console.error("Error fetching next invoice number:", error);
+    }
+  };
+
+  const handleOpenInvoiceModal = () => {
+    setShowInvoiceModal(true);
+    fetchNextInvoiceNumber();
+  };
+
   const fetchData = async () => {
     try {
       const [usersRes, invoicesRes, receiptsRes, documentsRes] = await Promise.all([
@@ -355,7 +372,7 @@ export default function AdminDashboard() {
         <TabsContent value="invoices" className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">Invoice Management</h2>
-            <Button onClick={() => setShowInvoiceModal(true)} className="bg-scanvault-red hover:bg-red-700">
+            <Button onClick={handleOpenInvoiceModal} className="bg-scanvault-red hover:bg-red-700">
               <Plus className="h-4 w-4 mr-2" />
               Create Invoice
             </Button>
@@ -423,8 +440,8 @@ export default function AdminDashboard() {
                         </select>
                       </div>
                       <div>
-                        <Label htmlFor="invoiceNumber">Invoice Number *</Label>
-                        <Input id="invoiceNumber" required value={invoiceForm.invoiceNumber} onChange={(e) => setInvoiceForm({...invoiceForm, invoiceNumber: e.target.value})} placeholder="INV-001" />
+                        <Label htmlFor="invoiceNumber">Invoice Number (Auto-generated)</Label>
+                        <Input id="invoiceNumber" required value={invoiceForm.invoiceNumber} readOnly className="bg-gray-50" placeholder="Loading..." />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
