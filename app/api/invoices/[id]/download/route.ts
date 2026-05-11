@@ -47,9 +47,13 @@ export async function GET(
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0); // Black
-    doc.text("Scan", 20, 20);
+    const scanText = "Scan";
+    doc.text(scanText, 20, 20);
+    
+    // Calculate width of "Scan" to position "Vault" right next to it
+    const scanWidth = doc.getTextWidth(scanText);
     doc.setTextColor(220, 38, 38); // Red
-    doc.text("Vault", 47, 20);
+    doc.text("Vault", 20 + scanWidth, 20);
     
     doc.setTextColor(0, 0, 0); // Reset to black
     doc.setFontSize(10);
