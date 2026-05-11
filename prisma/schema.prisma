@@ -47,6 +47,7 @@ model Receipt {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   amount        Float
   description   String
+  paymentMethod String    @default("Bank Transfer")
   date          DateTime
   fileUrl       String?
   createdAt     DateTime  @default(now())
