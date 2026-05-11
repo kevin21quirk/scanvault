@@ -10,6 +10,11 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "ScanVault - Professional Archiving & Digitalisation Solutions",
   description: "Transform your paper archives into organized digital workflows. Expert solutions for HR, Admin, Client Records, and more.",
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
