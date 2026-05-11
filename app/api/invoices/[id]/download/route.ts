@@ -43,11 +43,15 @@ export async function GET(
     // Generate PDF
     const doc = new jsPDF();
     
-    // Company Header
+    // Company Header - "Scan" in black, "Vault" in red
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    doc.text("ScanVault", 20, 20);
+    doc.setTextColor(0, 0, 0); // Black
+    doc.text("Scan", 20, 20);
+    doc.setTextColor(220, 38, 38); // Red
+    doc.text("Vault", 42, 20);
     
+    doc.setTextColor(0, 0, 0); // Reset to black
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text("Document Management Solutions", 20, 27);
@@ -87,12 +91,18 @@ export async function GET(
       { description: invoice.description, quantity: 1, rate: invoice.subtotal }
     ];
     
-    const tableData = items.map((item: any) => [
-      item.description || invoice.description,
-      item.quantity || 1,
-      `£${(item.rate || invoice.subtotal).toFixed(2)}`,
-      `£${((item.quantity || 1) * (item.rate || invoice.subtotal)).toFixed(2)}`
-    ]);
+    const tableData = items.map((item: any) => {
+      const qty = item.quantity || 1;
+      const rate = item.rate || invoice.subtotal;
+      const amount = qty * rate;
+      
+      return [
+        String(item.description || invoice.description),
+        String(qty),
+        `£${rate.toFixed(2)}`,
+        `£${amount.toFixed(2)}`
+      ];
+    });
     
     autoTable(doc, {
       startY: 80,
