@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2, X } from "lucide-react";
+import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2, X, Info } from "lucide-react";
 import { useState, useEffect } from "react";
 import MuxPlayer from "@mux/mux-player-react";
 
@@ -443,7 +443,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {/* Scan to SharePoint */}
-            <div onClick={() => setSelectedService('sharepoint')} className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
               <div className="w-16 h-16 bg-gradient-to-br from-scanvault-red to-red-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Share2 className="h-8 w-8 text-white" />
               </div>
@@ -465,10 +465,17 @@ export default function Home() {
                   <span>Metadata tagging included</span>
                 </li>
               </ul>
+              <button
+                onClick={() => setSelectedService('sharepoint')}
+                className="mt-6 w-full bg-scanvault-red hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 group-hover:shadow-lg"
+              >
+                <Info className="h-5 w-5" />
+                More Info
+              </button>
             </div>
 
             {/* Scan to Cloud */}
-            <div onClick={() => setSelectedService('cloud')} className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Cloud className="h-8 w-8 text-white" />
               </div>
@@ -490,10 +497,17 @@ export default function Home() {
                   <span>Automatic synchronization</span>
                 </li>
               </ul>
+              <button
+                onClick={() => setSelectedService('cloud')}
+                className="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 group-hover:shadow-lg"
+              >
+                <Info className="h-5 w-5" />
+                More Info
+              </button>
             </div>
 
             {/* Bespoke Platform */}
-            <div onClick={() => setSelectedService('platform')} className="group bg-gradient-to-br from-scanvault-red to-red-600 text-white rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden cursor-pointer">
+            <div className="group bg-gradient-to-br from-scanvault-red to-red-600 text-white rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
               <div className="relative">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -521,11 +535,18 @@ export default function Home() {
                     <span>Advanced analytics</span>
                   </li>
                 </ul>
+                <button
+                  onClick={() => setSelectedService('platform')}
+                  className="mt-6 w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300"
+                >
+                  <Info className="h-5 w-5" />
+                  More Info
+                </button>
               </div>
             </div>
 
             {/* Secure Shredding */}
-            <div onClick={() => setSelectedService('shredding')} className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
               <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Trash2 className="h-8 w-8 text-white" />
               </div>
@@ -547,10 +568,17 @@ export default function Home() {
                   <span>Eco-friendly recycling</span>
                 </li>
               </ul>
+              <button
+                onClick={() => setSelectedService('shredding')}
+                className="mt-6 w-full bg-gray-700 hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 group-hover:shadow-lg"
+              >
+                <Info className="h-5 w-5" />
+                More Info
+              </button>
             </div>
 
             {/* Certificate of Destruction */}
-            <div onClick={() => setSelectedService('certificate')} className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
               <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <FileCheck className="h-8 w-8 text-white" />
               </div>
@@ -572,10 +600,17 @@ export default function Home() {
                   <span>Digital certificate delivery</span>
                 </li>
               </ul>
+              <button
+                onClick={() => setSelectedService('certificate')}
+                className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 group-hover:shadow-lg"
+              >
+                <Info className="h-5 w-5" />
+                More Info
+              </button>
             </div>
 
             {/* Risk Assessment */}
-            <div onClick={() => setSelectedService('assessment')} className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
               <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <ClipboardCheck className="h-8 w-8 text-white" />
               </div>
@@ -597,6 +632,13 @@ export default function Home() {
                   <span>Signed documentation</span>
                 </li>
               </ul>
+              <button
+                onClick={() => setSelectedService('assessment')}
+                className="mt-6 w-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 group-hover:shadow-lg"
+              >
+                <Info className="h-5 w-5" />
+                More Info
+              </button>
             </div>
           </div>
 
