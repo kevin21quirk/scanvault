@@ -69,6 +69,7 @@ export default function AdminDashboard() {
   const [documentForm, setDocumentForm] = useState({ userId: "", title: "", description: "", category: "OTHER", fileUrl: "" });
 
   const [submitting, setSubmitting] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -164,6 +165,41 @@ export default function AdminDashboard() {
       alert("Failed to create invoice");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleStatusChange = async (invoiceId: string, newStatus: string) => {
+    setUpdatingStatus(invoiceId);
+    try {
+      const res = await fetch(`/api/invoices/${invoiceId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        
+        // Update invoice in state
+        setInvoices(invoices.map(inv => 
+          inv.id === invoiceId ? data.invoice : inv
+        ));
+
+        // If receipt was generated, add it to receipts list
+        if (data.receipt) {
+          setReceipts([data.receipt, ...receipts]);
+        }
+
+        alert(data.message);
+      } else {
+        const error = await res.json();
+        alert(error.error || "Failed to update status");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("Failed to update status");
+    } finally {
+      setUpdatingStatus(null);
     }
   };
 
@@ -401,7 +437,23 @@ export default function AdminDashboard() {
                         <div className="text-right flex flex-col items-end gap-2">
                           <div>
                             <p className="font-bold text-lg">£{invoice.total.toFixed(2)}</p>
-                            <p className="text-sm text-gray-600">{invoice.status}</p>
+                            <div className="mt-1">
+                              <select
+                                value={invoice.status}
+                                onChange={(e) => handleStatusChange(invoice.id, e.target.value)}
+                                disabled={updatingStatus === invoice.id}
+                                className={`text-sm px-2 py-1 border rounded ${
+                                  invoice.status === 'PAID' ? 'bg-green-50 text-green-700 border-green-300' :
+                                  invoice.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-300' :
+                                  'bg-red-50 text-red-700 border-red-300'
+                                }`}
+                              >
+                                <option value="PENDING">Pending</option>
+                                <option value="PAID">Paid</option>
+                                <option value="OVERDUE">Overdue</option>
+                                <option value="CANCELLED">Cancelled</option>
+                              </select>
+                            </div>
                           </div>
                           <Button
                             size="sm"
