@@ -49,7 +49,7 @@ export async function GET(
     doc.setTextColor(0, 0, 0); // Black
     doc.text("Scan", 20, 20);
     doc.setTextColor(220, 38, 38); // Red
-    doc.text("Vault", 42, 20);
+    doc.text("Vault", 47, 20);
     
     doc.setTextColor(0, 0, 0); // Reset to black
     doc.setFontSize(10);
@@ -108,17 +108,26 @@ export async function GET(
       startY: 80,
       head: [['Description', 'Quantity', 'Rate', 'Amount']],
       body: tableData,
-      theme: 'striped',
+      theme: 'plain',
       headStyles: { 
         fillColor: [220, 38, 38], 
         textColor: 255,
         fontSize: 10,
         fontStyle: 'bold',
-        halign: 'left'
+        lineWidth: 0,
+        lineColor: [220, 38, 38]
+      },
+      bodyStyles: {
+        lineWidth: 0.1,
+        lineColor: [200, 200, 200]
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245]
       },
       styles: { 
         fontSize: 10,
-        cellPadding: 3
+        cellPadding: 3,
+        overflow: 'linebreak'
       },
       columnStyles: {
         0: { cellWidth: 90, halign: 'left' },
@@ -126,13 +135,15 @@ export async function GET(
         2: { cellWidth: 35, halign: 'right' },
         3: { cellWidth: 35, halign: 'right' }
       },
-      didDrawCell: (data: any) => {
-        // Align headers to match body columns
+      didParseCell: (data: any) => {
+        // Force header alignment to match body
         if (data.section === 'head') {
           if (data.column.index === 1) {
             data.cell.styles.halign = 'center';
           } else if (data.column.index === 2 || data.column.index === 3) {
             data.cell.styles.halign = 'right';
+          } else {
+            data.cell.styles.halign = 'left';
           }
         }
       }
