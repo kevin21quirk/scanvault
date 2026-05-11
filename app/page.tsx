@@ -28,24 +28,29 @@ export default function Home() {
     <div className="flex flex-col overflow-hidden">
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-scanvault-black via-gray-900 to-scanvault-red">
         {/* Background Video */}
-        <div className="absolute inset-0 w-full h-full">
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
           <MuxPlayer
             playbackId="maver7qtAkM1D851kcQFFmj01BcWGYFlrIB8tlSDLHRA"
             autoPlay
             loop
             muted
             playsInline
+            streamType="on-demand"
             style={{
               position: 'absolute',
-              inset: 0,
+              top: 0,
+              left: 0,
               width: '100%',
               height: '100%',
               objectFit: 'cover',
               '--controls': 'none',
+              '--media-object-fit': 'cover',
+              '--media-object-position': 'center',
             } as any}
+            className="w-full h-full"
           />
           {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-br from-scanvault-black/90 via-gray-900/85 to-scanvault-red/80 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-scanvault-black/70 via-gray-900/60 to-scanvault-red/50 pointer-events-none"></div>
         </div>
         
         {/* Animated blobs */}

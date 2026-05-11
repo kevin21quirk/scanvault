@@ -85,4 +85,23 @@
   .animation-delay-4000 {
     animation-delay: 4s;
   }
+
+  /* Mux Player background video styling */
+  mux-player {
+    width: 100% !important;
+    height: 100% !important;
+    --controls: none !important;
+  }
+
+  mux-player::part(media) {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  mux-player video {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
 }
