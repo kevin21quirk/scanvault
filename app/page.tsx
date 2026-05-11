@@ -109,9 +109,10 @@ export default function Home() {
     shredding: {
       title: "Secure Shredding",
       image: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=1200&auto=format&fit=crop&q=80",
-      description: "Professional document destruction services with full chain of custody. We handle the shredding so you can focus on your business.",
-      fullDescription: "After digitisation, proper disposal of physical documents is crucial for security and compliance. Our secure shredding service provides complete peace of mind with GDPR-compliant destruction and comprehensive documentation.",
+      description: "Professional document destruction services with full chain of custody and Certificate of Destruction (COD). We handle the shredding so you can focus on your business.",
+      fullDescription: "After digitisation, proper disposal of physical documents is crucial for security and compliance. Our secure shredding service provides complete peace of mind with GDPR-compliant destruction, comprehensive documentation, and a legally binding Certificate of Destruction (COD) for every job.",
       features: [
+        "Certificate of Destruction (COD) provided for every shredding job",
         "On-site and off-site shredding options",
         "Cross-cut and micro-cut shredding methods",
         "Secure collection in locked containers",
@@ -123,6 +124,7 @@ export default function Home() {
         "Eco-friendly recycling of shredded materials"
       ],
       benefits: [
+        "Legal proof of destruction with official COD certificate",
         "Complete data security and privacy protection",
         "Legal compliance with data protection regulations",
         "Environmental responsibility through recycling",
