@@ -287,15 +287,6 @@ export default function AdminDashboard() {
     return dueDate < today;
   });
 
-  // Auto-update overdue invoices status
-  useEffect(() => {
-    overdueInvoices.forEach(invoice => {
-      if (invoice.status !== 'OVERDUE') {
-        handleStatusChange(invoice.id, 'OVERDUE');
-      }
-    });
-  }, [invoices]);
-
   return (
     <div className="space-y-6">
       <Tabs defaultValue="overview">
