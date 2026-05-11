@@ -11,6 +11,7 @@ import MuxPlayer from "@mux/mux-player-react";
 export default function Home() {
   const [scrollY, setScrollY] = useState(0);
   const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,6 +25,14 @@ export default function Home() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleCloseModal = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setSelectedService(null);
+      setIsClosing(false);
+    }, 300); // Match animation duration
+  };
 
   const serviceDetails: Record<string, any> = {
     sharepoint: {
@@ -704,16 +713,16 @@ export default function Home() {
       {/* Service Details Modal */}
       {selectedService && serviceDetails[selectedService] && (
         <div 
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300"
-          onClick={() => setSelectedService(null)}
+          className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 ${isClosing ? 'modal-backdrop-exit' : 'modal-backdrop-enter'}`}
+          onClick={handleCloseModal}
         >
           <div 
-            className="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto relative animate-in zoom-in-95 duration-300"
+            className={`bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto relative ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
-              onClick={() => setSelectedService(null)}
+              onClick={handleCloseModal}
               className="absolute top-6 right-6 z-10 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-scanvault-red hover:text-white transition-all duration-300 shadow-lg group"
             >
               <X className="h-6 w-6 group-hover:rotate-90 transition-transform duration-300" />
