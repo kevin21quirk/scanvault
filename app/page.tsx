@@ -152,7 +152,7 @@ export default function Home() {
               </div>
               <h3 className="text-3xl font-bold text-scanvault-black mb-4 group-hover:text-scanvault-red transition-colors">Lightning Fast</h3>
               <p className="text-gray-600 leading-relaxed text-lg">
-                Efficient digitalization processes powered by AI that get your documents online in record time.
+                Efficient digitalisation processes powered by AI that get your documents online in record time.
               </p>
             </div>
 
@@ -302,7 +302,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-scanvault-black mb-4">Scan to SharePoint</h3>
               <p className="text-gray-600 leading-relaxed mb-4">
-                Seamlessly integrate your digitized documents directly into Microsoft SharePoint for instant collaboration and accessibility across your organization.
+                Seamlessly integrate your digitised documents directly into Microsoft SharePoint for instant collaboration and accessibility across your organisation.
               </p>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex items-start gap-2">
@@ -489,7 +489,7 @@ export default function Home() {
           <div className="max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-8">
               <Lock className="h-4 w-4 text-scanvault-red" />
-              <span className="text-sm font-medium">Trusted by Leading Organizations</span>
+              <span className="text-sm font-medium">Trusted by Leading Organisations</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Get Started?</h2>
             <p className="text-gray-400 max-w-2xl mx-auto mb-8 text-lg">

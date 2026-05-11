@@ -9,7 +9,7 @@ export default function Services() {
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Our Services</h1>
             <p className="text-xl text-gray-300">
-              Comprehensive digitalization and archiving solutions tailored to your organization's needs.
+              Comprehensive digitalisation and archiving solutions tailored to your organisation's needs.
             </p>
           </div>
         </div>
@@ -22,7 +22,7 @@ export default function Services() {
               <CardHeader>
                 <Users className="h-12 w-12 text-scanvault-red mb-4" />
                 <CardTitle className="text-2xl">HR Records Management</CardTitle>
-                <CardDescription>Complete digitalization of human resources documentation</CardDescription>
+                <CardDescription>Complete digitalisation of human resources documentation</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-gray-600">
@@ -93,7 +93,7 @@ export default function Services() {
             <Card className="border-l-4 border-l-scanvault-red">
               <CardHeader>
                 <Archive className="h-12 w-12 text-scanvault-red mb-4" />
-                <CardTitle className="text-2xl">Archive Digitalization</CardTitle>
+                <CardTitle className="text-2xl">Archive Digitalisation</CardTitle>
                 <CardDescription>Transform paper archives into digital assets</CardDescription>
               </CardHeader>
               <CardContent>
@@ -112,7 +112,7 @@ export default function Services() {
               <CardHeader>
                 <Workflow className="h-12 w-12 text-scanvault-red mb-4" />
                 <CardTitle className="text-2xl">Workflow Orchestration</CardTitle>
-                <CardDescription>Intelligent organization and retrieval systems</CardDescription>
+                <CardDescription>Intelligent organisation and retrieval systems</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-gray-600">
@@ -147,7 +147,7 @@ export default function Services() {
                 <div className="bg-scanvault-red text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                   2
                 </div>
-                <h3 className="font-semibold text-scanvault-black mb-2">Digitalization</h3>
+                <h3 className="font-semibold text-scanvault-black mb-2">Digitalisation</h3>
                 <p className="text-gray-600 text-sm">
                   Secure scanning and processing of your documents.
                 </p>
@@ -156,7 +156,7 @@ export default function Services() {
                 <div className="bg-scanvault-red text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                   3
                 </div>
-                <h3 className="font-semibold text-scanvault-black mb-2">Organization</h3>
+                <h3 className="font-semibold text-scanvault-black mb-2">Organisation</h3>
                 <p className="text-gray-600 text-sm">
                   Intelligent categorization and workflow setup.
                 </p>

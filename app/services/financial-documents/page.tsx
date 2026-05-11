@@ -10,7 +10,7 @@ export default function FinancialDocuments() {
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl font-bold mb-6">Financial Document Management</h1>
             <p className="text-xl text-gray-300 mb-8">
-              Secure digitalization and management of invoices, receipts, and all financial records.
+              Secure digitalisation and management of invoices, receipts, and all financial records.
             </p>
             <Link href="/quote">
               <Button size="lg" className="bg-scanvault-red hover:bg-red-700 text-white px-8 py-6 text-lg">
@@ -27,7 +27,7 @@ export default function FinancialDocuments() {
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="text-3xl font-bold text-scanvault-black mb-6">Financial Records Digitalization</h2>
+                <h2 className="text-3xl font-bold text-scanvault-black mb-6">Financial Records Digitalisation</h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">
                   Transform your financial document management with our specialized services. We handle invoices, receipts, 
                   bank statements, tax records, and all accounting documentation with the highest security standards.
@@ -51,7 +51,7 @@ export default function FinancialDocuments() {
                     <CheckCircle className="h-6 w-6 text-scanvault-red flex-shrink-0 mt-1" />
                     <div>
                       <p className="font-semibold">Bank Statements</p>
-                      <p className="text-sm text-gray-600">Secure digitalization and archiving</p>
+                      <p className="text-sm text-gray-600">Secure digitalisation and archiving</p>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">

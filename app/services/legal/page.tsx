@@ -44,7 +44,7 @@ export default function Legal() {
                     <CheckCircle className="h-6 w-6 text-scanvault-red flex-shrink-0 mt-1" />
                     <div>
                       <p className="font-semibold">Case Files</p>
-                      <p className="text-sm text-gray-600">Complete case management and organization</p>
+                      <p className="text-sm text-gray-600">Complete case management and organisation</p>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">

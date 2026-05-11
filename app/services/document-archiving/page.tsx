@@ -79,7 +79,7 @@ export default function DocumentArchiving() {
                 </div>
                 <h3 className="text-xl font-bold text-scanvault-black mb-3">Organized Storage</h3>
                 <p className="text-gray-600">
-                  Systematic organization for easy document retrieval and management.
+                  Systematic organisation for easy document retrieval and management.
                 </p>
               </div>
               <div className="text-center p-6">

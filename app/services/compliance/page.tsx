@@ -88,7 +88,7 @@ export default function Compliance() {
                 </div>
                 <h3 className="text-xl font-bold text-scanvault-black mb-3">Legal Protection</h3>
                 <p className="text-gray-600">
-                  Protect your organization from regulatory penalties.
+                  Protect your organisation from regulatory penalties.
                 </p>
               </div>
               <div className="text-center p-6">

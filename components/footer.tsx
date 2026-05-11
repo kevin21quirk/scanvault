@@ -13,7 +13,7 @@ export function Footer() {
               </span>
             </div>
             <p className="text-gray-400 text-sm">
-              Professional archiving and digitalization solutions for your business.
+              Professional archiving and digitalisation solutions for your business.
             </p>
           </div>
 
@@ -46,7 +46,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Services</h3>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li>Document Digitalization</li>
+              <li>Document Digitalisation</li>
               <li>HR Records Management</li>
               <li>Admin Solutions</li>
               <li>Client Records</li>

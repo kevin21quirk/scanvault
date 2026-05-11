@@ -10,7 +10,7 @@ export default function Government() {
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl font-bold mb-6">Government Document Solutions</h1>
             <p className="text-xl text-gray-300 mb-8">
-              Secure, compliant document management for government agencies and public sector organizations.
+              Secure, compliant document management for government agencies and public sector organisations.
             </p>
             <Link href="/quote">
               <Button size="lg" className="bg-scanvault-red hover:bg-red-700 text-white px-8 py-6 text-lg">
@@ -29,7 +29,7 @@ export default function Government() {
               <div>
                 <h2 className="text-3xl font-bold text-scanvault-black mb-6">Government Document Management</h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Specialized solutions for government agencies and public sector organizations. We understand the 
+                  Specialised solutions for government agencies and public sector organisations. We understand the 
                   unique requirements of public records management, FOIA compliance, and government security standards.
                 </p>
                 <p className="text-gray-600 mb-6 leading-relaxed">
