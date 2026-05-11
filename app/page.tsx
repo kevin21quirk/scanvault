@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
+import MuxPlayer from "@mux/mux-player-react";
 
 export default function Home() {
   const [scrollY, setScrollY] = useState(0);
@@ -28,25 +29,23 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-scanvault-black via-gray-900 to-scanvault-red">
         {/* Background Video */}
         <div className="absolute inset-0 w-full h-full">
-          <video
+          <MuxPlayer
+            playbackId="maver7qtAkM1D851kcQFFmj01BcWGYFlrIB8tlSDLHRA"
             autoPlay
             loop
             muted
             playsInline
-            preload="auto"
-            className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
-            onLoadedData={(e) => {
-              (e.target as HTMLVideoElement).style.opacity = '1';
-            }}
-            onError={(e) => {
-              console.log('Video failed to load, using fallback background');
-              (e.target as HTMLVideoElement).style.display = 'none';
-            }}
-          >
-            <source src="https://stream.mux.com/maver7qtAkM1D851kcQFFmj01BcWGYFlrIB8tlSDLHRA/high.mp4" type="video/mp4" />
-          </video>
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              '--controls': 'none',
+            } as any}
+          />
           {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-br from-scanvault-black/90 via-gray-900/85 to-scanvault-red/80"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-scanvault-black/90 via-gray-900/85 to-scanvault-red/80 pointer-events-none"></div>
         </div>
         
         {/* Animated blobs */}
