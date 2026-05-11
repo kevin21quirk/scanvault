@@ -715,91 +715,91 @@ export default function Home() {
       {/* Service Details Modal */}
       {selectedService && serviceDetails[selectedService] && (
         <div 
-          className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 ${isClosing ? 'modal-backdrop-exit' : 'modal-backdrop-enter'}`}
+          className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 ${isClosing ? 'modal-backdrop-exit' : 'modal-backdrop-enter'}`}
           onClick={handleCloseModal}
         >
           <div 
-            className={`bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto relative ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}
+            className={`bg-white rounded-2xl sm:rounded-3xl max-w-5xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto relative ${isClosing ? 'modal-content-exit' : 'modal-content-enter'}`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               onClick={handleCloseModal}
-              className="absolute top-6 right-6 z-10 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-scanvault-red hover:text-white transition-all duration-300 shadow-lg group"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-scanvault-red hover:text-white transition-all duration-300 shadow-lg group"
             >
-              <X className="h-6 w-6 group-hover:rotate-90 transition-transform duration-300" />
+              <X className="h-5 w-5 sm:h-6 sm:w-6 group-hover:rotate-90 transition-transform duration-300" />
             </button>
 
             {/* Hero Image */}
-            <div className="relative h-80 overflow-hidden rounded-t-3xl">
+            <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
               <img 
                 src={serviceDetails[selectedService].image}
                 alt={serviceDetails[selectedService].title}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              <div className="absolute bottom-8 left-8 text-white">
-                <h2 className="text-4xl font-bold mb-2">{serviceDetails[selectedService].title}</h2>
-                <p className="text-lg text-white/90">{serviceDetails[selectedService].description}</p>
+              <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-8 md:left-8 right-4 sm:right-6 md:right-8 text-white">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">{serviceDetails[selectedService].title}</h2>
+                <p className="text-sm sm:text-base md:text-lg text-white/90 line-clamp-2">{serviceDetails[selectedService].description}</p>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-8 md:p-12">
+            <div className="p-4 sm:p-6 md:p-8 lg:p-12">
               {/* Full Description */}
-              <div className="mb-8">
-                <p className="text-lg text-gray-700 leading-relaxed">
+              <div className="mb-6 sm:mb-8">
+                <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
                   {serviceDetails[selectedService].fullDescription}
                 </p>
               </div>
 
               {/* Features */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-scanvault-black mb-6 flex items-center gap-3">
-                  <div className="w-1 h-8 bg-scanvault-red rounded-full"></div>
+              <div className="mb-6 sm:mb-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-scanvault-black mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
+                  <div className="w-1 h-6 sm:h-8 bg-scanvault-red rounded-full"></div>
                   Key Features
                 </h3>
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                   {serviceDetails[selectedService].features.map((feature: string, index: number) => (
-                    <div key={index} className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl hover:bg-red-50 transition-colors">
-                      <CheckCircle className="h-6 w-6 text-scanvault-red flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{feature}</span>
+                    <div key={index} className="flex items-start gap-2 sm:gap-3 bg-gray-50 p-3 sm:p-4 rounded-lg sm:rounded-xl hover:bg-red-50 transition-colors">
+                      <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-scanvault-red flex-shrink-0 mt-0.5" />
+                      <span className="text-sm sm:text-base text-gray-700">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Benefits */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-scanvault-black mb-6 flex items-center gap-3">
-                  <div className="w-1 h-8 bg-scanvault-red rounded-full"></div>
+              <div className="mb-6 sm:mb-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-scanvault-black mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
+                  <div className="w-1 h-6 sm:h-8 bg-scanvault-red rounded-full"></div>
                   Benefits
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {serviceDetails[selectedService].benefits.map((benefit: string, index: number) => (
-                    <div key={index} className="flex items-start gap-3 p-4 border-l-4 border-scanvault-red bg-gradient-to-r from-red-50 to-transparent rounded-r-xl">
-                      <Star className="h-6 w-6 text-scanvault-red flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700 font-medium">{benefit}</span>
+                    <div key={index} className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 border-l-4 border-scanvault-red bg-gradient-to-r from-red-50 to-transparent rounded-r-lg sm:rounded-r-xl">
+                      <Star className="h-5 w-5 sm:h-6 sm:w-6 text-scanvault-red flex-shrink-0 mt-0.5" />
+                      <span className="text-sm sm:text-base text-gray-700 font-medium">{benefit}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* CTA */}
-              <div className="bg-gradient-to-r from-scanvault-black to-gray-900 text-white rounded-2xl p-8 text-center">
-                <h3 className="text-2xl font-bold mb-4">Ready to Get Started?</h3>
-                <p className="text-gray-300 mb-6">
+              <div className="bg-gradient-to-r from-scanvault-black to-gray-900 text-white rounded-xl sm:rounded-2xl p-6 sm:p-8 text-center">
+                <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Ready to Get Started?</h3>
+                <p className="text-sm sm:text-base text-gray-300 mb-4 sm:mb-6">
                   Contact us today to learn more about {serviceDetails[selectedService].title} and how it can benefit your organisation.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link href="/quote">
-                    <Button size="lg" className="bg-scanvault-red hover:bg-red-700 text-white px-8 py-6 text-lg rounded-full">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                  <Link href="/quote" className="w-full sm:w-auto">
+                    <Button size="lg" className="w-full sm:w-auto bg-scanvault-red hover:bg-red-700 text-white px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg rounded-full">
                       Get Free Quote
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                     </Button>
                   </Link>
-                  <Link href="/contact">
-                    <Button variant="outline" size="lg" className="border-2 border-white bg-transparent !text-white hover:bg-white hover:!text-scanvault-black px-8 py-6 text-lg rounded-full">
+                  <Link href="/contact" className="w-full sm:w-auto">
+                    <Button variant="outline" size="lg" className="w-full sm:w-auto border-2 border-white bg-transparent !text-white hover:bg-white hover:!text-scanvault-black px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg rounded-full">
                       Contact Us
                     </Button>
                   </Link>
