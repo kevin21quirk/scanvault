@@ -308,7 +308,7 @@ export default function Home() {
                 </Button>
               </Link>
               <Link href="/about">
-                <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-scanvault-black px-8 py-6 text-lg rounded-full backdrop-blur-sm transition-all duration-300">
+                <Button variant="outline" size="lg" className="border-2 border-white bg-white !text-scanvault-black hover:bg-scanvault-black hover:!text-white px-8 py-6 text-lg rounded-full transition-all duration-300">
                   Learn More About Us
                 </Button>
               </Link>
