@@ -4,12 +4,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2 } from "lucide-react";
+import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import MuxPlayer from "@mux/mux-player-react";
 
 export default function Home() {
   const [scrollY, setScrollY] = useState(0);
+  const [selectedService, setSelectedService] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,6 +24,152 @@ export default function Home() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const serviceDetails: Record<string, any> = {
+    sharepoint: {
+      title: "Scan to SharePoint",
+      image: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&auto=format&fit=crop&q=80",
+      description: "Seamlessly integrate your digitised documents directly into Microsoft SharePoint for instant collaboration and accessibility across your organisation.",
+      fullDescription: "Our Scan to SharePoint service provides a complete solution for organisations using Microsoft 365. We handle the entire process from document collection to SharePoint integration, ensuring your files are properly organised, tagged, and accessible to the right people.",
+      features: [
+        "Direct integration with SharePoint Online and on-premises",
+        "Automated folder structure creation based on your taxonomy",
+        "Metadata tagging and custom properties",
+        "Version control and document history",
+        "Permission management and access control",
+        "Bulk upload capabilities for large document sets",
+        "OCR text recognition for searchability",
+        "Integration with Microsoft Teams and OneDrive"
+      ],
+      benefits: [
+        "Instant access from anywhere with internet connection",
+        "Seamless collaboration across teams",
+        "Reduced physical storage costs",
+        "Enhanced security with Microsoft's enterprise-grade protection",
+        "Automatic backup and disaster recovery"
+      ]
+    },
+    cloud: {
+      title: "Scan to Cloud",
+      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",
+      description: "Upload your documents to popular cloud platforms including Google Drive, Dropbox, OneDrive, and more for flexible access anywhere.",
+      fullDescription: "Choose your preferred cloud storage platform and we'll handle the rest. Our multi-platform support ensures your documents are accessible wherever you work, with enterprise-grade security and encryption throughout the process.",
+      features: [
+        "Support for Google Drive, Dropbox, OneDrive, Box, and more",
+        "End-to-end encryption during transfer",
+        "Automatic folder synchronisation",
+        "Custom naming conventions and organisation",
+        "Scheduled uploads and batch processing",
+        "Duplicate detection and management",
+        "Cloud storage optimisation",
+        "Mobile access compatibility"
+      ],
+      benefits: [
+        "Platform flexibility - use your preferred cloud service",
+        "Access documents from any device",
+        "Scalable storage that grows with your needs",
+        "Reduced IT infrastructure costs",
+        "Automatic updates and synchronisation"
+      ]
+    },
+    platform: {
+      title: "ScanVault Platform",
+      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80",
+      description: "Access our proprietary document management platform, custom-built for maximum security, searchability, and workflow automation.",
+      fullDescription: "Experience the power of our exclusive, purpose-built document management platform. Designed specifically for organisations with complex archiving needs, the ScanVault Platform combines AI-powered search, advanced security, and intelligent workflow automation.",
+      features: [
+        "AI-powered full-text search with natural language processing",
+        "Custom workflow automation and approval processes",
+        "Advanced analytics and reporting dashboard",
+        "Role-based access control with granular permissions",
+        "Audit trails and compliance reporting",
+        "Automated document classification and tagging",
+        "Integration APIs for third-party systems",
+        "Mobile apps for iOS and Android",
+        "Customisable retention policies",
+        "E-signature integration"
+      ],
+      benefits: [
+        "Purpose-built for document archiving excellence",
+        "Unmatched search capabilities find documents instantly",
+        "Complete audit trail for compliance",
+        "Scalable architecture for growing organisations",
+        "Dedicated UK-based support team"
+      ]
+    },
+    shredding: {
+      title: "Secure Shredding",
+      image: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=1200&auto=format&fit=crop&q=80",
+      description: "Professional document destruction services with full chain of custody. We handle the shredding so you can focus on your business.",
+      fullDescription: "After digitisation, proper disposal of physical documents is crucial for security and compliance. Our secure shredding service provides complete peace of mind with GDPR-compliant destruction and comprehensive documentation.",
+      features: [
+        "On-site and off-site shredding options",
+        "Cross-cut and micro-cut shredding methods",
+        "Secure collection in locked containers",
+        "Full chain of custody documentation",
+        "GDPR and data protection compliance",
+        "Scheduled regular collections available",
+        "Confidential waste destruction",
+        "Hard drive and media destruction",
+        "Eco-friendly recycling of shredded materials"
+      ],
+      benefits: [
+        "Complete data security and privacy protection",
+        "Legal compliance with data protection regulations",
+        "Environmental responsibility through recycling",
+        "Free up valuable office space",
+        "Reduce risk of data breaches"
+      ]
+    },
+    certificate: {
+      title: "Certificate of Destruction",
+      image: "https://images.unsplash.com/photo-1554224311-beee415c201f?w=1200&auto=format&fit=crop&q=80",
+      description: "Receive official documentation certifying the secure destruction of your sensitive documents, ensuring compliance and peace of mind.",
+      fullDescription: "Every shredding service includes a comprehensive Certificate of Destruction, providing legal proof that your documents have been securely destroyed in compliance with UK data protection laws.",
+      features: [
+        "Legally binding destruction certificates",
+        "Detailed inventory of destroyed materials",
+        "Date, time, and location of destruction",
+        "Destruction method documentation",
+        "Witness signatures and verification",
+        "Digital certificate delivery via email",
+        "Secure certificate storage and retrieval",
+        "Batch certificates for regular collections",
+        "Audit-ready documentation"
+      ],
+      benefits: [
+        "Legal proof of compliance with GDPR",
+        "Protection against data breach liability",
+        "Audit trail for regulatory inspections",
+        "Peace of mind for stakeholders",
+        "Professional documentation for records"
+      ]
+    },
+    assessment: {
+      title: "Risk Assessment",
+      image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&auto=format&fit=crop&q=80",
+      description: "Comprehensive pre-work risk assessment forms provided and agreed upon by both parties before any project commences.",
+      fullDescription: "Transparency and safety are paramount. Before any work begins, we conduct a thorough risk assessment covering all aspects of the project, from document handling to data security, ensuring complete alignment between ScanVault and your organisation.",
+      features: [
+        "Comprehensive site and security assessment",
+        "Data protection impact assessment (DPIA)",
+        "Physical security evaluation",
+        "Access control and permissions review",
+        "Document handling procedures documentation",
+        "Emergency and contingency planning",
+        "Staff vetting and background checks",
+        "Insurance and liability coverage review",
+        "Mutual agreement and sign-off process"
+      ],
+      benefits: [
+        "Complete transparency before work begins",
+        "Identify and mitigate potential risks",
+        "Ensure compliance with regulations",
+        "Build trust through documented processes",
+        "Protect both parties legally"
+      ]
+    }
+  };
 
   return (
     <div className="flex flex-col overflow-hidden">
@@ -296,7 +443,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {/* Scan to SharePoint */}
-            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div onClick={() => setSelectedService('sharepoint')} className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
               <div className="w-16 h-16 bg-gradient-to-br from-scanvault-red to-red-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Share2 className="h-8 w-8 text-white" />
               </div>
@@ -321,7 +468,7 @@ export default function Home() {
             </div>
 
             {/* Scan to Cloud */}
-            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div onClick={() => setSelectedService('cloud')} className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Cloud className="h-8 w-8 text-white" />
               </div>
@@ -346,7 +493,7 @@ export default function Home() {
             </div>
 
             {/* Bespoke Platform */}
-            <div className="group bg-gradient-to-br from-scanvault-red to-red-600 text-white rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden">
+            <div onClick={() => setSelectedService('platform')} className="group bg-gradient-to-br from-scanvault-red to-red-600 text-white rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden cursor-pointer">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
               <div className="relative">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -378,7 +525,7 @@ export default function Home() {
             </div>
 
             {/* Secure Shredding */}
-            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div onClick={() => setSelectedService('shredding')} className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
               <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Trash2 className="h-8 w-8 text-white" />
               </div>
@@ -403,7 +550,7 @@ export default function Home() {
             </div>
 
             {/* Certificate of Destruction */}
-            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div onClick={() => setSelectedService('certificate')} className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
               <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <FileCheck className="h-8 w-8 text-white" />
               </div>
@@ -428,7 +575,7 @@ export default function Home() {
             </div>
 
             {/* Risk Assessment */}
-            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div onClick={() => setSelectedService('assessment')} className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
               <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <ClipboardCheck className="h-8 w-8 text-white" />
               </div>
@@ -511,6 +658,104 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Service Details Modal */}
+      {selectedService && serviceDetails[selectedService] && (
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300"
+          onClick={() => setSelectedService(null)}
+        >
+          <div 
+            className="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto relative animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedService(null)}
+              className="absolute top-6 right-6 z-10 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-scanvault-red hover:text-white transition-all duration-300 shadow-lg group"
+            >
+              <X className="h-6 w-6 group-hover:rotate-90 transition-transform duration-300" />
+            </button>
+
+            {/* Hero Image */}
+            <div className="relative h-80 overflow-hidden rounded-t-3xl">
+              <img 
+                src={serviceDetails[selectedService].image}
+                alt={serviceDetails[selectedService].title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div className="absolute bottom-8 left-8 text-white">
+                <h2 className="text-4xl font-bold mb-2">{serviceDetails[selectedService].title}</h2>
+                <p className="text-lg text-white/90">{serviceDetails[selectedService].description}</p>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-8 md:p-12">
+              {/* Full Description */}
+              <div className="mb-8">
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  {serviceDetails[selectedService].fullDescription}
+                </p>
+              </div>
+
+              {/* Features */}
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-scanvault-black mb-6 flex items-center gap-3">
+                  <div className="w-1 h-8 bg-scanvault-red rounded-full"></div>
+                  Key Features
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {serviceDetails[selectedService].features.map((feature: string, index: number) => (
+                    <div key={index} className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl hover:bg-red-50 transition-colors">
+                      <CheckCircle className="h-6 w-6 text-scanvault-red flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Benefits */}
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-scanvault-black mb-6 flex items-center gap-3">
+                  <div className="w-1 h-8 bg-scanvault-red rounded-full"></div>
+                  Benefits
+                </h3>
+                <div className="space-y-3">
+                  {serviceDetails[selectedService].benefits.map((benefit: string, index: number) => (
+                    <div key={index} className="flex items-start gap-3 p-4 border-l-4 border-scanvault-red bg-gradient-to-r from-red-50 to-transparent rounded-r-xl">
+                      <Star className="h-6 w-6 text-scanvault-red flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700 font-medium">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="bg-gradient-to-r from-scanvault-black to-gray-900 text-white rounded-2xl p-8 text-center">
+                <h3 className="text-2xl font-bold mb-4">Ready to Get Started?</h3>
+                <p className="text-gray-300 mb-6">
+                  Contact us today to learn more about {serviceDetails[selectedService].title} and how it can benefit your organisation.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link href="/quote">
+                    <Button size="lg" className="bg-scanvault-red hover:bg-red-700 text-white px-8 py-6 text-lg rounded-full">
+                      Get Free Quote
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link href="/contact">
+                    <Button variant="outline" size="lg" className="border-2 border-white bg-transparent !text-white hover:bg-white hover:!text-scanvault-black px-8 py-6 text-lg rounded-full">
+                      Contact Us
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
