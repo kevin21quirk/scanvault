@@ -113,7 +113,8 @@ export async function GET(
         fillColor: [220, 38, 38], 
         textColor: 255,
         fontSize: 10,
-        fontStyle: 'bold'
+        fontStyle: 'bold',
+        halign: 'left'
       },
       styles: { 
         fontSize: 10,
@@ -124,6 +125,16 @@ export async function GET(
         1: { cellWidth: 30, halign: 'center' },
         2: { cellWidth: 35, halign: 'right' },
         3: { cellWidth: 35, halign: 'right' }
+      },
+      didDrawCell: (data: any) => {
+        // Align headers to match body columns
+        if (data.section === 'head') {
+          if (data.column.index === 1) {
+            data.cell.styles.halign = 'center';
+          } else if (data.column.index === 2 || data.column.index === 3) {
+            data.cell.styles.halign = 'right';
+          }
+        }
       }
     });
     
