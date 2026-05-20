@@ -45,7 +45,7 @@ export function Navbar() {
                 alt="ScanVault Logo" 
                 width={180} 
                 height={50} 
-                className="h-10 sm:h-12 w-auto"
+                className="h-10 sm:h-12 w-auto animate-rotate-3d"
                 priority
               />
               <span className="text-xl sm:text-2xl font-bold text-scanvault-black">
