@@ -48,7 +48,7 @@ export default function Login() {
       
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center items-center gap-4 mb-4">
             <Image 
               src="/scanvaultlogo.png" 
               alt="ScanVault Logo" 
@@ -57,6 +57,9 @@ export default function Login() {
               className="h-16 w-auto"
               priority
             />
+            <h1 className="text-5xl font-bold text-scanvault-black">
+              Scan<span className="text-scanvault-red">Vault</span>
+            </h1>
           </div>
           <p className="text-gray-600 text-lg">Client Portal</p>
         </div>

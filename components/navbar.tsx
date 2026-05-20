@@ -39,7 +39,7 @@ export function Navbar() {
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center gap-3">
               <Image 
                 src="/scanvaultlogo.png" 
                 alt="ScanVault Logo" 
@@ -48,6 +48,9 @@ export function Navbar() {
                 className="h-10 sm:h-12 w-auto"
                 priority
               />
+              <span className="text-xl sm:text-2xl font-bold text-scanvault-black">
+                Scan<span className="text-scanvault-red">Vault</span>
+              </span>
             </Link>
 
             {/* Hamburger Menu Button - Mobile Only */}
