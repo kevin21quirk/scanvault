@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Phone } from "lucide-react";
 
 export function Footer() {
@@ -8,9 +9,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="mb-4">
-              <span className="text-2xl font-bold">
-                Scan<span className="text-scanvault-red">Vault</span>
-              </span>
+              <Image 
+                src="/scanvaultlogo.png" 
+                alt="ScanVault Logo" 
+                width={160} 
+                height={45} 
+                className="h-10 w-auto brightness-0 invert"
+              />
             </div>
             <p className="text-gray-400 text-sm">
               Professional archiving and digitalisation solutions for your business.

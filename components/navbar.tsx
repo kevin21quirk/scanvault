@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { LogOut, User, Phone, ChevronDown, Menu, X } from "lucide-react";
@@ -39,9 +40,14 @@ export function Navbar() {
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             <Link href="/" className="flex items-center">
-              <span className="text-xl sm:text-2xl font-bold text-scanvault-black">
-                Scan<span className="text-scanvault-red">Vault</span>
-              </span>
+              <Image 
+                src="/scanvaultlogo.png" 
+                alt="ScanVault Logo" 
+                width={180} 
+                height={50} 
+                className="h-10 sm:h-12 w-auto"
+                priority
+              />
             </Link>
 
             {/* Hamburger Menu Button - Mobile Only */}

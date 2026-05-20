@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -47,9 +48,16 @@ export default function Login() {
       
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-scanvault-black mb-3">
-            Scan<span className="text-scanvault-red">Vault</span>
-          </h1>
+          <div className="flex justify-center mb-4">
+            <Image 
+              src="/scanvaultlogo.png" 
+              alt="ScanVault Logo" 
+              width={240} 
+              height={65} 
+              className="h-16 w-auto"
+              priority
+            />
+          </div>
           <p className="text-gray-600 text-lg">Client Portal</p>
         </div>
 
