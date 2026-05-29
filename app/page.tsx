@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2, X, Info } from "lucide-react";
+import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2, X, Info, Linkedin, Twitter, Facebook, Instagram, Mail, Phone } from "lucide-react";
 import { useState, useEffect } from "react";
 import MuxPlayer from "@mux/mux-player-react";
 
@@ -218,6 +218,73 @@ export default function Home() {
         <div className="absolute top-40 right-10 w-72 h-72 bg-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-red-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
         
+        {/* Glassmorphism social / contact sidebar */}
+        {(() => {
+          const glassStyle = {
+            background: 'rgba(255,255,255,0.07)',
+            backdropFilter: 'blur(22px)',
+            WebkitBackdropFilter: 'blur(22px)',
+            border: '1px solid rgba(255,255,255,0.22)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px rgba(0,0,0,0.2)',
+          };
+          const socialLinks = [
+            { icon: <Linkedin className="h-4 w-4 text-white" />, href: 'https://linkedin.com/company/scanvault', label: 'LinkedIn' },
+            { icon: <Twitter className="h-4 w-4 text-white" />, href: 'https://twitter.com/scanvault', label: 'Twitter' },
+            { icon: <Facebook className="h-4 w-4 text-white" />, href: 'https://facebook.com/scanvault', label: 'Facebook' },
+            { icon: <Instagram className="h-4 w-4 text-white" />, href: 'https://instagram.com/scanvault', label: 'Instagram' },
+          ];
+          const contactLinks = [
+            { icon: <Mail className="h-4 w-4 text-white" />, href: 'mailto:info@scanvault.co.uk', label: 'info@scanvault.co.uk' },
+            { icon: <Phone className="h-4 w-4 text-white" />, href: 'tel:+447359969266', label: '+44 7359 969266' },
+          ];
+          return (
+            <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2">
+              {/* Social icons */}
+              {socialLinks.map((item, i) => (
+                <a
+                  key={i}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative flex items-center"
+                >
+                  {/* Hover label — slides in from right */}
+                  <span
+                    className="absolute right-12 whitespace-nowrap text-xs text-white/80 font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-200 pointer-events-none"
+                    style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)' }}
+                  >{item.label}</span>
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110 hover:brightness-125"
+                    style={glassStyle}
+                  >{item.icon}</div>
+                </a>
+              ))}
+
+              {/* Divider */}
+              <div className="w-px h-5" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0.05))' }} />
+
+              {/* Contact icons */}
+              {contactLinks.map((item, i) => (
+                <a
+                  key={i}
+                  href={item.href}
+                  className="group relative flex items-center"
+                >
+                  {/* Hover label */}
+                  <span
+                    className="absolute right-12 whitespace-nowrap text-xs text-white/80 font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-200 pointer-events-none"
+                    style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)' }}
+                  >{item.label}</span>
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110"
+                    style={{ ...glassStyle, border: '1px solid rgba(229,62,62,0.35)' }}
+                  >{item.icon}</div>
+                </a>
+              ))}
+            </div>
+          );
+        })()}
+
         <div 
           className="container mx-auto px-4 relative z-10"
           style={{ transform: `translateY(${scrollY * 0.5}px)` }}
