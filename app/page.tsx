@@ -781,16 +781,50 @@ export default function Home() {
                 Every project begins with a comprehensive risk assessment form, ensuring complete transparency and mutual agreement before work commences. Our processes are fully compliant with GDPR and industry best practices.
               </p>
               <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                  <Lock className="h-8 w-8 text-scanvault-red mx-auto mb-3" />
-                  <p className="font-semibold mb-2">GDPR Compliant</p>
-                  <p className="text-sm text-gray-400">Full data protection compliance</p>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                  <ClipboardCheck className="h-8 w-8 text-scanvault-red mx-auto mb-3" />
-                  <p className="font-semibold mb-2">Risk Assessed</p>
-                  <p className="text-sm text-gray-400">Pre-approved by both parties</p>
-                </div>
+                {[
+                  {
+                    icon: <Lock className="h-7 w-7 text-white" />,
+                    tag: 'Compliance',
+                    title: 'GDPR Compliant',
+                    subtitle: 'Full Data Protection Compliance',
+                    detail: 'Every project we undertake is fully compliant with GDPR and industry data protection best practices. Your documents and data are handled with the highest levels of security and confidentiality throughout the entire digitisation and archiving process.',
+                    displayIcon: <Lock className="h-8 w-8 text-scanvault-red mx-auto mb-3" />,
+                  },
+                  {
+                    icon: <ClipboardCheck className="h-7 w-7 text-white" />,
+                    tag: 'Pre-Work',
+                    title: 'Risk Assessed',
+                    subtitle: 'Pre-Approved by Both Parties',
+                    detail: 'Every project begins with a comprehensive risk assessment form, ensuring complete transparency and mutual agreement before work commences. This protects both parties and ensures every process is agreed, documented, and signed off from the very start.',
+                    displayIcon: <ClipboardCheck className="h-8 w-8 text-scanvault-red mx-auto mb-3" />,
+                  },
+                ].map((card, i) => (
+                  <div
+                    key={i}
+                    onClick={() => setSelectedCard({ icon: card.icon, tag: card.tag, title: card.title, subtitle: card.subtitle, detail: card.detail })}
+                    className="cursor-pointer rounded-xl p-6 transition-all duration-300 hover:scale-[1.04] hover:brightness-125"
+                    style={{
+                      background: 'rgba(255,255,255,0.10)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      border: '1px solid rgba(255,255,255,0.18)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)',
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLElement).style.boxShadow = '0 0 28px rgba(255,255,255,0.18), inset 0 1px 0 rgba(255,255,255,0.25)';
+                      (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.35)';
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLElement).style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.12)';
+                      (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.18)';
+                    }}
+                  >
+                    {card.displayIcon}
+                    <p className="font-semibold mb-2">{card.title}</p>
+                    <p className="text-sm text-gray-400">{card.subtitle}</p>
+                    <p className="text-xs text-white/40 mt-3 tracking-wider uppercase">Click to learn more →</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
