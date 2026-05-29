@@ -467,22 +467,17 @@ export default function Home() {
               </h2>
             </div>
 
-            {/* Glass panel strip — centred vertically */}
+            {/* Cards strip — centred vertically, no panel background */}
             <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 z-10">
-              {/* Top edge line of glass panel */}
-              <div className="w-full h-px" style={{ background: 'rgba(255,255,255,0.35)' }}></div>
 
-              {/* Panel background — barely tinted so room shows through */}
-              <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(5px)', WebkitBackdropFilter: 'blur(5px)' }}>
+              {/* LEVEL 1: Perspective space — vanishing point on left so left = far, right = near */}
+              <div style={{ perspective: '1200px', perspectiveOrigin: '25% 50%', overflow: 'hidden' }}>
 
-                {/* LEVEL 1: Perspective space — vanishing point on left so left = far, right = near */}
-                <div style={{ perspective: '1200px', perspectiveOrigin: '25% 50%', overflow: 'hidden' }}>
+                {/* LEVEL 2: Tilt the plane — rotateY(+18deg) pushes left side back, brings right side forward */}
+                <div style={{ transform: 'rotateY(18deg)', transformStyle: 'preserve-3d' }}>
 
-                  {/* LEVEL 2: Tilt the plane — rotateY(+18deg) pushes left side back, brings right side forward */}
-                  <div style={{ transform: 'rotateY(18deg)', transformStyle: 'preserve-3d' }}>
-
-                    {/* LEVEL 3: Reversed scroll — cards enter from left, exit right */}
-                    <div className="animate-scroll-cards-right gap-4 py-10 px-6">
+                  {/* LEVEL 3: Reversed scroll — cards enter from left, exit right */}
+                  <div className="animate-scroll-cards-right gap-4 py-10 px-6">
                       {[...glassCards, ...glassCards].map((card, i) => (
                         <div
                           key={i}
@@ -523,14 +518,10 @@ export default function Home() {
                           </div>
                         </div>
                       ))}
-                    </div>
-
                   </div>
+
                 </div>
               </div>
-
-              {/* Bottom edge line of glass panel */}
-              <div className="w-full h-px" style={{ background: 'rgba(255,255,255,0.35)' }}></div>
             </div>
 
             {/* Left edge fade — cards emerge from the left background */}
