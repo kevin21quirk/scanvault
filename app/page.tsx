@@ -218,76 +218,6 @@ export default function Home() {
         <div className="absolute top-40 right-10 w-72 h-72 bg-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-red-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
         
-        {/* Glassmorphism social / contact sidebar */}
-        {(() => {
-          const panelStyle = {
-            background: 'rgba(255,255,255,0.02)',
-            backdropFilter: 'blur(2px)',
-            WebkitBackdropFilter: 'blur(2px)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 12px rgba(0,0,0,0.08)',
-          };
-          const iconStyle = {
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.14)',
-          };
-          const contactIconStyle = {
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(229,62,62,0.25)',
-          };
-          const labelClass = "text-[10px] font-semibold tracking-[0.2em] uppercase text-center mb-3";
-          const labelStyle = { color: 'rgba(255,255,255,0.45)' };
-
-          return (
-            <div className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 hidden sm:flex flex-col gap-3 w-36">
-
-              {/* — Social Media panel — */}
-              <div className="rounded-2xl p-4" style={panelStyle}>
-                <p className={labelClass} style={labelStyle}>Social Media</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { icon: <Linkedin className="h-5 w-5 text-white" />, href: 'https://linkedin.com/company/scanvault', label: 'LinkedIn' },
-                    { icon: <Twitter className="h-5 w-5 text-white" />, href: 'https://twitter.com/scanvault', label: 'Twitter' },
-                    { icon: <Facebook className="h-5 w-5 text-white" />, href: 'https://facebook.com/scanvault', label: 'Facebook' },
-                    { icon: <Instagram className="h-5 w-5 text-white" />, href: 'https://instagram.com/scanvault', label: 'Instagram' },
-                  ].map((item, i) => (
-                    <a key={i} href={item.href} target="_blank" rel="noopener noreferrer" title={item.label}
-                      className="flex items-center justify-center w-full aspect-square rounded-xl transition-all duration-200 hover:scale-110 hover:brightness-125"
-                      style={iconStyle}
-                    >{item.icon}</a>
-                  ))}
-                </div>
-              </div>
-
-              {/* — Email panel — */}
-              <a href="mailto:info@scanvault.co.uk" className="block rounded-2xl p-4 transition-all duration-200 hover:brightness-125" style={panelStyle}>
-                <p className={labelClass} style={labelStyle}>Email</p>
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
-                    <Mail className="h-6 w-6 text-white" />
-                  </div>
-                  <p className="text-[10px] text-center leading-snug break-all" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    info@scanvault.co.uk
-                  </p>
-                </div>
-              </a>
-
-              {/* — Phone panel — */}
-              <a href="tel:+447359969266" className="block rounded-2xl p-4 transition-all duration-200 hover:brightness-125" style={panelStyle}>
-                <p className={labelClass} style={labelStyle}>Phone</p>
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
-                    <Phone className="h-6 w-6 text-white" />
-                  </div>
-                  <p className="text-[10px] text-center leading-snug" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    +44 7359 969266
-                  </p>
-                </div>
-              </a>
-
-            </div>
-          );
-        })()}
 
         <div 
           className="container mx-auto px-4 relative z-10"
@@ -979,6 +909,110 @@ export default function Home() {
           </div>
         </div>
       )}
+      {/* Fixed glassmorphism social / contact sidebar — scrolls with page, changes colour past hero */}
+      {(() => {
+        const pastHero = scrollY > 480;
+        const tr = 'all 0.5s ease';
+
+        const panelStyle: React.CSSProperties = pastHero ? {
+          background: 'rgba(15,15,15,0.10)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          border: '1px solid rgba(0,0,0,0.14)',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
+          transition: tr,
+        } : {
+          background: 'rgba(255,255,255,0.02)',
+          backdropFilter: 'blur(2px)',
+          WebkitBackdropFilter: 'blur(2px)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
+          transition: tr,
+        };
+
+        const iconStyle: React.CSSProperties = pastHero ? {
+          background: 'rgba(0,0,0,0.07)',
+          border: '1px solid rgba(0,0,0,0.12)',
+          transition: tr,
+        } : {
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.14)',
+          transition: tr,
+        };
+
+        const contactIconStyle: React.CSSProperties = pastHero ? {
+          background: 'rgba(0,0,0,0.07)',
+          border: '1px solid rgba(220,38,38,0.4)',
+          transition: tr,
+        } : {
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(229,62,62,0.25)',
+          transition: tr,
+        };
+
+        const labelStyle: React.CSSProperties = {
+          color: pastHero ? 'rgba(20,20,20,0.55)' : 'rgba(255,255,255,0.45)',
+          transition: tr,
+        };
+        const contactTextStyle: React.CSSProperties = {
+          color: pastHero ? 'rgba(20,20,20,0.65)' : 'rgba(255,255,255,0.6)',
+          transition: tr,
+        };
+        const iconCls = pastHero ? 'h-5 w-5 text-gray-700' : 'h-5 w-5 text-white';
+        const contactIconCls = pastHero ? 'h-6 w-6 text-gray-700' : 'h-6 w-6 text-white';
+        const labelClass = 'text-[10px] font-semibold tracking-[0.2em] uppercase text-center mb-3';
+
+        return (
+          <div className="fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-50 hidden sm:flex flex-col gap-3 w-36">
+
+            {/* — Social Media panel — */}
+            <div className="rounded-2xl p-4" style={panelStyle}>
+              <p className={labelClass} style={labelStyle}>Social Media</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { icon: <Linkedin className={iconCls} />, href: 'https://linkedin.com/company/scanvault', label: 'LinkedIn' },
+                  { icon: <Twitter className={iconCls} />, href: 'https://twitter.com/scanvault', label: 'Twitter' },
+                  { icon: <Facebook className={iconCls} />, href: 'https://facebook.com/scanvault', label: 'Facebook' },
+                  { icon: <Instagram className={iconCls} />, href: 'https://instagram.com/scanvault', label: 'Instagram' },
+                ].map((item, i) => (
+                  <a key={i} href={item.href} target="_blank" rel="noopener noreferrer" title={item.label}
+                    className="flex items-center justify-center w-full aspect-square rounded-xl transition-all duration-200 hover:scale-110"
+                    style={iconStyle}
+                  >{item.icon}</a>
+                ))}
+              </div>
+            </div>
+
+            {/* — Email panel — */}
+            <a href="mailto:info@scanvault.co.uk" className="block rounded-2xl p-4" style={panelStyle}>
+              <p className={labelClass} style={labelStyle}>Email</p>
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
+                  <Mail className={contactIconCls} />
+                </div>
+                <p className="text-[10px] text-center leading-snug break-all" style={contactTextStyle}>
+                  info@scanvault.co.uk
+                </p>
+              </div>
+            </a>
+
+            {/* — Phone panel — */}
+            <a href="tel:+447359969266" className="block rounded-2xl p-4" style={panelStyle}>
+              <p className={labelClass} style={labelStyle}>Phone</p>
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
+                  <Phone className={contactIconCls} />
+                </div>
+                <p className="text-[10px] text-center leading-snug" style={contactTextStyle}>
+                  +44 7359 969266
+                </p>
+              </div>
+            </a>
+
+          </div>
+        );
+      })()}
+
       {/* Expanded glass card modal */}
       {selectedCard && (
         <div
