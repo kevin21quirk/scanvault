@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ export default function Home() {
   const [scrollY, setScrollY] = useState(0);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<{ icon: React.ReactNode; tag: string; title: string; subtitle: string; detail: string } | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -484,7 +486,8 @@ export default function Home() {
                       {[...glassCards, ...glassCards].map((card, i) => (
                         <div
                           key={i}
-                          className="flex-shrink-0 rounded-2xl overflow-hidden flex"
+                          onClick={() => setSelectedCard(card)}
+                          className="flex-shrink-0 rounded-2xl overflow-hidden flex cursor-pointer transition-transform duration-200 hover:scale-[1.03] hover:brightness-125"
                           style={{
                             width: '420px',
                             height: '230px',
@@ -906,6 +909,85 @@ export default function Home() {
                   <Link href="/contact" className="w-full sm:w-auto">
                     <Button variant="outline" size="lg" className="w-full sm:w-auto border-2 border-white bg-transparent !text-white hover:bg-white hover:!text-scanvault-black px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg rounded-full">
                       Contact Us
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Expanded glass card modal */}
+      {selectedCard && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          onClick={() => setSelectedCard(null)}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+          {/* Expanded card */}
+          <div
+            className="relative z-10 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl"
+            style={{
+              background: 'rgba(255,255,255,0.10)',
+              backdropFilter: 'blur(32px)',
+              WebkitBackdropFilter: 'blur(32px)',
+              border: '1px solid rgba(255,255,255,0.25)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 24px 60px rgba(0,0,0,0.5)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setSelectedCard(null)}
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+              style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+            >
+              <X className="h-4 w-4 text-white" />
+            </button>
+
+            {/* Top colour band */}
+            <div className="h-1 w-full bg-scanvault-red" />
+
+            <div className="flex">
+              {/* Left icon column */}
+              <div
+                className="w-24 flex-shrink-0 flex flex-col items-center justify-center gap-4 py-10"
+                style={{ borderRight: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)' }}
+              >
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                  style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
+                >
+                  {selectedCard.icon}
+                </div>
+                <div className="w-px flex-1" style={{ background: 'rgba(255,255,255,0.15)', maxHeight: '60px' }} />
+                <span
+                  className="text-scanvault-red text-xs font-black"
+                  style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.15em' }}
+                >SV</span>
+              </div>
+
+              {/* Right content */}
+              <div className="flex-1 p-8">
+                <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.45)' }}>{selectedCard.tag}</span>
+                <h2 className="text-2xl font-bold text-white mt-1 mb-1">{selectedCard.title}</h2>
+                <p className="text-xs uppercase tracking-wider mb-5" style={{ color: 'rgba(255,255,255,0.4)' }}>{selectedCard.subtitle}</p>
+
+                <div className="w-10 h-px bg-scanvault-red mb-5" />
+
+                <p className="text-sm text-white/80 leading-relaxed mb-8">{selectedCard.detail}</p>
+
+                <div className="flex gap-3">
+                  <Link href="/quote" onClick={() => setSelectedCard(null)}>
+                    <Button size="sm" className="bg-scanvault-red hover:bg-red-700 text-white rounded-full px-5">
+                      Get a Quote <ArrowRight className="ml-1 h-3 w-3" />
+                    </Button>
+                  </Link>
+                  <Link href="/contact" onClick={() => setSelectedCard(null)}>
+                    <Button size="sm" variant="outline" className="rounded-full px-5 border-white/30 bg-white/10 text-white hover:bg-white/20">
+                      Learn More
                     </Button>
                   </Link>
                 </div>
