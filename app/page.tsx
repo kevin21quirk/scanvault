@@ -942,49 +942,52 @@ export default function Home() {
               <X className="h-4 w-4 text-white/80" />
             </button>
 
-            <div className="flex min-h-[340px]">
-              {/* Left icon column */}
+            {/* Mobile: stacked vertically. sm+: side by side */}
+            <div className="flex flex-col sm:flex-row">
+              {/* Mobile: horizontal icon bar. sm+: vertical icon column */}
               <div
-                className="w-28 flex-shrink-0 flex flex-col items-center justify-center gap-5 py-12"
-                style={{ borderRight: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' }}
+                className="flex sm:flex-col items-center justify-start sm:justify-center gap-4 sm:gap-5 px-6 py-5 sm:px-0 sm:py-12 sm:w-28 flex-shrink-0 border-b sm:border-b-0 sm:border-r"
+                style={{
+                  borderColor: 'rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.03)',
+                }}
               >
                 {/* Glowing icon */}
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <div className="absolute inset-0 rounded-2xl blur-xl" style={{ background: 'rgba(229,62,62,0.3)' }} />
                   <div
-                    className="relative w-16 h-16 rounded-2xl flex items-center justify-center"
+                    className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center"
                     style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}
                   >
                     {selectedCard.icon}
                   </div>
                 </div>
-                <div className="w-px h-10" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), transparent)' }} />
-                <span
-                  className="text-scanvault-red text-xs font-black"
-                  style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.2em' }}
-                >SCANVAULT</span>
+                {/* Divider — horizontal on mobile, vertical on sm+ */}
+                <div className="h-px w-10 sm:h-10 sm:w-px flex-shrink-0" style={{ background: 'linear-gradient(to right, rgba(255,255,255,0.15), transparent)' }} />
+                <span className="text-scanvault-red text-xs font-black tracking-[0.2em] sm:hidden">SCANVAULT</span>
+                <span className="text-scanvault-red text-xs font-black hidden sm:inline-block" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.2em' }}>SCANVAULT</span>
               </div>
 
-              {/* Right content */}
-              <div className="flex-1 p-10 flex flex-col justify-center">
+              {/* Content */}
+              <div className="flex-1 p-6 sm:p-10 flex flex-col justify-center">
                 <span className="text-xs font-semibold tracking-[0.25em] uppercase mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>{selectedCard.tag}</span>
-                <h2 className="text-3xl font-bold text-white mb-1 leading-tight">{selectedCard.title}</h2>
-                <p className="text-xs uppercase tracking-[0.2em] mb-6" style={{ color: 'rgba(255,255,255,0.35)' }}>{selectedCard.subtitle}</p>
+                <h2 className="text-xl sm:text-3xl font-bold text-white mb-1 leading-tight">{selectedCard.title}</h2>
+                <p className="text-xs uppercase tracking-[0.2em] mb-4 sm:mb-6" style={{ color: 'rgba(255,255,255,0.35)' }}>{selectedCard.subtitle}</p>
 
-                <div className="w-12 h-px mb-6" style={{ background: 'linear-gradient(to right, #e53e3e, transparent)' }} />
+                <div className="w-12 h-px mb-4 sm:mb-6" style={{ background: 'linear-gradient(to right, #e53e3e, transparent)' }} />
 
-                <p className="text-base leading-relaxed mb-10" style={{ color: 'rgba(255,255,255,0.75)' }}>{selectedCard.detail}</p>
+                <p className="text-sm sm:text-base leading-relaxed mb-6 sm:mb-10" style={{ color: 'rgba(255,255,255,0.75)' }}>{selectedCard.detail}</p>
 
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-3">
                   <Link href="/quote" onClick={() => setSelectedCard(null)}>
-                    <Button className="bg-scanvault-red hover:bg-red-700 text-white rounded-full px-7 py-5 text-sm font-semibold shadow-lg shadow-red-900/30">
+                    <Button className="bg-scanvault-red hover:bg-red-700 text-white rounded-full px-5 sm:px-7 py-4 sm:py-5 text-sm font-semibold shadow-lg shadow-red-900/30">
                       Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
                   <Link href="/contact" onClick={() => setSelectedCard(null)}>
                     <Button
                       variant="outline"
-                      className="rounded-full px-7 py-5 text-sm font-semibold text-white hover:text-white hover:bg-white/10"
+                      className="rounded-full px-5 sm:px-7 py-4 sm:py-5 text-sm font-semibold text-white hover:text-white hover:bg-white/10"
                       style={{ border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)' }}
                     >
                       Learn More
