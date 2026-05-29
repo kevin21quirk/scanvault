@@ -32,11 +32,14 @@ export default function Home() {
   useEffect(() => {
     const detectSection = () => {
       const sections = document.querySelectorAll<HTMLElement>('[data-sidebar-theme]');
-      const mid = window.innerHeight / 2;
       let active = 'hero';
+      let maxVisible = 0;
       sections.forEach(el => {
         const r = el.getBoundingClientRect();
-        if (r.top <= mid && r.bottom >= mid) active = el.dataset.sidebarTheme || 'hero';
+        const visTop = Math.max(0, r.top);
+        const visBottom = Math.min(window.innerHeight, r.bottom);
+        const visible = Math.max(0, visBottom - visTop);
+        if (visible > maxVisible) { maxVisible = visible; active = el.dataset.sidebarTheme || 'hero'; }
       });
       setSidebarTheme(active);
     };
