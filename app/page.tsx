@@ -436,132 +436,100 @@ export default function Home() {
       {/* Glassmorphism Showcase Section */}
       {(() => {
         const glassCards = [
-          {
-            icon: <Share2 className="h-6 w-6 text-white" />,
-            tag: "Integration",
-            title: "Scan to SharePoint",
-            subtitle: "Microsoft 365 Ready",
-            detail: "Seamlessly push scanned documents directly into your SharePoint libraries with automated metadata tagging.",
-          },
-          {
-            icon: <Cloud className="h-6 w-6 text-white" />,
-            tag: "Cloud",
-            title: "Scan to Cloud",
-            subtitle: "AWS · Azure · Google",
-            detail: "Upload and organise your digitised archives into any major cloud provider with encrypted secure transfers.",
-          },
-          {
-            icon: <Database className="h-6 w-6 text-white" />,
-            tag: "Exclusive",
-            title: "ScanVault Platform",
-            subtitle: "Our Proprietary System",
-            detail: "Full-featured document management portal with advanced search, access controls, and full audit trail.",
-          },
-          {
-            icon: <Trash2 className="h-6 w-6 text-white" />,
-            tag: "Compliance",
-            title: "Secure Shredding",
-            subtitle: "GDPR Compliant",
-            detail: "Certified document destruction with a legally binding Certificate of Destruction issued for every job.",
-          },
-          {
-            icon: <FileCheck className="h-6 w-6 text-white" />,
-            tag: "Certified",
-            title: "Certificate of Destruction",
-            subtitle: "Official Documentation",
-            detail: "Receive an official COD after every shredding engagement, giving you full legal proof of destruction.",
-          },
-          {
-            icon: <ClipboardCheck className="h-6 w-6 text-white" />,
-            tag: "Pre-Work",
-            title: "Risk Assessment",
-            subtitle: "Agreed Before We Start",
-            detail: "Comprehensive risk assessment forms completed and signed by both parties before any project commences.",
-          },
+          { icon: <Share2 className="h-7 w-7 text-white" />, tag: "Integration", title: "Scan to SharePoint", subtitle: "Microsoft 365 Ready", detail: "Seamlessly push scanned documents directly into your SharePoint libraries with automated metadata tagging and folder structures." },
+          { icon: <Cloud className="h-7 w-7 text-white" />, tag: "Cloud", title: "Scan to Cloud", subtitle: "AWS · Azure · Google", detail: "Upload and organise your digitised archives into any major cloud provider with fully encrypted, secure transfers." },
+          { icon: <Database className="h-7 w-7 text-white" />, tag: "Exclusive", title: "ScanVault Platform", subtitle: "Our Proprietary System", detail: "Full-featured document management portal with advanced search, role-based access controls, and a complete audit trail." },
+          { icon: <Trash2 className="h-7 w-7 text-white" />, tag: "Compliance", title: "Secure Shredding", subtitle: "GDPR Compliant", detail: "Certified document destruction with a legally binding Certificate of Destruction issued for every single job." },
+          { icon: <FileCheck className="h-7 w-7 text-white" />, tag: "Certified", title: "Certificate of Destruction", subtitle: "Official Documentation", detail: "Receive an official COD after every shredding engagement — giving you full legal proof and peace of mind." },
+          { icon: <ClipboardCheck className="h-7 w-7 text-white" />, tag: "Pre-Work", title: "Risk Assessment", subtitle: "Agreed Before We Start", detail: "Comprehensive risk assessment forms completed and signed by both parties before any project commences." },
         ];
         return (
-          <section className="relative h-[600px] overflow-hidden">
-            {/* Background image */}
+          <section className="relative h-[580px] overflow-hidden">
+            {/* Warm, well-lit office background — barely darkened so the room is clearly visible */}
             <img
-              src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&auto=format&fit=crop&q=80"
+              src="https://images.unsplash.com/photo-1564069114553-7215e1ff1890?w=1600&auto=format&fit=crop&q=85"
               alt="Office background"
               className="absolute inset-0 w-full h-full object-cover"
             />
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-black/55"></div>
+            {/* Very light overlay — room stays clearly visible */}
+            <div className="absolute inset-0" style={{ background: 'rgba(10,10,20,0.28)' }}></div>
 
-            {/* Section heading */}
+            {/* Heading */}
             <div className="absolute top-10 left-0 right-0 text-center z-10">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/25 mb-3" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)' }}>
                 <Sparkles className="h-4 w-4 text-scanvault-red" />
-                <span className="text-sm font-medium text-white">Our Capabilities</span>
+                <span className="text-sm font-medium text-white/90">Our Capabilities</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white">
+              <h2 className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
                 Everything Your Business Needs
               </h2>
             </div>
 
-            {/* 3D perspective carousel - cards come from right background to left foreground */}
-            <div
-              className="absolute top-1/2 -translate-y-1/2 left-0 right-0 z-10 py-8 overflow-hidden"
-              style={{ perspective: '1600px', perspectiveOrigin: '50% 50%' }}
-            >
-              {/* Tilt the entire track so right = far, left = near */}
-              <div style={{ transform: 'rotateY(-14deg) rotateX(3deg)', transformStyle: 'preserve-3d' }}>
-                <div className="animate-scroll-cards gap-7 px-8">
+            {/* Glass panel strip — centred vertically */}
+            <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 z-10">
+              {/* Top edge line */}
+              <div className="w-full h-px" style={{ background: 'rgba(255,255,255,0.35)' }}></div>
+
+              {/* The panel itself — very transparent so the room shows through */}
+              <div
+                className="w-full overflow-hidden"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  backdropFilter: 'blur(6px)',
+                  WebkitBackdropFilter: 'blur(6px)',
+                }}
+              >
+                <div className="animate-scroll-cards gap-4 py-7 px-6">
                   {[...glassCards, ...glassCards].map((card, i) => (
                     <div
                       key={i}
-                      className="flex-shrink-0 w-72 rounded-2xl p-6 shadow-2xl"
+                      className="flex-shrink-0 rounded-2xl overflow-hidden flex"
                       style={{
-                        background: 'rgba(255,255,255,0.08)',
-                        backdropFilter: 'blur(16px)',
-                        WebkitBackdropFilter: 'blur(16px)',
-                        border: '1px solid rgba(255,255,255,0.18)',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+                        width: '400px',
+                        height: '180px',
+                        background: 'rgba(255,255,255,0.07)',
+                        backdropFilter: 'blur(22px)',
+                        WebkitBackdropFilter: 'blur(22px)',
+                        border: '1px solid rgba(255,255,255,0.22)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 20px rgba(0,0,0,0.18)',
                       }}
                     >
-                      {/* Top row */}
-                      <div className="flex items-center justify-between mb-4">
+                      {/* Left icon panel */}
+                      <div
+                        className="w-20 flex-shrink-0 flex flex-col items-center justify-center gap-3"
+                        style={{ borderRight: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)' }}
+                      >
                         <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center"
-                          style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' }}
+                          className="w-12 h-12 rounded-xl flex items-center justify-center"
+                          style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
                         >
                           {card.icon}
                         </div>
-                        <span
-                          className="text-xs font-semibold text-white/80 px-3 py-1 rounded-full"
-                          style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}
-                        >
-                          {card.tag}
-                        </span>
+                        <div className="w-px h-6" style={{ background: 'rgba(255,255,255,0.2)' }}></div>
+                        <span className="text-scanvault-red text-xs font-black tracking-widest" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>SV</span>
                       </div>
 
-                      {/* Title */}
-                      <h3 className="text-lg font-bold text-white mb-1">{card.title}</h3>
-                      <p className="text-xs font-medium text-white/50 mb-3 uppercase tracking-wider">{card.subtitle}</p>
-
-                      {/* Divider */}
-                      <div className="w-full h-px mb-3" style={{ background: 'rgba(255,255,255,0.15)' }}></div>
-
-                      {/* Detail */}
-                      <p className="text-sm text-white/75 leading-relaxed">{card.detail}</p>
-
-                      {/* ScanVault branding */}
-                      <div className="mt-5 flex items-center gap-2">
-                        <div className="w-5 h-px bg-scanvault-red"></div>
-                        <span className="text-xs text-white/40 font-semibold tracking-widest uppercase">ScanVault</span>
+                      {/* Right text panel */}
+                      <div className="flex-1 p-5 flex flex-col justify-center">
+                        <span className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{card.tag}</span>
+                        <h3 className="text-base font-bold text-white mb-0.5 leading-tight">{card.title}</h3>
+                        <p className="text-xs uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>{card.subtitle}</p>
+                        <div className="w-8 h-px bg-scanvault-red mb-3"></div>
+                        <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>{card.detail}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
+
+              {/* Bottom edge line */}
+              <div className="w-full h-px" style={{ background: 'rgba(255,255,255,0.35)' }}></div>
             </div>
 
-            {/* Left edge fade — stronger to sell the "coming into view" feel */}
-            <div className="absolute top-0 left-0 h-full w-32 z-20 pointer-events-none" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.85), transparent)' }}></div>
+            {/* Left edge fade */}
+            <div className="absolute top-0 left-0 h-full w-28 z-20 pointer-events-none" style={{ background: 'linear-gradient(to right, rgba(10,10,20,0.75), transparent)' }}></div>
             {/* Right edge fade */}
-            <div className="absolute top-0 right-0 h-full w-48 z-20 pointer-events-none" style={{ background: 'linear-gradient(to left, rgba(0,0,0,0.9), transparent)' }}></div>
+            <div className="absolute top-0 right-0 h-full w-28 z-20 pointer-events-none" style={{ background: 'linear-gradient(to left, rgba(10,10,20,0.75), transparent)' }}></div>
           </section>
         );
       })()}
