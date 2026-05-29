@@ -14,6 +14,7 @@ export default function Home() {
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
   const [selectedCard, setSelectedCard] = useState<{ icon: React.ReactNode; tag: string; title: string; subtitle: string; detail: string } | null>(null);
+  const [sidebarTheme, setSidebarTheme] = useState<string>('hero');
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -26,6 +27,22 @@ export default function Home() {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const detectSection = () => {
+      const sections = document.querySelectorAll<HTMLElement>('[data-sidebar-theme]');
+      const mid = window.innerHeight / 2;
+      let active = 'hero';
+      sections.forEach(el => {
+        const r = el.getBoundingClientRect();
+        if (r.top <= mid && r.bottom >= mid) active = el.dataset.sidebarTheme || 'hero';
+      });
+      setSidebarTheme(active);
+    };
+    window.addEventListener('scroll', detectSection, { passive: true });
+    detectSection();
+    return () => window.removeEventListener('scroll', detectSection);
   }, []);
 
   const handleCloseModal = () => {
@@ -186,7 +203,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col overflow-hidden">
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-scanvault-black via-gray-900 to-scanvault-red">
+      <section data-sidebar-theme="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-scanvault-black via-gray-900 to-scanvault-red">
         {/* Background Video */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <MuxPlayer
@@ -275,7 +292,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative py-32 bg-white overflow-hidden">
+      <section data-sidebar-theme="white" className="relative py-32 bg-white overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-scanvault-red to-transparent"></div>
         
         <div className="container mx-auto px-4">
@@ -333,7 +350,7 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-scanvault-red to-transparent"></div>
       </section>
 
-      <section className="relative py-32 bg-gradient-to-b from-white via-gray-50 to-white overflow-hidden">
+      <section data-sidebar-theme="white" className="relative py-32 bg-gradient-to-b from-white via-gray-50 to-white overflow-hidden">
         <div className="absolute top-1/4 right-0 w-96 h-96 bg-scanvault-red/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 left-0 w-96 h-96 bg-red-400/5 rounded-full blur-3xl"></div>
         
@@ -447,7 +464,7 @@ export default function Home() {
           { icon: <ClipboardCheck className="h-7 w-7 text-white" />, tag: "Pre-Work", title: "Risk Assessment", subtitle: "Agreed Before We Start", detail: "Comprehensive risk assessment forms completed and signed by both parties before any project commences." },
         ];
         return (
-          <section className="relative h-[580px] overflow-hidden">
+          <section data-sidebar-theme="image" className="relative h-[580px] overflow-hidden">
             {/* Warm, well-lit office background — barely darkened so the room is clearly visible */}
             <img
               src="https://images.unsplash.com/photo-1564069114553-7215e1ff1890?w=1600&auto=format&fit=crop&q=85"
@@ -534,7 +551,7 @@ export default function Home() {
       })()}
 
       {/* Comprehensive Scanning Services Section */}
-      <section className="py-20 bg-white relative overflow-hidden">
+      <section data-sidebar-theme="white" className="py-20 bg-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-red-50 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-gray-50 rounded-full blur-3xl"></div>
         
@@ -780,7 +797,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-24 bg-gradient-to-br from-scanvault-black via-gray-900 to-scanvault-black text-white relative overflow-hidden">
+      <section data-sidebar-theme="dark" className="py-24 bg-gradient-to-br from-scanvault-black via-gray-900 to-scanvault-black text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5"></div>
         <div className="absolute top-0 left-0 w-96 h-96 bg-scanvault-red rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
@@ -909,52 +926,50 @@ export default function Home() {
           </div>
         </div>
       )}
-      {/* Fixed glassmorphism social / contact sidebar — scrolls with page, changes colour past hero */}
+      {/* Fixed glassmorphism social / contact sidebar — theme adapts per section */}
       {(() => {
-        const pastHero = scrollY > 480;
-        const tr = 'all 0.5s ease';
-
-        // Hero: near-invisible white glass (video shows through)
-        // Past hero: semi-opaque dark glass — clearly visible on ANY section background
-        const panelStyle: React.CSSProperties = pastHero ? {
-          background: 'rgba(12,12,20,0.60)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)',
-          transition: tr,
-        } : {
-          background: 'rgba(255,255,255,0.02)',
-          backdropFilter: 'blur(2px)',
-          WebkitBackdropFilter: 'blur(2px)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
-          transition: tr,
+        const tr = 'all 0.4s ease';
+        type SidebarTheme = { panel: React.CSSProperties; icon: React.CSSProperties; contactIcon: React.CSSProperties; label: React.CSSProperties; text: React.CSSProperties; iconCls: string; contactIconCls: string };
+        const themes: Record<string, SidebarTheme> = {
+          // Ultra-transparent on dark video hero
+          hero: {
+            panel: { background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none', transition: tr },
+            icon: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.14)', transition: tr },
+            contactIcon: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(229,62,62,0.30)', transition: tr },
+            label: { color: 'rgba(255,255,255,0.45)', transition: tr },
+            text: { color: 'rgba(255,255,255,0.65)', transition: tr },
+            iconCls: 'h-5 w-5 text-white', contactIconCls: 'h-6 w-6 text-white',
+          },
+          // Dark frosted glass on white/light sections — stands out cleanly
+          white: {
+            panel: { background: 'rgba(10,10,20,0.80)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', boxShadow: '0 8px 32px rgba(0,0,0,0.25)', transition: tr },
+            icon: { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', transition: tr },
+            contactIcon: { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(229,62,62,0.45)', transition: tr },
+            label: { color: 'rgba(255,255,255,0.50)', transition: tr },
+            text: { color: 'rgba(255,255,255,0.70)', transition: tr },
+            iconCls: 'h-5 w-5 text-white', contactIconCls: 'h-6 w-6 text-white',
+          },
+          // Classic light glass on image backgrounds — matches carousel cards
+          image: {
+            panel: { background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(22px)', WebkitBackdropFilter: 'blur(22px)', border: '1px solid rgba(255,255,255,0.22)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 20px rgba(0,0,0,0.18)', transition: tr },
+            icon: { background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.20)', transition: tr },
+            contactIcon: { background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(229,62,62,0.45)', transition: tr },
+            label: { color: 'rgba(255,255,255,0.50)', transition: tr },
+            text: { color: 'rgba(255,255,255,0.72)', transition: tr },
+            iconCls: 'h-5 w-5 text-white', contactIconCls: 'h-6 w-6 text-white',
+          },
+          // Light glass on dark sections (CTA/footer) — same recipe as image
+          dark: {
+            panel: { background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(22px)', WebkitBackdropFilter: 'blur(22px)', border: '1px solid rgba(255,255,255,0.22)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 20px rgba(0,0,0,0.18)', transition: tr },
+            icon: { background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.20)', transition: tr },
+            contactIcon: { background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(229,62,62,0.45)', transition: tr },
+            label: { color: 'rgba(255,255,255,0.50)', transition: tr },
+            text: { color: 'rgba(255,255,255,0.72)', transition: tr },
+            iconCls: 'h-5 w-5 text-white', contactIconCls: 'h-6 w-6 text-white',
+          },
         };
-
-        const iconStyle: React.CSSProperties = {
-          background: pastHero ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.14)',
-          transition: tr,
-        };
-
-        const contactIconStyle: React.CSSProperties = {
-          background: pastHero ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(229,62,62,0.40)',
-          transition: tr,
-        };
-
-        // Icons and text are always white — panel is dark enough to give contrast
-        const labelStyle: React.CSSProperties = {
-          color: 'rgba(255,255,255,0.45)',
-          transition: tr,
-        };
-        const contactTextStyle: React.CSSProperties = {
-          color: 'rgba(255,255,255,0.65)',
-          transition: tr,
-        };
-        const iconCls = 'h-5 w-5 text-white';
-        const contactIconCls = 'h-6 w-6 text-white';
+        const t = themes[sidebarTheme] ?? themes.hero;
+        const { panel: panelStyle, icon: iconStyle, contactIcon: contactIconStyle, label: labelStyle, text: contactTextStyle, iconCls, contactIconCls } = t;
         const labelClass = 'text-[10px] font-semibold tracking-[0.2em] uppercase text-center mb-3';
 
         return (
