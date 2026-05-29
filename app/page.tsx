@@ -467,69 +467,73 @@ export default function Home() {
 
             {/* Glass panel strip — centred vertically */}
             <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 z-10">
-              {/* Top edge line */}
+              {/* Top edge line of glass panel */}
               <div className="w-full h-px" style={{ background: 'rgba(255,255,255,0.35)' }}></div>
 
-              {/* The panel itself — very transparent so the room shows through */}
-              <div
-                className="w-full overflow-hidden"
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  backdropFilter: 'blur(6px)',
-                  WebkitBackdropFilter: 'blur(6px)',
-                }}
-              >
-                <div className="animate-scroll-cards gap-4 py-7 px-6">
-                  {[...glassCards, ...glassCards].map((card, i) => (
-                    <div
-                      key={i}
-                      className="flex-shrink-0 rounded-2xl overflow-hidden flex"
-                      style={{
-                        width: '400px',
-                        height: '180px',
-                        background: 'rgba(255,255,255,0.07)',
-                        backdropFilter: 'blur(22px)',
-                        WebkitBackdropFilter: 'blur(22px)',
-                        border: '1px solid rgba(255,255,255,0.22)',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 20px rgba(0,0,0,0.18)',
-                      }}
-                    >
-                      {/* Left icon panel */}
-                      <div
-                        className="w-20 flex-shrink-0 flex flex-col items-center justify-center gap-3"
-                        style={{ borderRight: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)' }}
-                      >
-                        <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center"
-                          style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
-                        >
-                          {card.icon}
-                        </div>
-                        <div className="w-px h-6" style={{ background: 'rgba(255,255,255,0.2)' }}></div>
-                        <span className="text-scanvault-red text-xs font-black tracking-widest" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>SV</span>
-                      </div>
+              {/* Panel background — barely tinted so room shows through */}
+              <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(5px)', WebkitBackdropFilter: 'blur(5px)' }}>
 
-                      {/* Right text panel */}
-                      <div className="flex-1 p-5 flex flex-col justify-center">
-                        <span className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{card.tag}</span>
-                        <h3 className="text-base font-bold text-white mb-0.5 leading-tight">{card.title}</h3>
-                        <p className="text-xs uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>{card.subtitle}</p>
-                        <div className="w-8 h-px bg-scanvault-red mb-3"></div>
-                        <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>{card.detail}</p>
-                      </div>
+                {/* LEVEL 1: Perspective space — vanishing point pulled right so right = far */}
+                <div style={{ perspective: '1200px', perspectiveOrigin: '75% 50%', overflow: 'hidden' }}>
+
+                  {/* LEVEL 2: Tilt the plane — rotateY pushes right side back, brings left side forward */}
+                  <div style={{ transform: 'rotateY(-18deg)', transformStyle: 'preserve-3d' }}>
+
+                    {/* LEVEL 3: The scroll animation lives here — translateX on tilted plane = 3D depth effect */}
+                    <div className="animate-scroll-cards gap-4 py-7 px-6">
+                      {[...glassCards, ...glassCards].map((card, i) => (
+                        <div
+                          key={i}
+                          className="flex-shrink-0 rounded-2xl overflow-hidden flex"
+                          style={{
+                            width: '400px',
+                            height: '180px',
+                            background: 'rgba(255,255,255,0.07)',
+                            backdropFilter: 'blur(22px)',
+                            WebkitBackdropFilter: 'blur(22px)',
+                            border: '1px solid rgba(255,255,255,0.22)',
+                            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 20px rgba(0,0,0,0.2)',
+                          }}
+                        >
+                          {/* Left icon panel */}
+                          <div
+                            className="w-20 flex-shrink-0 flex flex-col items-center justify-center gap-3"
+                            style={{ borderRight: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)' }}
+                          >
+                            <div
+                              className="w-12 h-12 rounded-xl flex items-center justify-center"
+                              style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+                            >
+                              {card.icon}
+                            </div>
+                            <div className="w-px h-6" style={{ background: 'rgba(255,255,255,0.2)' }}></div>
+                            <span className="text-scanvault-red text-xs font-black" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.15em' }}>SV</span>
+                          </div>
+
+                          {/* Right text panel */}
+                          <div className="flex-1 p-5 flex flex-col justify-center">
+                            <span className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{card.tag}</span>
+                            <h3 className="text-base font-bold text-white mb-0.5 leading-tight">{card.title}</h3>
+                            <p className="text-xs uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>{card.subtitle}</p>
+                            <div className="w-8 h-px bg-scanvault-red mb-3"></div>
+                            <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>{card.detail}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+
+                  </div>
                 </div>
               </div>
 
-              {/* Bottom edge line */}
+              {/* Bottom edge line of glass panel */}
               <div className="w-full h-px" style={{ background: 'rgba(255,255,255,0.35)' }}></div>
             </div>
 
-            {/* Left edge fade */}
-            <div className="absolute top-0 left-0 h-full w-28 z-20 pointer-events-none" style={{ background: 'linear-gradient(to right, rgba(10,10,20,0.75), transparent)' }}></div>
-            {/* Right edge fade */}
-            <div className="absolute top-0 right-0 h-full w-28 z-20 pointer-events-none" style={{ background: 'linear-gradient(to left, rgba(10,10,20,0.75), transparent)' }}></div>
+            {/* Left edge fade — cards "arrive" from darkness */}
+            <div className="absolute top-0 left-0 h-full w-32 z-20 pointer-events-none" style={{ background: 'linear-gradient(to right, rgba(10,10,20,0.85), transparent)' }}></div>
+            {/* Right edge fade — cards "recede" into background */}
+            <div className="absolute top-0 right-0 h-full w-48 z-20 pointer-events-none" style={{ background: 'linear-gradient(to left, rgba(10,10,20,0.9), transparent)' }}></div>
           </section>
         );
       })()}
