@@ -106,6 +106,26 @@
     animation-play-state: paused;
   }
 
+  /* Right-to-left direction: cards enter from left, exit right */
+  @keyframes scrollCardsRight {
+    0% {
+      transform: translateX(-50%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .animate-scroll-cards-right {
+    animation: scrollCardsRight 30s linear infinite;
+    display: flex;
+    width: max-content;
+  }
+
+  .animate-scroll-cards-right:hover {
+    animation-play-state: paused;
+  }
+
   /* Logo rotation animation */
   @keyframes rotate3d {
     from {

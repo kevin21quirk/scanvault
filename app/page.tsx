@@ -473,21 +473,21 @@ export default function Home() {
               {/* Panel background — barely tinted so room shows through */}
               <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(5px)', WebkitBackdropFilter: 'blur(5px)' }}>
 
-                {/* LEVEL 1: Perspective space — vanishing point pulled right so right = far */}
-                <div style={{ perspective: '1200px', perspectiveOrigin: '75% 50%', overflow: 'hidden' }}>
+                {/* LEVEL 1: Perspective space — vanishing point on left so left = far, right = near */}
+                <div style={{ perspective: '1200px', perspectiveOrigin: '25% 50%', overflow: 'hidden' }}>
 
-                  {/* LEVEL 2: Tilt the plane — rotateY pushes right side back, brings left side forward */}
-                  <div style={{ transform: 'rotateY(-18deg)', transformStyle: 'preserve-3d' }}>
+                  {/* LEVEL 2: Tilt the plane — rotateY(+18deg) pushes left side back, brings right side forward */}
+                  <div style={{ transform: 'rotateY(18deg)', transformStyle: 'preserve-3d' }}>
 
-                    {/* LEVEL 3: The scroll animation lives here — translateX on tilted plane = 3D depth effect */}
-                    <div className="animate-scroll-cards gap-4 py-7 px-6">
+                    {/* LEVEL 3: Reversed scroll — cards enter from left, exit right */}
+                    <div className="animate-scroll-cards-right gap-4 py-10 px-6">
                       {[...glassCards, ...glassCards].map((card, i) => (
                         <div
                           key={i}
                           className="flex-shrink-0 rounded-2xl overflow-hidden flex"
                           style={{
-                            width: '400px',
-                            height: '180px',
+                            width: '420px',
+                            height: '230px',
                             background: 'rgba(255,255,255,0.07)',
                             backdropFilter: 'blur(22px)',
                             WebkitBackdropFilter: 'blur(22px)',
@@ -530,10 +530,10 @@ export default function Home() {
               <div className="w-full h-px" style={{ background: 'rgba(255,255,255,0.35)' }}></div>
             </div>
 
-            {/* Left edge fade — cards "arrive" from darkness */}
-            <div className="absolute top-0 left-0 h-full w-32 z-20 pointer-events-none" style={{ background: 'linear-gradient(to right, rgba(10,10,20,0.85), transparent)' }}></div>
-            {/* Right edge fade — cards "recede" into background */}
-            <div className="absolute top-0 right-0 h-full w-48 z-20 pointer-events-none" style={{ background: 'linear-gradient(to left, rgba(10,10,20,0.9), transparent)' }}></div>
+            {/* Left edge fade — cards emerge from the left background */}
+            <div className="absolute top-0 left-0 h-full w-48 z-20 pointer-events-none" style={{ background: 'linear-gradient(to right, rgba(10,10,20,0.92), transparent)' }}></div>
+            {/* Right edge fade — cards exit to the right */}
+            <div className="absolute top-0 right-0 h-full w-32 z-20 pointer-events-none" style={{ background: 'linear-gradient(to left, rgba(10,10,20,0.7), transparent)' }}></div>
           </section>
         );
       })()}
