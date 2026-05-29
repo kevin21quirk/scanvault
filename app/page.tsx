@@ -977,14 +977,14 @@ export default function Home() {
             text: { color: 'rgba(255,255,255,0.65)', transition: tr },
             iconCls: 'h-5 w-5 text-white', contactIconCls: 'h-6 w-6 text-white',
           },
-          // Dark frosted glass on white/light sections — stands out cleanly
+          // Light translucent glass on white/light sections — background shows through, dark icons/text
           white: {
-            panel: { background: 'rgba(10,10,20,0.80)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', boxShadow: '0 8px 32px rgba(0,0,0,0.25)', transition: tr },
-            icon: { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', transition: tr },
-            contactIcon: { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(229,62,62,0.45)', transition: tr },
-            label: { color: 'rgba(255,255,255,0.50)', transition: tr },
-            text: { color: 'rgba(255,255,255,0.70)', transition: tr },
-            iconCls: 'h-5 w-5 text-white', contactIconCls: 'h-6 w-6 text-white',
+            panel: { background: 'rgba(255,255,255,0.22)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', transition: tr },
+            icon: { background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.10)', transition: tr },
+            contactIcon: { background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(220,38,38,0.40)', transition: tr },
+            label: { color: 'rgba(0,0,0,0.45)', transition: tr },
+            text: { color: 'rgba(0,0,0,0.60)', transition: tr },
+            iconCls: 'h-5 w-5 text-gray-700', contactIconCls: 'h-6 w-6 text-gray-700',
           },
           // Classic light glass on image backgrounds — matches carousel cards
           image: {
