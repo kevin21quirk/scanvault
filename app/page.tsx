@@ -914,12 +914,14 @@ export default function Home() {
         const pastHero = scrollY > 480;
         const tr = 'all 0.5s ease';
 
+        // Hero: near-invisible white glass (video shows through)
+        // Past hero: semi-opaque dark glass — clearly visible on ANY section background
         const panelStyle: React.CSSProperties = pastHero ? {
-          background: 'rgba(15,15,15,0.10)',
-          backdropFilter: 'blur(14px)',
-          WebkitBackdropFilter: 'blur(14px)',
-          border: '1px solid rgba(0,0,0,0.14)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
+          background: 'rgba(12,12,20,0.60)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)',
           transition: tr,
         } : {
           background: 'rgba(255,255,255,0.02)',
@@ -930,36 +932,29 @@ export default function Home() {
           transition: tr,
         };
 
-        const iconStyle: React.CSSProperties = pastHero ? {
-          background: 'rgba(0,0,0,0.07)',
-          border: '1px solid rgba(0,0,0,0.12)',
-          transition: tr,
-        } : {
-          background: 'rgba(255,255,255,0.05)',
+        const iconStyle: React.CSSProperties = {
+          background: pastHero ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)',
           border: '1px solid rgba(255,255,255,0.14)',
           transition: tr,
         };
 
-        const contactIconStyle: React.CSSProperties = pastHero ? {
-          background: 'rgba(0,0,0,0.07)',
-          border: '1px solid rgba(220,38,38,0.4)',
-          transition: tr,
-        } : {
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(229,62,62,0.25)',
+        const contactIconStyle: React.CSSProperties = {
+          background: pastHero ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(229,62,62,0.40)',
           transition: tr,
         };
 
+        // Icons and text are always white — panel is dark enough to give contrast
         const labelStyle: React.CSSProperties = {
-          color: pastHero ? 'rgba(20,20,20,0.55)' : 'rgba(255,255,255,0.45)',
+          color: 'rgba(255,255,255,0.45)',
           transition: tr,
         };
         const contactTextStyle: React.CSSProperties = {
-          color: pastHero ? 'rgba(20,20,20,0.65)' : 'rgba(255,255,255,0.6)',
+          color: 'rgba(255,255,255,0.65)',
           transition: tr,
         };
-        const iconCls = pastHero ? 'h-5 w-5 text-gray-700' : 'h-5 w-5 text-white';
-        const contactIconCls = pastHero ? 'h-6 w-6 text-gray-700' : 'h-6 w-6 text-white';
+        const iconCls = 'h-5 w-5 text-white';
+        const contactIconCls = 'h-6 w-6 text-white';
         const labelClass = 'text-[10px] font-semibold tracking-[0.2em] uppercase text-center mb-3';
 
         return (
