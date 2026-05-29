@@ -220,67 +220,71 @@ export default function Home() {
         
         {/* Glassmorphism social / contact sidebar */}
         {(() => {
-          const glassStyle = {
+          const panelStyle = {
             background: 'rgba(255,255,255,0.07)',
             backdropFilter: 'blur(22px)',
             WebkitBackdropFilter: 'blur(22px)',
             border: '1px solid rgba(255,255,255,0.22)',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px rgba(0,0,0,0.2)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 20px rgba(0,0,0,0.18)',
           };
-          const socialLinks = [
-            { icon: <Linkedin className="h-4 w-4 text-white" />, href: 'https://linkedin.com/company/scanvault', label: 'LinkedIn' },
-            { icon: <Twitter className="h-4 w-4 text-white" />, href: 'https://twitter.com/scanvault', label: 'Twitter' },
-            { icon: <Facebook className="h-4 w-4 text-white" />, href: 'https://facebook.com/scanvault', label: 'Facebook' },
-            { icon: <Instagram className="h-4 w-4 text-white" />, href: 'https://instagram.com/scanvault', label: 'Instagram' },
-          ];
-          const contactLinks = [
-            { icon: <Mail className="h-4 w-4 text-white" />, href: 'mailto:info@scanvault.co.uk', label: 'info@scanvault.co.uk' },
-            { icon: <Phone className="h-4 w-4 text-white" />, href: 'tel:+447359969266', label: '+44 7359 969266' },
-          ];
+          const iconStyle = {
+            background: 'rgba(255,255,255,0.10)',
+            border: '1px solid rgba(255,255,255,0.2)',
+          };
+          const contactIconStyle = {
+            background: 'rgba(255,255,255,0.10)',
+            border: '1px solid rgba(229,62,62,0.4)',
+          };
+          const labelClass = "text-[10px] font-semibold tracking-[0.2em] uppercase text-center mb-3";
+          const labelStyle = { color: 'rgba(255,255,255,0.45)' };
+
           return (
-            <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2">
-              {/* Social icons */}
-              {socialLinks.map((item, i) => (
-                <a
-                  key={i}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative flex items-center"
-                >
-                  {/* Hover label — slides in from right */}
-                  <span
-                    className="absolute right-12 whitespace-nowrap text-xs text-white/80 font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-200 pointer-events-none"
-                    style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)' }}
-                  >{item.label}</span>
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110 hover:brightness-125"
-                    style={glassStyle}
-                  >{item.icon}</div>
-                </a>
-              ))}
+            <div className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 hidden sm:flex flex-col gap-3 w-36">
 
-              {/* Divider */}
-              <div className="w-px h-5" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0.05))' }} />
+              {/* — Social Media panel — */}
+              <div className="rounded-2xl p-4" style={panelStyle}>
+                <p className={labelClass} style={labelStyle}>Social Media</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { icon: <Linkedin className="h-5 w-5 text-white" />, href: 'https://linkedin.com/company/scanvault', label: 'LinkedIn' },
+                    { icon: <Twitter className="h-5 w-5 text-white" />, href: 'https://twitter.com/scanvault', label: 'Twitter' },
+                    { icon: <Facebook className="h-5 w-5 text-white" />, href: 'https://facebook.com/scanvault', label: 'Facebook' },
+                    { icon: <Instagram className="h-5 w-5 text-white" />, href: 'https://instagram.com/scanvault', label: 'Instagram' },
+                  ].map((item, i) => (
+                    <a key={i} href={item.href} target="_blank" rel="noopener noreferrer" title={item.label}
+                      className="flex items-center justify-center w-full aspect-square rounded-xl transition-all duration-200 hover:scale-110 hover:brightness-125"
+                      style={iconStyle}
+                    >{item.icon}</a>
+                  ))}
+                </div>
+              </div>
 
-              {/* Contact icons */}
-              {contactLinks.map((item, i) => (
-                <a
-                  key={i}
-                  href={item.href}
-                  className="group relative flex items-center"
-                >
-                  {/* Hover label */}
-                  <span
-                    className="absolute right-12 whitespace-nowrap text-xs text-white/80 font-medium px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-200 pointer-events-none"
-                    style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)' }}
-                  >{item.label}</span>
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110"
-                    style={{ ...glassStyle, border: '1px solid rgba(229,62,62,0.35)' }}
-                  >{item.icon}</div>
-                </a>
-              ))}
+              {/* — Email panel — */}
+              <a href="mailto:info@scanvault.co.uk" className="block rounded-2xl p-4 transition-all duration-200 hover:brightness-125" style={panelStyle}>
+                <p className={labelClass} style={labelStyle}>Email</p>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
+                    <Mail className="h-6 w-6 text-white" />
+                  </div>
+                  <p className="text-[10px] text-center leading-snug break-all" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                    info@scanvault.co.uk
+                  </p>
+                </div>
+              </a>
+
+              {/* — Phone panel — */}
+              <a href="tel:+447359969266" className="block rounded-2xl p-4 transition-all duration-200 hover:brightness-125" style={panelStyle}>
+                <p className={labelClass} style={labelStyle}>Phone</p>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
+                    <Phone className="h-6 w-6 text-white" />
+                  </div>
+                  <p className="text-[10px] text-center leading-snug" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                    +44 7359 969266
+                  </p>
+                </div>
+              </a>
+
             </div>
           );
         })()}
