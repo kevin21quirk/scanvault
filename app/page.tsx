@@ -986,15 +986,21 @@ export default function Home() {
                   { icon: <Instagram className={iconCls} />, href: 'https://instagram.com/scanvault', label: 'Instagram' },
                 ].map((item, i) => (
                   <a key={i} href={item.href} target="_blank" rel="noopener noreferrer" title={item.label}
-                    className="flex items-center justify-center w-full aspect-square rounded-xl transition-all duration-200 hover:scale-110"
-                    style={iconStyle}
+                    className="flex items-center justify-center w-full aspect-square rounded-xl transition-all duration-300 hover:scale-110 hover:brightness-125"
+                    style={{ ...iconStyle, boxShadow: 'none' }}
+                    onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 0 18px rgba(255,255,255,0.25), inset 0 1px 0 rgba(255,255,255,0.3)') }
+                    onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
                   >{item.icon}</a>
                 ))}
               </div>
             </div>
 
             {/* — Email panel — */}
-            <a href="mailto:info@scanvault.co.uk" className="block rounded-2xl p-4" style={panelStyle}>
+            <a href="mailto:info@scanvault.co.uk" className="block rounded-2xl p-4 transition-all duration-300 hover:scale-[1.04] hover:brightness-110"
+              style={panelStyle}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 28px rgba(255,255,255,0.18), inset 0 1px 0 rgba(255,255,255,0.25)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.35)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = (panelStyle.boxShadow as string) || 'none'; (e.currentTarget as HTMLElement).style.borderColor = ''; }}
+            >
               <p className={labelClass} style={labelStyle}>Email</p>
               <div className="flex flex-col items-center gap-3">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
@@ -1007,7 +1013,11 @@ export default function Home() {
             </a>
 
             {/* — Phone panel — */}
-            <a href="tel:+447359969266" className="block rounded-2xl p-4" style={panelStyle}>
+            <a href="tel:+447359969266" className="block rounded-2xl p-4 transition-all duration-300 hover:scale-[1.04] hover:brightness-110"
+              style={panelStyle}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 28px rgba(255,255,255,0.18), inset 0 1px 0 rgba(255,255,255,0.25)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.35)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = (panelStyle.boxShadow as string) || 'none'; (e.currentTarget as HTMLElement).style.borderColor = ''; }}
+            >
               <p className={labelClass} style={labelStyle}>Phone</p>
               <div className="flex flex-col items-center gap-3">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
