@@ -434,168 +434,137 @@ export default function Home() {
       </section>
 
       {/* Glassmorphism Showcase Section */}
-      <section className="relative h-[600px] overflow-hidden">
-        {/* Background image - dark office/scanning environment */}
-        <img
-          src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&auto=format&fit=crop&q=80"
-          alt="Office background"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
+      {(() => {
+        const glassCards = [
+          {
+            icon: <Share2 className="h-6 w-6 text-white" />,
+            tag: "Integration",
+            title: "Scan to SharePoint",
+            subtitle: "Microsoft 365 Ready",
+            detail: "Seamlessly push scanned documents directly into your SharePoint libraries with automated metadata tagging.",
+          },
+          {
+            icon: <Cloud className="h-6 w-6 text-white" />,
+            tag: "Cloud",
+            title: "Scan to Cloud",
+            subtitle: "AWS · Azure · Google",
+            detail: "Upload and organise your digitised archives into any major cloud provider with encrypted secure transfers.",
+          },
+          {
+            icon: <Database className="h-6 w-6 text-white" />,
+            tag: "Exclusive",
+            title: "ScanVault Platform",
+            subtitle: "Our Proprietary System",
+            detail: "Full-featured document management portal with advanced search, access controls, and full audit trail.",
+          },
+          {
+            icon: <Trash2 className="h-6 w-6 text-white" />,
+            tag: "Compliance",
+            title: "Secure Shredding",
+            subtitle: "GDPR Compliant",
+            detail: "Certified document destruction with a legally binding Certificate of Destruction issued for every job.",
+          },
+          {
+            icon: <FileCheck className="h-6 w-6 text-white" />,
+            tag: "Certified",
+            title: "Certificate of Destruction",
+            subtitle: "Official Documentation",
+            detail: "Receive an official COD after every shredding engagement, giving you full legal proof of destruction.",
+          },
+          {
+            icon: <ClipboardCheck className="h-6 w-6 text-white" />,
+            tag: "Pre-Work",
+            title: "Risk Assessment",
+            subtitle: "Agreed Before We Start",
+            detail: "Comprehensive risk assessment forms completed and signed by both parties before any project commences.",
+          },
+        ];
+        return (
+          <section className="relative h-[600px] overflow-hidden">
+            {/* Background image */}
+            <img
+              src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&auto=format&fit=crop&q=80"
+              alt="Office background"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            {/* Dark overlay */}
+            <div className="absolute inset-0 bg-black/55"></div>
 
-        {/* Section heading */}
-        <div className="absolute top-10 left-0 right-0 text-center z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-4">
-            <Sparkles className="h-4 w-4 text-scanvault-red" />
-            <span className="text-sm font-medium text-white">Our Capabilities</span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white">
-            Everything Your Business Needs
-          </h2>
-        </div>
+            {/* Section heading */}
+            <div className="absolute top-10 left-0 right-0 text-center z-10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-4">
+                <Sparkles className="h-4 w-4 text-scanvault-red" />
+                <span className="text-sm font-medium text-white">Our Capabilities</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white">
+                Everything Your Business Needs
+              </h2>
+            </div>
 
-        {/* Card carousel - positioned in centre of section */}
-        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 overflow-hidden z-10 py-4">
-          <div className="animate-scroll-cards gap-6 px-6">
-            {/* Cards rendered twice for seamless loop */}
-            {[
-              {
-                icon: <Share2 className="h-6 w-6 text-white" />,
-                tag: "Integration",
-                title: "Scan to SharePoint",
-                subtitle: "Microsoft 365 Ready",
-                detail: "Seamlessly push scanned documents directly into your SharePoint libraries with automated metadata tagging.",
-                color: "from-scanvault-red/40 to-red-900/20",
-              },
-              {
-                icon: <Cloud className="h-6 w-6 text-white" />,
-                tag: "Cloud",
-                title: "Scan to Cloud",
-                subtitle: "AWS · Azure · Google",
-                detail: "Upload and organise your digitised archives into any major cloud provider with encrypted secure transfers.",
-                color: "from-blue-600/40 to-blue-900/20",
-              },
-              {
-                icon: <Database className="h-6 w-6 text-white" />,
-                tag: "Exclusive",
-                title: "ScanVault Platform",
-                subtitle: "Our Proprietary System",
-                detail: "Full-featured document management portal with advanced search, access controls, and full audit trail.",
-                color: "from-purple-600/40 to-purple-900/20",
-              },
-              {
-                icon: <Trash2 className="h-6 w-6 text-white" />,
-                tag: "Compliance",
-                title: "Secure Shredding",
-                subtitle: "GDPR Compliant",
-                detail: "Certified document destruction with a legally binding Certificate of Destruction issued for every job.",
-                color: "from-gray-600/40 to-gray-900/20",
-              },
-              {
-                icon: <FileCheck className="h-6 w-6 text-white" />,
-                tag: "Certified",
-                title: "Certificate of Destruction",
-                subtitle: "Official Documentation",
-                detail: "Receive an official COD after every shredding engagement, giving you full legal proof of destruction.",
-                color: "from-green-600/40 to-green-900/20",
-              },
-              {
-                icon: <ClipboardCheck className="h-6 w-6 text-white" />,
-                tag: "Pre-Work",
-                title: "Risk Assessment",
-                subtitle: "Agreed Before We Start",
-                detail: "Comprehensive risk assessment forms completed and signed by both parties before any project commences.",
-                color: "from-orange-600/40 to-orange-900/20",
-              },
-            ].concat([
-              {
-                icon: <Share2 className="h-6 w-6 text-white" />,
-                tag: "Integration",
-                title: "Scan to SharePoint",
-                subtitle: "Microsoft 365 Ready",
-                detail: "Seamlessly push scanned documents directly into your SharePoint libraries with automated metadata tagging.",
-                color: "from-scanvault-red/40 to-red-900/20",
-              },
-              {
-                icon: <Cloud className="h-6 w-6 text-white" />,
-                tag: "Cloud",
-                title: "Scan to Cloud",
-                subtitle: "AWS · Azure · Google",
-                detail: "Upload and organise your digitised archives into any major cloud provider with encrypted secure transfers.",
-                color: "from-blue-600/40 to-blue-900/20",
-              },
-              {
-                icon: <Database className="h-6 w-6 text-white" />,
-                tag: "Exclusive",
-                title: "ScanVault Platform",
-                subtitle: "Our Proprietary System",
-                detail: "Full-featured document management portal with advanced search, access controls, and full audit trail.",
-                color: "from-purple-600/40 to-purple-900/20",
-              },
-              {
-                icon: <Trash2 className="h-6 w-6 text-white" />,
-                tag: "Compliance",
-                title: "Secure Shredding",
-                subtitle: "GDPR Compliant",
-                detail: "Certified document destruction with a legally binding Certificate of Destruction issued for every job.",
-                color: "from-gray-600/40 to-gray-900/20",
-              },
-              {
-                icon: <FileCheck className="h-6 w-6 text-white" />,
-                tag: "Certified",
-                title: "Certificate of Destruction",
-                subtitle: "Official Documentation",
-                detail: "Receive an official COD after every shredding engagement, giving you full legal proof of destruction.",
-                color: "from-green-600/40 to-green-900/20",
-              },
-              {
-                icon: <ClipboardCheck className="h-6 w-6 text-white" />,
-                tag: "Pre-Work",
-                title: "Risk Assessment",
-                subtitle: "Agreed Before We Start",
-                detail: "Comprehensive risk assessment forms completed and signed by both parties before any project commences.",
-                color: "from-orange-600/40 to-orange-900/20",
-              },
-            ]).map((card, i) => (
-              <div
-                key={i}
-                className={`flex-shrink-0 w-72 rounded-2xl border border-white/20 bg-gradient-to-br ${card.color} backdrop-blur-md p-6 shadow-2xl`}
-              >
-                {/* Top row */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                    {card.icon}
-                  </div>
-                  <span className="text-xs font-semibold text-white/80 bg-white/10 px-3 py-1 rounded-full border border-white/20">
-                    {card.tag}
-                  </span>
-                </div>
+            {/* 3D perspective carousel - cards come from right background to left foreground */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 left-0 right-0 z-10 py-8 overflow-hidden"
+              style={{ perspective: '1600px', perspectiveOrigin: '50% 50%' }}
+            >
+              {/* Tilt the entire track so right = far, left = near */}
+              <div style={{ transform: 'rotateY(-14deg) rotateX(3deg)', transformStyle: 'preserve-3d' }}>
+                <div className="animate-scroll-cards gap-7 px-8">
+                  {[...glassCards, ...glassCards].map((card, i) => (
+                    <div
+                      key={i}
+                      className="flex-shrink-0 w-72 rounded-2xl p-6 shadow-2xl"
+                      style={{
+                        background: 'rgba(255,255,255,0.08)',
+                        backdropFilter: 'blur(16px)',
+                        WebkitBackdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(255,255,255,0.18)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+                      }}
+                    >
+                      {/* Top row */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center"
+                          style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' }}
+                        >
+                          {card.icon}
+                        </div>
+                        <span
+                          className="text-xs font-semibold text-white/80 px-3 py-1 rounded-full"
+                          style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}
+                        >
+                          {card.tag}
+                        </span>
+                      </div>
 
-                {/* Title */}
-                <h3 className="text-lg font-bold text-white mb-1">{card.title}</h3>
-                <p className="text-xs font-medium text-white/60 mb-3 uppercase tracking-wider">{card.subtitle}</p>
+                      {/* Title */}
+                      <h3 className="text-lg font-bold text-white mb-1">{card.title}</h3>
+                      <p className="text-xs font-medium text-white/50 mb-3 uppercase tracking-wider">{card.subtitle}</p>
 
-                {/* Divider */}
-                <div className="w-full h-px bg-white/20 mb-3"></div>
+                      {/* Divider */}
+                      <div className="w-full h-px mb-3" style={{ background: 'rgba(255,255,255,0.15)' }}></div>
 
-                {/* Detail */}
-                <p className="text-sm text-white/80 leading-relaxed">{card.detail}</p>
+                      {/* Detail */}
+                      <p className="text-sm text-white/75 leading-relaxed">{card.detail}</p>
 
-                {/* ScanVault branding */}
-                <div className="mt-4 flex items-center gap-2">
-                  <div className="w-1 h-4 bg-scanvault-red rounded-full"></div>
-                  <span className="text-xs text-white/50 font-semibold tracking-widest uppercase">ScanVault</span>
+                      {/* ScanVault branding */}
+                      <div className="mt-5 flex items-center gap-2">
+                        <div className="w-5 h-px bg-scanvault-red"></div>
+                        <span className="text-xs text-white/40 font-semibold tracking-widest uppercase">ScanVault</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Left/right fade edges */}
-        <div className="absolute top-0 left-0 h-full w-24 bg-gradient-to-r from-black/60 to-transparent z-20 pointer-events-none"></div>
-        <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-black/60 to-transparent z-20 pointer-events-none"></div>
-      </section>
+            {/* Left edge fade — stronger to sell the "coming into view" feel */}
+            <div className="absolute top-0 left-0 h-full w-32 z-20 pointer-events-none" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.85), transparent)' }}></div>
+            {/* Right edge fade */}
+            <div className="absolute top-0 right-0 h-full w-48 z-20 pointer-events-none" style={{ background: 'linear-gradient(to left, rgba(0,0,0,0.9), transparent)' }}></div>
+          </section>
+        );
+      })()}
 
       {/* Comprehensive Scanning Services Section */}
       <section className="py-20 bg-white relative overflow-hidden">
