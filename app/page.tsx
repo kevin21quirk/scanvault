@@ -921,7 +921,7 @@ export default function Home() {
       {selectedCard && (
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center p-6 animate-backdrop-reveal"
-          style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+          style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', perspective: '1400px' }}
           onClick={() => setSelectedCard(null)}
         >
           {/* Expanded card — cinematic entrance */}
