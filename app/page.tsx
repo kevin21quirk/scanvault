@@ -1005,14 +1005,22 @@ export default function Home() {
         const t = themes[sidebarTheme] ?? themes.hero;
         const { panel: panelStyle, icon: iconStyle, contactIcon: contactIconStyle, label: labelStyle, text: contactTextStyle, iconCls, contactIconCls } = t;
         const labelClass = 'text-[10px] font-semibold tracking-[0.2em] uppercase text-center mb-3';
+        const isCarousel = sidebarTheme === 'image';
 
         return (
-          <div className="fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-50 hidden sm:flex flex-col gap-3 w-36">
+          <div
+            className="fixed z-50 hidden sm:flex gap-3 transition-all duration-500"
+            style={isCarousel
+              ? { bottom: '16px', left: '50%', transform: 'translateX(-50%)', flexDirection: 'row', alignItems: 'flex-end' }
+              : { right: '20px', top: '50%', transform: 'translateY(-50%)', flexDirection: 'column', width: '144px' }
+            }
+          >
 
             {/* — Social Media panel — */}
             <div className="rounded-2xl p-4" style={panelStyle}>
               <p className={labelClass} style={labelStyle}>Social Media</p>
-              <div className="grid grid-cols-2 gap-2">
+              {/* Icons: 2×2 grid normally, single row when in carousel */}
+              <div className={isCarousel ? 'flex flex-row gap-2' : 'grid grid-cols-2 gap-2'}>
                 {[
                   { icon: <Linkedin className={iconCls} />, href: 'https://linkedin.com/company/scanvault', label: 'LinkedIn' },
                   { icon: <Twitter className={iconCls} />, href: 'https://twitter.com/scanvault', label: 'Twitter' },
@@ -1020,8 +1028,8 @@ export default function Home() {
                   { icon: <Instagram className={iconCls} />, href: 'https://instagram.com/scanvault', label: 'Instagram' },
                 ].map((item, i) => (
                   <a key={i} href={item.href} target="_blank" rel="noopener noreferrer" title={item.label}
-                    className="flex items-center justify-center w-full aspect-square rounded-xl transition-all duration-300 hover:scale-110 hover:brightness-125"
-                    style={{ ...iconStyle, boxShadow: 'none' }}
+                    className="flex items-center justify-center rounded-xl transition-all duration-300 hover:scale-110 hover:brightness-125"
+                    style={{ ...iconStyle, boxShadow: 'none', width: '36px', height: '36px', flexShrink: 0 }}
                     onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 0 18px rgba(255,255,255,0.25), inset 0 1px 0 rgba(255,255,255,0.3)') }
                     onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
                   >{item.icon}</a>
@@ -1036,14 +1044,21 @@ export default function Home() {
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = (panelStyle.boxShadow as string) || 'none'; (e.currentTarget as HTMLElement).style.borderColor = ''; }}
             >
               <p className={labelClass} style={labelStyle}>Email</p>
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
-                  <Mail className={contactIconCls} />
+              {isCarousel ? (
+                <div className="flex flex-row items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={contactIconStyle}>
+                    <Mail className="h-4 w-4 text-white" />
+                  </div>
+                  <p className="text-[9px] leading-snug break-all" style={contactTextStyle}>info@scanvault.co.uk</p>
                 </div>
-                <p className="text-[10px] text-center leading-snug break-all" style={contactTextStyle}>
-                  info@scanvault.co.uk
-                </p>
-              </div>
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
+                    <Mail className={contactIconCls} />
+                  </div>
+                  <p className="text-[10px] text-center leading-snug break-all" style={contactTextStyle}>info@scanvault.co.uk</p>
+                </div>
+              )}
             </a>
 
             {/* — Phone panel — */}
@@ -1053,14 +1068,21 @@ export default function Home() {
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = (panelStyle.boxShadow as string) || 'none'; (e.currentTarget as HTMLElement).style.borderColor = ''; }}
             >
               <p className={labelClass} style={labelStyle}>Phone</p>
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
-                  <Phone className={contactIconCls} />
+              {isCarousel ? (
+                <div className="flex flex-row items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={contactIconStyle}>
+                    <Phone className="h-4 w-4 text-white" />
+                  </div>
+                  <p className="text-[9px] leading-snug" style={contactTextStyle}>+44 7359 969266</p>
                 </div>
-                <p className="text-[10px] text-center leading-snug" style={contactTextStyle}>
-                  +44 7359 969266
-                </p>
-              </div>
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
+                    <Phone className={contactIconCls} />
+                  </div>
+                  <p className="text-[10px] text-center leading-snug" style={contactTextStyle}>+44 7359 969266</p>
+                </div>
+              )}
             </a>
 
           </div>
