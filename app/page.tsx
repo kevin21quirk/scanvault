@@ -920,79 +920,91 @@ export default function Home() {
       {/* Expanded glass card modal */}
       {selectedCard && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[200] flex items-center justify-center p-6 animate-backdrop-reveal"
+          style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
           onClick={() => setSelectedCard(null)}
         >
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
-          {/* Expanded card */}
+          {/* Expanded card — cinematic entrance */}
           <div
-            className="relative z-10 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl"
+            className="relative z-10 w-full max-w-2xl rounded-3xl overflow-hidden animate-card-expand"
             style={{
-              background: 'rgba(255,255,255,0.10)',
-              backdropFilter: 'blur(32px)',
-              WebkitBackdropFilter: 'blur(32px)',
-              border: '1px solid rgba(255,255,255,0.25)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 24px 60px rgba(0,0,0,0.5)',
+              background: 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(40px)',
+              WebkitBackdropFilter: 'blur(40px)',
+              border: '1px solid rgba(255,255,255,0.18)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(255,255,255,0.05), 0 32px 80px rgba(0,0,0,0.6)',
             }}
             onClick={e => e.stopPropagation()}
           >
+            {/* Glowing red top accent line */}
+            <div className="h-[2px] w-full" style={{ background: 'linear-gradient(to right, transparent, #e53e3e, transparent)' }} />
+
+            {/* Inner glow overlay */}
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 30% 0%, rgba(229,62,62,0.08) 0%, transparent 60%)' }} />
+
             {/* Close button */}
             <button
               onClick={() => setSelectedCard(null)}
-              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-              style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+              className="absolute top-5 right-5 z-20 w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)' }}
             >
-              <X className="h-4 w-4 text-white" />
+              <X className="h-4 w-4 text-white/80" />
             </button>
 
-            {/* Top colour band */}
-            <div className="h-1 w-full bg-scanvault-red" />
-
-            <div className="flex">
+            <div className="flex min-h-[340px]">
               {/* Left icon column */}
               <div
-                className="w-24 flex-shrink-0 flex flex-col items-center justify-center gap-4 py-10"
-                style={{ borderRight: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)' }}
+                className="w-28 flex-shrink-0 flex flex-col items-center justify-center gap-5 py-12"
+                style={{ borderRight: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' }}
               >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                  style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
-                >
-                  {selectedCard.icon}
+                {/* Glowing icon */}
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-2xl blur-xl" style={{ background: 'rgba(229,62,62,0.3)' }} />
+                  <div
+                    className="relative w-16 h-16 rounded-2xl flex items-center justify-center"
+                    style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}
+                  >
+                    {selectedCard.icon}
+                  </div>
                 </div>
-                <div className="w-px flex-1" style={{ background: 'rgba(255,255,255,0.15)', maxHeight: '60px' }} />
+                <div className="w-px h-10" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), transparent)' }} />
                 <span
                   className="text-scanvault-red text-xs font-black"
-                  style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.15em' }}
-                >SV</span>
+                  style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.2em' }}
+                >SCANVAULT</span>
               </div>
 
               {/* Right content */}
-              <div className="flex-1 p-8">
-                <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.45)' }}>{selectedCard.tag}</span>
-                <h2 className="text-2xl font-bold text-white mt-1 mb-1">{selectedCard.title}</h2>
-                <p className="text-xs uppercase tracking-wider mb-5" style={{ color: 'rgba(255,255,255,0.4)' }}>{selectedCard.subtitle}</p>
+              <div className="flex-1 p-10 flex flex-col justify-center">
+                <span className="text-xs font-semibold tracking-[0.25em] uppercase mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>{selectedCard.tag}</span>
+                <h2 className="text-3xl font-bold text-white mb-1 leading-tight">{selectedCard.title}</h2>
+                <p className="text-xs uppercase tracking-[0.2em] mb-6" style={{ color: 'rgba(255,255,255,0.35)' }}>{selectedCard.subtitle}</p>
 
-                <div className="w-10 h-px bg-scanvault-red mb-5" />
+                <div className="w-12 h-px mb-6" style={{ background: 'linear-gradient(to right, #e53e3e, transparent)' }} />
 
-                <p className="text-sm text-white/80 leading-relaxed mb-8">{selectedCard.detail}</p>
+                <p className="text-base leading-relaxed mb-10" style={{ color: 'rgba(255,255,255,0.75)' }}>{selectedCard.detail}</p>
 
-                <div className="flex gap-3">
+                <div className="flex gap-4">
                   <Link href="/quote" onClick={() => setSelectedCard(null)}>
-                    <Button size="sm" className="bg-scanvault-red hover:bg-red-700 text-white rounded-full px-5">
-                      Get a Quote <ArrowRight className="ml-1 h-3 w-3" />
+                    <Button className="bg-scanvault-red hover:bg-red-700 text-white rounded-full px-7 py-5 text-sm font-semibold shadow-lg shadow-red-900/30">
+                      Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
                   <Link href="/contact" onClick={() => setSelectedCard(null)}>
-                    <Button size="sm" variant="outline" className="rounded-full px-5 border-white/30 bg-white/10 text-white hover:bg-white/20">
+                    <Button
+                      variant="outline"
+                      className="rounded-full px-7 py-5 text-sm font-semibold text-white hover:text-white hover:bg-white/10"
+                      style={{ border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)' }}
+                    >
                       Learn More
                     </Button>
                   </Link>
                 </div>
               </div>
             </div>
+
+            {/* Bottom accent line */}
+            <div className="h-px w-full" style={{ background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent)' }} />
           </div>
         </div>
       )}
