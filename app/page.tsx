@@ -773,8 +773,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Professional Standards Banner */}
-          <div data-sidebar-theme="dark" className="mt-20 bg-gradient-to-r from-scanvault-black via-gray-900 to-scanvault-black text-white rounded-3xl p-12 relative overflow-hidden">
+        </div>
+      </section>
+
+      {/* Professional Standards Banner — own section so sidebar theme detection works */}
+      <section data-sidebar-theme="dark" className="bg-white pb-20">
+        <div className="container mx-auto px-4">
+          <div className="bg-gradient-to-r from-scanvault-black via-gray-900 to-scanvault-black text-white rounded-3xl p-12 relative overflow-hidden">
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5"></div>
             <div className="absolute top-0 right-0 w-64 h-64 bg-scanvault-red rounded-full blur-3xl opacity-20"></div>
             <div className="relative z-10 text-center max-w-3xl mx-auto">
