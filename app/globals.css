@@ -86,6 +86,26 @@
     animation-delay: 4s;
   }
 
+  /* Glassmorphism card carousel */
+  @keyframes scrollCards {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-scroll-cards {
+    animation: scrollCards 30s linear infinite;
+    display: flex;
+    width: max-content;
+  }
+
+  .animate-scroll-cards:hover {
+    animation-play-state: paused;
+  }
+
   /* Logo rotation animation */
   @keyframes rotate3d {
     from {
