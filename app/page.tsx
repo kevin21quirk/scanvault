@@ -221,19 +221,19 @@ export default function Home() {
         {/* Glassmorphism social / contact sidebar */}
         {(() => {
           const panelStyle = {
-            background: 'rgba(255,255,255,0.05)',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
-            border: '1px solid rgba(255,255,255,0.18)',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 20px rgba(0,0,0,0.12)',
+            background: 'rgba(255,255,255,0.02)',
+            backdropFilter: 'blur(2px)',
+            WebkitBackdropFilter: 'blur(2px)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 12px rgba(0,0,0,0.08)',
           };
           const iconStyle = {
-            background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.18)',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.14)',
           };
           const contactIconStyle = {
-            background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(229,62,62,0.35)',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(229,62,62,0.25)',
           };
           const labelClass = "text-[10px] font-semibold tracking-[0.2em] uppercase text-center mb-3";
           const labelStyle = { color: 'rgba(255,255,255,0.45)' };
