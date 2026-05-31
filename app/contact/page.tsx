@@ -22,19 +22,27 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-scanvault-black mb-4">
-              Contact Us
-            </h1>
-            <p className="text-xl text-gray-600">
-              Get in touch with our team. We're here to help with all your document management needs.
-            </p>
-          </div>
+    <div className="flex flex-col">
+      {/* Hero */}
+      <section className="relative min-h-[380px] flex items-center text-white overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&auto=format&fit=crop&q=85"
+          alt="Contact ScanVault"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-scanvault-black/75 via-scanvault-black/60 to-scanvault-black/80" />
+        <div className="container mx-auto px-4 relative z-10 py-20 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact Us</h1>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            Get in touch with our team. We&apos;re here to help with all your document management needs.
+          </p>
+        </div>
+      </section>
 
-          <div className="grid md:grid-cols-2 gap-12">
+      <div className="bg-gradient-to-b from-white to-gray-50">
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12">
             <div>
               <div className="bg-white p-8 rounded-lg shadow-lg">
                 <h2 className="text-2xl font-bold text-scanvault-black mb-6">Send us a Message</h2>
@@ -145,6 +153,7 @@ export default function Contact() {
                 </a>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>

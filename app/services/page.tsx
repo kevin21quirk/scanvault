@@ -4,8 +4,14 @@ import { FileText, Users, Building, DollarSign, Archive, Workflow } from "lucide
 export default function Services() {
   return (
     <div className="flex flex-col">
-      <section className="bg-scanvault-black text-white py-16">
-        <div className="container mx-auto px-4">
+      <section className="relative min-h-[380px] flex items-center text-white overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=1600&auto=format&fit=crop&q=85"
+          alt="Professional document services"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-scanvault-black/75 via-scanvault-black/60 to-scanvault-black/80" />
+        <div className="container mx-auto px-4 relative z-10 py-20">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Our Services</h1>
             <p className="text-xl text-gray-300">

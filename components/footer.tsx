@@ -69,8 +69,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400 space-y-1">
           <p>&copy; {new Date().getFullYear()} ScanVault. All rights reserved.</p>
+          <p>Registered in England &amp; Wales &mdash; Company number 17229057</p>
         </div>
       </div>
     </footer>
