@@ -19,10 +19,11 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // 1 — Internal notification to Kevin
   try {
     await transporter.sendMail({
       from: `"ScanVault Website" <${process.env.SMTP_USER}>`,
-      to: "Kevin@scanvault.co.uk",
+      to: "kevin@scanvault.co.uk",
       replyTo: email,
       subject: `[Contact Form] ${subject}`,
       html: `
@@ -30,25 +31,28 @@ export async function POST(req: NextRequest) {
         <table cellpadding="8" style="border-collapse:collapse; font-family:sans-serif; font-size:14px;">
           <tr><td><strong>Name</strong></td><td>${name}</td></tr>
           <tr><td><strong>Email</strong></td><td><a href="mailto:${email}">${email}</a></td></tr>
-          <tr><td><strong>Phone</strong></td><td>${phone || "—"}</td></tr>
+          <tr><td><strong>Phone</strong></td><td>${phone || "-"}</td></tr>
           <tr><td><strong>Subject</strong></td><td>${subject}</td></tr>
         </table>
         <h3 style="margin-top:20px;">Message</h3>
         <p style="font-family:sans-serif; font-size:14px; white-space:pre-wrap;">${message}</p>
       `,
     });
+  } catch (err) {
+    console.error("Contact internal notification error:", err);
+  }
 
-    // Confirmation email to the submitter
+  // 2 — Confirmation email to the submitter
+  try {
     await transporter.sendMail({
-      from: `"Kevin Quirk — ScanVault" <${process.env.SMTP_USER}>`,
+      from: `"ScanVault" <${process.env.SMTP_USER}>`,
       to: email,
-      subject: `We've received your message, ${name} — ScanVault`,
+      subject: `We have received your message - ScanVault`,
       html: contactConfirmationHtml(name),
     });
-
-    return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Contact email error:", err);
-    return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
+    console.error("Contact confirmation email error:", err);
   }
+
+  return NextResponse.json({ success: true });
 }

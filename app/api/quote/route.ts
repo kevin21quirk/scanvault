@@ -28,37 +28,41 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // 1 — Internal notification to Kevin
   try {
     await transporter.sendMail({
       from: `"ScanVault Website" <${process.env.SMTP_USER}>`,
-      to: "Kevin@scanvault.co.uk",
+      to: "kevin@scanvault.co.uk",
       replyTo: email,
-      subject: `[Quote Request] ${serviceLabels[service] ?? service} — ${name}`,
+      subject: `[Quote Request] ${serviceLabels[service] ?? service} - ${name}`,
       html: `
         <h2>New Quote Request</h2>
         <table cellpadding="8" style="border-collapse:collapse; font-family:sans-serif; font-size:14px;">
           <tr><td><strong>Name</strong></td><td>${name}</td></tr>
           <tr><td><strong>Email</strong></td><td><a href="mailto:${email}">${email}</a></td></tr>
           <tr><td><strong>Phone</strong></td><td>${phone}</td></tr>
-          <tr><td><strong>Company</strong></td><td>${company || "—"}</td></tr>
+          <tr><td><strong>Company</strong></td><td>${company || "-"}</td></tr>
           <tr><td><strong>Service Required</strong></td><td>${serviceLabels[service] ?? service}</td></tr>
         </table>
         <h3 style="margin-top:20px;">Additional Information</h3>
-        <p style="font-family:sans-serif; font-size:14px; white-space:pre-wrap;">${message || "—"}</p>
+        <p style="font-family:sans-serif; font-size:14px; white-space:pre-wrap;">${message || "-"}</p>
       `,
     });
+  } catch (err) {
+    console.error("Quote internal notification error:", err);
+  }
 
-    // Confirmation email to the submitter
+  // 2 — Confirmation email to the submitter
+  try {
     await transporter.sendMail({
-      from: `"Kevin Quirk — ScanVault" <${process.env.SMTP_USER}>`,
+      from: `"ScanVault" <${process.env.SMTP_USER}>`,
       to: email,
-      subject: `Your ScanVault quote request has been received, ${name}`,
+      subject: `Your free quote request has been received - ScanVault`,
       html: quoteConfirmationHtml(name, service),
     });
-
-    return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Quote email error:", err);
-    return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
+    console.error("Quote confirmation email error:", err);
   }
+
+  return NextResponse.json({ success: true });
 }
