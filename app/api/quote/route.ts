@@ -62,7 +62,9 @@ export async function POST(req: NextRequest) {
   ]);
 
   results.forEach((r, i) => {
-    if (r.status === "rejected") console.error(`Quote email ${i + 1} error:`, r.reason);
+    const label = i === 0 ? "Kevin notification" : "Submitter confirmation";
+    if (r.status === "fulfilled") console.log(`Quote email OK [${label}]:`, r.value.messageId);
+    else console.error(`Quote email FAILED [${label}]:`, r.reason);
   });
 
   transporter.close();
