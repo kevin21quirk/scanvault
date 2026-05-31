@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { quoteConfirmationHtml } from "@/lib/email-templates";
 
 export async function POST(req: NextRequest) {
   const { name, email, phone, company, service, message } = await req.json();
@@ -45,6 +46,14 @@ export async function POST(req: NextRequest) {
         <h3 style="margin-top:20px;">Additional Information</h3>
         <p style="font-family:sans-serif; font-size:14px; white-space:pre-wrap;">${message || "—"}</p>
       `,
+    });
+
+    // Confirmation email to the submitter
+    await transporter.sendMail({
+      from: `"Kevin Quirk — ScanVault" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: `Your ScanVault quote request has been received, ${name}`,
+      html: quoteConfirmationHtml(name, service),
     });
 
     return NextResponse.json({ success: true });

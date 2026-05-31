@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { contactConfirmationHtml } from "@/lib/email-templates";
 
 export async function POST(req: NextRequest) {
   const { name, email, phone, subject, message } = await req.json();
@@ -35,6 +36,14 @@ export async function POST(req: NextRequest) {
         <h3 style="margin-top:20px;">Message</h3>
         <p style="font-family:sans-serif; font-size:14px; white-space:pre-wrap;">${message}</p>
       `,
+    });
+
+    // Confirmation email to the submitter
+    await transporter.sendMail({
+      from: `"Kevin Quirk — ScanVault" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: `We've received your message, ${name} — ScanVault`,
+      html: contactConfirmationHtml(name),
     });
 
     return NextResponse.json({ success: true });
