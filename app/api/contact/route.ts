@@ -17,11 +17,15 @@ export async function POST(req: NextRequest) {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+    tls: { rejectUnauthorized: false },
   });
 
-  // 1 — Internal notification to Kevin
-  try {
-    await transporter.sendMail({
+  const results = await Promise.allSettled([
+    // 1 — Internal notification to Kevin
+    transporter.sendMail({
       from: `"ScanVault Website" <${process.env.SMTP_USER}>`,
       to: "kevin@scanvault.co.uk",
       replyTo: email,
@@ -37,22 +41,20 @@ export async function POST(req: NextRequest) {
         <h3 style="margin-top:20px;">Message</h3>
         <p style="font-family:sans-serif; font-size:14px; white-space:pre-wrap;">${message}</p>
       `,
-    });
-  } catch (err) {
-    console.error("Contact internal notification error:", err);
-  }
-
-  // 2 — Confirmation email to the submitter
-  try {
-    await transporter.sendMail({
+    }),
+    // 2 — Confirmation to submitter
+    transporter.sendMail({
       from: `"ScanVault" <${process.env.SMTP_USER}>`,
       to: email,
       subject: `We have received your message - ScanVault`,
       html: contactConfirmationHtml(name),
-    });
-  } catch (err) {
-    console.error("Contact confirmation email error:", err);
-  }
+    }),
+  ]);
 
+  results.forEach((r, i) => {
+    if (r.status === "rejected") console.error(`Contact email ${i + 1} error:`, r.reason);
+  });
+
+  transporter.close();
   return NextResponse.json({ success: true });
 }

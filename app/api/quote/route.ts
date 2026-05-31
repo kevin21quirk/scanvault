@@ -26,11 +26,15 @@ export async function POST(req: NextRequest) {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+    tls: { rejectUnauthorized: false },
   });
 
-  // 1 — Internal notification to Kevin
-  try {
-    await transporter.sendMail({
+  const results = await Promise.allSettled([
+    // 1 — Internal notification to Kevin
+    transporter.sendMail({
       from: `"ScanVault Website" <${process.env.SMTP_USER}>`,
       to: "kevin@scanvault.co.uk",
       replyTo: email,
@@ -47,22 +51,20 @@ export async function POST(req: NextRequest) {
         <h3 style="margin-top:20px;">Additional Information</h3>
         <p style="font-family:sans-serif; font-size:14px; white-space:pre-wrap;">${message || "-"}</p>
       `,
-    });
-  } catch (err) {
-    console.error("Quote internal notification error:", err);
-  }
-
-  // 2 — Confirmation email to the submitter
-  try {
-    await transporter.sendMail({
+    }),
+    // 2 — Confirmation to submitter
+    transporter.sendMail({
       from: `"ScanVault" <${process.env.SMTP_USER}>`,
       to: email,
       subject: `Your free quote request has been received - ScanVault`,
       html: quoteConfirmationHtml(name, service),
-    });
-  } catch (err) {
-    console.error("Quote confirmation email error:", err);
-  }
+    }),
+  ]);
 
+  results.forEach((r, i) => {
+    if (r.status === "rejected") console.error(`Quote email ${i + 1} error:`, r.reason);
+  });
+
+  transporter.close();
   return NextResponse.json({ success: true });
 }
