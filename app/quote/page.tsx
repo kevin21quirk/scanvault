@@ -15,11 +15,23 @@ export default function Quote() {
     service: "",
     message: ""
   });
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Quote request:", formData);
-    alert("Thank you! We'll contact you within 24 hours.");
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setStatus("success");
+      setFormData({ name: "", email: "", phone: "", company: "", service: "", message: "" });
+    } catch {
+      setStatus("error");
+    }
   };
 
   return (
@@ -116,9 +128,24 @@ export default function Quote() {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full bg-scanvault-red hover:bg-red-700 text-white py-6 text-lg font-semibold">
-                    Request Free Quote
+                  <Button
+                    type="submit"
+                    disabled={status === "sending"}
+                    className="w-full bg-scanvault-red hover:bg-red-700 text-white py-6 text-lg font-semibold disabled:opacity-60"
+                  >
+                    {status === "sending" ? "Sending…" : "Request Free Quote"}
                   </Button>
+
+                  {status === "success" && (
+                    <p className="text-green-600 font-medium text-center">
+                      ✓ Quote request sent! We&apos;ll be in touch within 24 hours.
+                    </p>
+                  )}
+                  {status === "error" && (
+                    <p className="text-red-600 font-medium text-center">
+                      Something went wrong — please try again or call us directly.
+                    </p>
+                  )}
                 </form>
               </div>
             </div>

@@ -14,11 +14,23 @@ export default function Contact() {
     subject: "",
     message: ""
   });
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Contact form:", formData);
-    alert("Thank you for your message! We'll get back to you soon.");
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setStatus("success");
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+    } catch {
+      setStatus("error");
+    }
   };
 
   return (
@@ -105,9 +117,24 @@ export default function Contact() {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full bg-scanvault-red hover:bg-red-700 text-white py-6 text-lg font-semibold">
-                    Send Message
+                  <Button
+                    type="submit"
+                    disabled={status === "sending"}
+                    className="w-full bg-scanvault-red hover:bg-red-700 text-white py-6 text-lg font-semibold disabled:opacity-60"
+                  >
+                    {status === "sending" ? "Sending…" : "Send Message"}
                   </Button>
+
+                  {status === "success" && (
+                    <p className="text-green-600 font-medium text-center">
+                      ✓ Message sent! We&apos;ll get back to you soon.
+                    </p>
+                  )}
+                  {status === "error" && (
+                    <p className="text-red-600 font-medium text-center">
+                      Something went wrong — please try again or email us directly.
+                    </p>
+                  )}
                 </form>
               </div>
             </div>
