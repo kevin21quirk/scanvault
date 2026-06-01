@@ -240,3 +240,31 @@ export function quoteConfirmationHtml(name: string, service: string): string {
   `;
   return BASE.replace("{{BODY}}", body);
 }
+
+export function replyEmailHtml(toName: string, messageText: string): string {
+  const escaped = messageText
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br/>");
+
+  const body = `
+    <h1 style="margin:0 0 20px;font-size:22px;font-weight:800;color:#0d0d0d;line-height:1.2;">
+      Hi ${toName},
+    </h1>
+
+    <div style="font-size:15px;color:#374151;line-height:1.8;margin:0 0 28px;padding:20px 24px;background:#f9fafb;border-left:4px solid #dc2626;border-radius:0 8px 8px 0;">
+      ${escaped}
+    </div>
+
+    <p style="margin:0 0 8px;font-size:15px;color:#374151;line-height:1.7;">
+      If you have any further questions, please don&rsquo;t hesitate to get in touch.
+    </p>
+    <p style="margin:0;font-size:15px;color:#374151;line-height:1.7;">
+      Kind regards,<br/>
+      <strong>Kevin Quirk</strong><br/>
+      <span style="color:#6b7280;font-size:13px;">Director &bull; ScanVault</span>
+    </p>
+  `;
+  return BASE.replace("{{BODY}}", body);
+}

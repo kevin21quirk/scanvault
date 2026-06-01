@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import {
   Mail, Phone, Building2, Clock, CheckCircle2, XCircle,
   MessageSquare, FileText, ChevronLeft, ChevronRight, Calendar,
-  TrendingUp, Users, MailCheck,
+  TrendingUp, Users, MailCheck, Reply,
 } from "lucide-react";
+import { ReplyModal } from "@/components/reply-modal";
 
 interface Lead {
   id: string;
@@ -167,6 +168,7 @@ export default function LeadsTab() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"ALL" | "CONTACT" | "QUOTE">("ALL");
   const [markingId, setMarkingId] = useState<string | null>(null);
+  const [replyLead, setReplyLead] = useState<Lead | null>(null);
 
   const fetchLeads = useCallback(async () => {
     try {
@@ -180,6 +182,10 @@ export default function LeadsTab() {
   }, []);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  const handleReplySent = (id: string) => {
+    setLeads((prev) => prev.map((l) => l.id === id ? { ...l, respondedAt: new Date().toISOString() } : l));
+  };
 
   const markResponded = async (id: string) => {
     setMarkingId(id);
@@ -212,6 +218,13 @@ export default function LeadsTab() {
 
   return (
     <div className="space-y-6">
+      {replyLead && (
+        <ReplyModal
+          lead={replyLead}
+          onClose={() => setReplyLead(null)}
+          onSent={handleReplySent}
+        />
+      )}
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
@@ -333,6 +346,13 @@ export default function LeadsTab() {
                           {timeAgo(lead.createdAt)}
                         </span>
 
+                        <Button
+                          size="sm"
+                          onClick={() => setReplyLead(lead)}
+                          className="text-xs h-7 px-3 bg-scanvault-red hover:bg-red-700 text-white flex items-center gap-1"
+                        >
+                          <Reply className="w-3 h-3" /> Reply
+                        </Button>
                         {lead.respondedAt ? (
                           <span className="flex items-center gap-1 text-xs text-emerald-600 whitespace-nowrap">
                             <CheckCircle2 className="w-3.5 h-3.5" />
@@ -343,7 +363,7 @@ export default function LeadsTab() {
                             size="sm"
                             onClick={() => markResponded(lead.id)}
                             disabled={markingId === lead.id}
-                            className="text-xs h-7 px-3 bg-scanvault-red hover:bg-red-700 text-white"
+                            className="text-xs h-7 px-3 bg-gray-100 hover:bg-gray-200 text-gray-600"
                           >
                             {markingId === lead.id ? "Saving…" : "Mark Responded"}
                           </Button>
