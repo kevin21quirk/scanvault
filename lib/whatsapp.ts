@@ -1,21 +1,26 @@
 export async function sendWhatsApp(message: string): Promise<void> {
-  const apiKey = process.env.CALLMEBOT_API_KEY;
-  if (!apiKey) {
-    console.warn("WhatsApp: CALLMEBOT_API_KEY not set — skipping notification");
+  const token  = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+
+  if (!token || !chatId) {
+    console.warn("Telegram: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set — skipping notification");
     return;
   }
 
-  const phone = "447359969266";
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(message)}&apikey=${apiKey}`;
+  const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text: message }),
+    });
     if (res.ok) {
-      console.log("WhatsApp notification sent");
+      console.log("Telegram notification sent");
     } else {
-      console.warn("WhatsApp notification failed:", res.status, await res.text());
+      console.warn("Telegram notification failed:", res.status, await res.text());
     }
   } catch (err: unknown) {
-    console.error("WhatsApp notification error:", err);
+    console.error("Telegram notification error:", err);
   }
 }
