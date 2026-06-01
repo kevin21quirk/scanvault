@@ -19,15 +19,13 @@ const BASE = `
 
           <!-- ── HEADER ── -->
           <tr>
-            <td bgcolor="#0d0d0d" style="background:#0d0d0d;padding:32px 40px 24px;text-align:center;">
-              <img src="https://scanvault.co.uk/scanvaultlogo.png" alt="ScanVault" width="180" style="display:block;margin:0 auto;max-width:180px;height:auto;" />
-              <div style="height:3px;background:#dc2626;margin-top:20px;"></div>
+            <td bgcolor="#ffffff" style="background:#ffffff;padding:28px 40px 0;text-align:center;">
+              <img src="https://scanvault.co.uk/scanvaultlogo.png" alt="ScanVault" width="160" style="display:block;margin:0 auto;max-width:160px;height:auto;" />
+              <div style="font-size:28px;font-weight:900;letter-spacing:-0.5px;font-family:Arial,sans-serif;margin-top:10px;">
+                <span style="color:#0d0d0d;">Scan</span><span style="color:#dc2626;">Vault</span>
+              </div>
+              <div style="height:4px;background:#dc2626;margin-top:16px;"></div>
             </td>
-          </tr>
-
-          <!-- ── HERO BAND ── -->
-          <tr>
-            <td style="background:#dc2626;padding:0 40px 0;height:6px;font-size:0;line-height:0;">&nbsp;</td>
           </tr>
 
           <!-- ── BODY ── -->
@@ -97,9 +95,11 @@ const BASE = `
                     </table>
                   </td>
 
-                  <!-- Logo (right side) -->
-                  <td width="140" style="text-align:right;vertical-align:middle;padding-left:20px;">
-                    <img src="https://scanvault.co.uk/scanvaultlogo.png" alt="ScanVault" width="120" style="display:block;margin-left:auto;max-width:120px;height:auto;" />
+                  <!-- Branding (right side) -->
+                  <td width="130" style="text-align:right;vertical-align:middle;padding-left:20px;">
+                    <div style="font-size:22px;font-weight:900;font-family:Arial,sans-serif;white-space:nowrap;">
+                      <span style="color:#ffffff;">Scan</span><span style="color:#dc2626;">Vault</span>
+                    </div>
                   </td>
                 </tr>
               </table>
