@@ -90,6 +90,30 @@ enum InvoiceStatus {
   CANCELLED
 }
 
+model Lead {
+  id          String    @id @default(cuid())
+  type        LeadType
+  name        String
+  email       String
+  phone       String?
+  company     String?
+  subject     String?
+  service     String?
+  message     String?
+  emailSent   Boolean   @default(false)
+  respondedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum LeadType {
+  CONTACT
+  QUOTE
+}
+
 enum DocumentCategory {
   HR
   ADMIN

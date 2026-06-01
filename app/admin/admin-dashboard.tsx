@@ -6,7 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Edit, Loader2, Download } from "lucide-react";
+import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Edit, Loader2, Download, TrendingUp } from "lucide-react";
+import LeadsTab from "@/components/leads-tab";
 
 interface User {
   id: string;
@@ -304,6 +305,9 @@ export default function AdminDashboard() {
           </TabsTrigger>
           <TabsTrigger value="receipts">Receipts</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="leads" className="relative">
+            Leads &amp; Quotes
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -830,6 +834,14 @@ export default function AdminDashboard() {
               </Card>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="leads" className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="w-5 h-5 text-scanvault-red" />
+            <h2 className="text-2xl font-bold">Leads &amp; Free Quotes</h2>
+          </div>
+          <LeadsTab />
         </TabsContent>
       </Tabs>
     </div>

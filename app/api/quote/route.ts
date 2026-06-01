@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { quoteConfirmationHtml } from "@/lib/email-templates";
+import { prisma } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   const { name, email, phone, company, service, message } = await req.json();
@@ -68,5 +69,11 @@ export async function POST(req: NextRequest) {
   });
 
   transporter.close();
+
+  const emailSent = results[1].status === "fulfilled";
+  await prisma.lead.create({
+    data: { type: "QUOTE", name, email, phone, company: company || null, service, message: message || null, emailSent },
+  }).catch((err: unknown) => console.error("Lead save error:", err));
+
   return NextResponse.json({ success: true });
 }
