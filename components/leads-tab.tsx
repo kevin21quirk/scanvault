@@ -40,6 +40,7 @@ function timeAgo(dateStr: string): string {
 function LeadCalendar({ leads }: { leads: Lead[] }) {
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -66,6 +67,23 @@ function LeadCalendar({ leads }: { leads: Lead[] }) {
     }
   });
 
+  const getLeadsForDay = (day: number) => {
+    const contacts = leads.filter((l) => {
+      const d = new Date(l.createdAt);
+      return l.type === "CONTACT" && d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+    });
+    const quotes = leads.filter((l) => {
+      const d = new Date(l.createdAt);
+      return l.type === "QUOTE" && d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+    });
+    const responses = leads.filter((l) => {
+      if (!l.respondedAt) return false;
+      const r = new Date(l.respondedAt);
+      return r.getFullYear() === year && r.getMonth() === month && r.getDate() === day;
+    });
+    return { contacts, quotes, responses };
+  };
+
   const cells: (number | null)[] = [
     ...Array(startOffset).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
@@ -79,7 +97,7 @@ function LeadCalendar({ leads }: { leads: Lead[] }) {
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
         <button
-          onClick={() => setViewDate(new Date(year, month - 1, 1))}
+          onClick={() => { setViewDate(new Date(year, month - 1, 1)); setSelectedDay(null); }}
           className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors"
         >
           <ChevronLeft className="w-4 h-4 text-gray-600" />
@@ -89,7 +107,7 @@ function LeadCalendar({ leads }: { leads: Lead[] }) {
           <span className="font-semibold text-gray-800 text-sm">{monthName}</span>
         </div>
         <button
-          onClick={() => setViewDate(new Date(year, month + 1, 1))}
+          onClick={() => { setViewDate(new Date(year, month + 1, 1)); setSelectedDay(null); }}
           className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors"
         >
           <ChevronRight className="w-4 h-4 text-gray-600" />
@@ -115,33 +133,86 @@ function LeadCalendar({ leads }: { leads: Lead[] }) {
             const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
             const hasEvent = isContact || isQuote || isResponse;
 
+            const isSelected = selectedDay === day;
+
             return (
               <div
                 key={i}
+                onClick={() => hasEvent ? setSelectedDay(isSelected ? null : day) : undefined}
                 className={`
                   relative flex flex-col items-center justify-start pt-1.5 pb-1 rounded-lg min-h-[48px]
-                  ${isToday ? "bg-gray-100 ring-1 ring-gray-300" : "hover:bg-gray-50"}
-                  ${hasEvent ? "cursor-default" : ""}
+                  transition-colors
+                  ${isSelected ? "bg-gray-900 ring-2 ring-gray-700" : isToday ? "bg-gray-100 ring-1 ring-gray-300" : "hover:bg-gray-50"}
+                  ${hasEvent ? "cursor-pointer" : ""}
                 `}
               >
-                <span className={`text-xs font-medium mb-1 ${isToday ? "text-scanvault-black" : "text-gray-600"}`}>
+                <span className={`text-xs font-medium mb-1 ${isSelected ? "text-white" : isToday ? "text-scanvault-black" : "text-gray-600"}`}>
                   {day}
                 </span>
                 <div className="flex gap-0.5 flex-wrap justify-center">
-                  {isContact && (
-                    <span className="w-2 h-2 rounded-full bg-red-500" title="Contact enquiry" />
-                  )}
-                  {isQuote && (
-                    <span className="w-2 h-2 rounded-full bg-orange-400" title="Quote request" />
-                  )}
-                  {isResponse && (
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" title="Response sent" />
-                  )}
+                  {isContact && <span className="w-2 h-2 rounded-full bg-red-500" />}
+                  {isQuote   && <span className="w-2 h-2 rounded-full bg-orange-400" />}
+                  {isResponse && <span className="w-2 h-2 rounded-full bg-emerald-500" />}
                 </div>
               </div>
             );
           })}
         </div>
+
+        {/* Day detail panel */}
+        {selectedDay !== null && (() => {
+          const { contacts, quotes, responses } = getLeadsForDay(selectedDay);
+          const dateLabel = new Date(year, month, selectedDay).toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+          return (
+            <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm">
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-semibold text-gray-800 text-xs">{dateLabel}</span>
+                <button onClick={() => setSelectedDay(null)} className="text-gray-400 hover:text-gray-600 text-xs underline">Close</button>
+              </div>
+              {contacts.length > 0 && (
+                <div className="mb-3">
+                  <p className="flex items-center gap-1.5 text-xs font-semibold text-red-600 mb-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-500 inline-block" /> Contact {contacts.length === 1 ? "Enquiry" : `Enquiries (${contacts.length})`}
+                  </p>
+                  {contacts.map((l) => (
+                    <div key={l.id} className="ml-3.5 mb-1 text-xs text-gray-700">
+                      <span className="font-medium">{l.name}</span>
+                      <span className="text-gray-400 ml-1">&bull; {l.email}</span>
+                      {l.subject && <span className="text-gray-400 ml-1">&bull; &ldquo;{l.subject}&rdquo;</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {quotes.length > 0 && (
+                <div className="mb-3">
+                  <p className="flex items-center gap-1.5 text-xs font-semibold text-orange-600 mb-1.5">
+                    <span className="w-2 h-2 rounded-full bg-orange-400 inline-block" /> Quote {quotes.length === 1 ? "Request" : `Requests (${quotes.length})`}
+                  </p>
+                  {quotes.map((l) => (
+                    <div key={l.id} className="ml-3.5 mb-1 text-xs text-gray-700">
+                      <span className="font-medium">{l.name}</span>
+                      <span className="text-gray-400 ml-1">&bull; {l.email}</span>
+                      {l.service && <span className="text-gray-400 ml-1">&bull; {l.service}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {responses.length > 0 && (
+                <div>
+                  <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 mb-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> {responses.length === 1 ? "Response Sent" : `Responses Sent (${responses.length})`}
+                  </p>
+                  {responses.map((l) => (
+                    <div key={l.id} className="ml-3.5 mb-1 text-xs text-gray-700">
+                      <span className="font-medium">{l.name}</span>
+                      <span className="text-gray-400 ml-1">&bull; {l.email}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Legend */}
         <div className="flex gap-4 mt-4 pt-3 border-t border-gray-100 flex-wrap">
