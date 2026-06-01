@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { contactConfirmationHtml } from "@/lib/email-templates";
 import { prisma } from "@/lib/db";
+import { sendWhatsApp } from "@/lib/whatsapp";
 
 export async function POST(req: NextRequest) {
   const { name, email, phone, subject, message } = await req.json();
@@ -61,6 +62,11 @@ export async function POST(req: NextRequest) {
   transporter.close();
 
   const emailSent = results[1].status === "fulfilled";
+
+  await sendWhatsApp(
+    `ScanVault Contact Form\nFrom: ${name} <${email}>\nSubject: ${subject}\n${phone ? `Phone: ${phone}\n` : ""}View leads: https://scanvault.co.uk/admin`
+  );
+
   await prisma.lead.create({
     data: { type: "CONTACT", name, email, phone: phone || null, subject, message, emailSent },
   }).catch((err: unknown) => console.error("Lead save error:", err));
