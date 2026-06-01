@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle } from "lucide-react";
+import { StatusModal } from "@/components/status-modal";
 
 export default function Quote() {
   const [formData, setFormData] = useState({
@@ -34,8 +35,11 @@ export default function Quote() {
     }
   };
 
+  const handleModalClose = () => setStatus("idle");
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      <StatusModal status={status === "sending" ? null : status === "idle" ? null : status} type="quote" onClose={handleModalClose} />
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
@@ -136,16 +140,6 @@ export default function Quote() {
                     {status === "sending" ? "Sending…" : "Request Free Quote"}
                   </Button>
 
-                  {status === "success" && (
-                    <p className="text-green-600 font-medium text-center">
-                      ✓ Quote request sent! We&apos;ll be in touch within 24 hours.
-                    </p>
-                  )}
-                  {status === "error" && (
-                    <p className="text-red-600 font-medium text-center">
-                      Something went wrong — please try again or call us directly.
-                    </p>
-                  )}
                 </form>
               </div>
             </div>

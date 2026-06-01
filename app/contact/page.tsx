@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Phone } from "lucide-react";
+import { StatusModal } from "@/components/status-modal";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -33,8 +34,11 @@ export default function Contact() {
     }
   };
 
+  const handleModalClose = () => setStatus("idle");
+
   return (
     <div className="flex flex-col">
+      <StatusModal status={status === "sending" ? null : status === "idle" ? null : status} type="contact" onClose={handleModalClose} />
       {/* Hero */}
       <section className="relative min-h-[380px] flex items-center text-white overflow-hidden">
         <img
@@ -125,16 +129,6 @@ export default function Contact() {
                     {status === "sending" ? "Sending…" : "Send Message"}
                   </Button>
 
-                  {status === "success" && (
-                    <p className="text-green-600 font-medium text-center">
-                      ✓ Message sent! We&apos;ll get back to you soon.
-                    </p>
-                  )}
-                  {status === "error" && (
-                    <p className="text-red-600 font-medium text-center">
-                      Something went wrong — please try again or email us directly.
-                    </p>
-                  )}
                 </form>
               </div>
             </div>
