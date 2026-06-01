@@ -19,11 +19,9 @@ const BASE = `
 
           <!-- ── HEADER ── -->
           <tr>
-            <td style="background:#0d0d0d;padding:32px 40px 28px;text-align:center;">
-              <div style="font-size:32px;font-weight:900;letter-spacing:-1px;color:#ffffff;font-family:Arial,sans-serif;">
-                Scan<span style="color:#dc2626;">Vault</span>
-              </div>
-              <div style="height:3px;background:linear-gradient(90deg,#dc2626,#ff4444,#dc2626);margin-top:16px;border-radius:2px;"></div>
+            <td bgcolor="#0d0d0d" style="background:#0d0d0d;padding:32px 40px 24px;text-align:center;">
+              <img src="https://scanvault.co.uk/scanvaultlogo.png" alt="ScanVault" width="180" style="display:block;margin:0 auto;max-width:180px;height:auto;" />
+              <div style="height:3px;background:#dc2626;margin-top:20px;"></div>
             </td>
           </tr>
 
@@ -48,7 +46,7 @@ const BASE = `
 
           <!-- ── GLASS SIGNATURE CARD ── -->
           <tr>
-            <td style="background:linear-gradient(145deg,#111827 0%,#0d0d0d 60%,#1a0a0a 100%);padding:36px 40px;">
+            <td bgcolor="#111827" style="background:#111827;padding:36px 40px;">
 
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
@@ -99,14 +97,9 @@ const BASE = `
                     </table>
                   </td>
 
-                  <!-- Branding pill (right side) -->
-                  <td width="120" style="text-align:right;vertical-align:middle;padding-left:20px;">
-                    <div style="font-size:22px;font-weight:900;color:#ffffff;font-family:Arial,sans-serif;white-space:nowrap;">
-                      Scan<span style="color:#dc2626;">Vault</span>
-                    </div>
-                    <div style="font-size:9px;color:#6b7280;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;">
-                      Est. 2024
-                    </div>
+                  <!-- Logo (right side) -->
+                  <td width="140" style="text-align:right;vertical-align:middle;padding-left:20px;">
+                    <img src="https://scanvault.co.uk/scanvaultlogo.png" alt="ScanVault" width="120" style="display:block;margin-left:auto;max-width:120px;height:auto;" />
                   </td>
                 </tr>
               </table>
