@@ -130,7 +130,7 @@ export function ContractPDF(p: ContractPDFProps) {
         <Clause num="1.2">"Certificate of Destruction" means the official certificate issued by Shred-IT confirming the secure and compliant destruction of physical documents.</Clause>
         <Clause num="1.3">"Digital Records" means the scanned digital copies of the Client's physical documents produced during the Services.</Clause>
         <Clause num="1.4">"SharePoint" means the Microsoft SharePoint environment designated by the Client to receive Digital Records.</Clause>
-        <Clause num="1.5">"Shred-IT" means the third-party secure destruction provider engaged by ScanVault to collect and destroy physical documents post-scanning.</Clause>
+        <Clause num="1.5">"Shred-IT" means the third-party secure destruction provider who will attend the Client's premises directly and collect physical documents in a locked vehicle for secure, certified destruction. ScanVault does not transport physical documents at any point.</Clause>
         <Clause num="1.6">"Special Category Data" has the meaning given in Article 9 of the UK General Data Protection Regulation (UK GDPR).</Clause>
 
         {/* Section 2 */}
@@ -139,35 +139,41 @@ export function ContractPDF(p: ContractPDFProps) {
 
         <Clause num="2.1">Pre-Work Site Visit and Risk Assessment — A site visit will be conducted prior to commencement. A written risk assessment will be prepared and agreed and signed by both parties before any work begins.</Clause>
         <Clause num="2.2">Document Preparation — De-stapling and removal of all metal and paper fixings; organisation and sequencing of documents as specified by the Client; preparation of documents to a scannable standard.</Clause>
-        <Clause num="2.3">High-Resolution Scanning — All documents will be scanned at a minimum of 300 DPI (colour or greyscale as appropriate). Quality assurance checks will be performed to ensure legibility and completeness of every page.</Clause>
-        <Clause num="2.4">Digital Delivery via SharePoint — All Digital Records will be uploaded to the Client's designated SharePoint environment, organised in a logical folder structure agreed in advance. Written confirmation of successful upload will be provided.</Clause>
-        <Clause num="2.5">Secure Destruction via Shred-IT — Upon completion of scanning and confirmation of successful digital delivery, ScanVault will arrange Shred-IT to collect all physical documents for secure, confidential destruction. The Client will receive a Certificate of Destruction confirming compliant disposal.</Clause>
+        <Clause num="2.3">High-Resolution Scanning — All documents will be scanned on-site at the Client's premises at a minimum of 300 DPI (colour or greyscale as appropriate). Default document naming conventions will be applied to all scanned files. Quality assurance checks will be performed to confirm legibility and completeness of every page. No Microsoft Power Automate or AI Builder processing is required or included within this Agreement.</Clause>
+        <Clause num="2.4">Digital Delivery via SharePoint — All Digital Records will be uploaded directly to the Client's Microsoft SharePoint environment via the agreed SharePoint location configured on each on-site scanner. Written confirmation of successful upload will be provided upon completion.</Clause>
+        <Clause num="2.5">Technical SharePoint Configuration — The following agreed technical configuration will apply:</Clause>
+        <SubClause letter="a">An Admin folder will be created within SharePoint for each care home location to store all digital records produced under this Agreement.</SubClause>
+        <SubClause letter="b">Euro Digital will configure the SharePoint destination location on each location-based scanner prior to scanning commencing.</SubClause>
+        <SubClause letter="c">Documents will be scanned under the Archive account, which will be set up by H2O. This account will have a direct link to the Admin share folder in the relevant SharePoint location.</SubClause>
+        <SubClause letter="d">Default scanning document names will be used throughout. No custom naming, Power Automate workflows, or AI Builder processes are required.</SubClause>
+        <Clause num="2.6">Secure Destruction via Shred-IT — Upon completion of scanning and written confirmation of successful digital delivery, ScanVault will arrange for Shred-IT to attend the Client's premises directly. Shred-IT will collect all physical documents and archive boxes/bags from the premises in a locked, secure vehicle for confidential destruction. ScanVault does not remove or transport any physical documents from the Client's premises at any point. The Client will receive a Certificate of Destruction from Shred-IT confirming secure and compliant disposal of all collected materials.</Clause>
 
         <View style={s.rule} />
 
         {/* Section 3 */}
         <Text style={s.sectionNumber}>3.  SAFEGUARDING, DATA PROTECTION AND CONFIDENTIALITY</Text>
         <Clause num="3.1">UK GDPR Compliance — ScanVault operates in full compliance with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. All personal data processed during the Services will be handled lawfully, fairly, and transparently, and only to the extent necessary to deliver the Services.</Clause>
-        <Clause num="3.2">Care Home Special Category Data — Recognising that the Client operates care home facilities regulated by the Care Quality Commission (CQC), ScanVault acknowledges the heightened sensitivity of resident and patient records and commits to:</Clause>
-        <SubClause letter="a">Treating all resident and patient data as Special Category Data under Article 9 of the UK GDPR.</SubClause>
-        <SubClause letter="b">Implementing appropriate technical and organisational security measures to protect the confidentiality, integrity, and availability of all records at all times.</SubClause>
-        <SubClause letter="c">Ensuring all personnel who handle the Client's documents are bound by strict confidentiality obligations.</SubClause>
-        <SubClause letter="d">Processing data solely for the purpose of delivering the Services and for no other purpose whatsoever.</SubClause>
+        <Clause num="3.2">Care Home Patient Safeguarding and Special Category Data — Recognising that the Client operates care home facilities regulated by the Care Quality Commission (CQC), and that records processed under this Agreement may relate to vulnerable adults, ScanVault acknowledges the heightened duty of care and commits to:</Clause>
+        <SubClause letter="a">Treating all resident and patient data as Special Category Data under Article 9 of the UK GDPR, including health records, care plans, medication records, and other personal care documentation.</SubClause>
+        <SubClause letter="b">Implementing appropriate technical and organisational security measures to protect the confidentiality, integrity, and availability of all records at all times whilst on the Client's premises.</SubClause>
+        <SubClause letter="c">Ensuring all ScanVault personnel conduct themselves in a manner consistent with the safeguarding of vulnerable adults whilst working on the Client's premises, and adhering to any safeguarding policies brought to their attention by the Client.</SubClause>
+        <SubClause letter="d">Treating all resident care records, medical documentation, care plans, and personal information with the utmost respect and discretion, recognising the sensitivity and dignity of the individuals to whom such records relate.</SubClause>
+        <SubClause letter="e">Not accessing, reading, copying, or otherwise using the content of any patient or resident records beyond the minimum extent strictly necessary for the purpose of scanning and quality assurance.</SubClause>
+        <SubClause letter="f">Processing data solely for the purpose of delivering the Services and for no other purpose whatsoever.</SubClause>
         <Clause num="3.3">CQC Record-Keeping Compliance — ScanVault will ensure all Digital Records produced are complete, legible, and organised in a manner that supports the Client's ongoing regulatory obligations to the CQC, including compliance with the Health and Social Care Act 2008 (Regulated Activities) Regulations 2014.</Clause>
-        <Clause num="3.4">Staff Vetting — All ScanVault personnel involved in the handling of the Client's documents will have completed an Enhanced Disclosure and Barring Service (DBS) check prior to engagement.</Clause>
-        <Clause num="3.5">Data Processing Agreement — For the purposes of UK GDPR, this Agreement constitutes a Data Processing Agreement between the Client (as Data Controller) and ScanVault (as Data Processor). ScanVault will not sub-process any personal data except as necessary to engage Shred-IT for the purpose of secure destruction.</Clause>
-        <Clause num="3.6">Confidentiality — Both parties agree to maintain strict confidentiality in respect of all information, records, and data encountered during the performance of this Agreement. This obligation shall survive the termination of this Agreement indefinitely.</Clause>
-        <Clause num="3.7">Data Breach — In the event of a suspected or confirmed data breach, ScanVault will notify the Client without undue delay and in any event within 72 hours of becoming aware, and will cooperate fully with any investigation.</Clause>
+        <Clause num="3.4">Data Processing Agreement — For the purposes of UK GDPR, this Agreement constitutes a Data Processing Agreement between the Client (as Data Controller) and ScanVault (as Data Processor). ScanVault will not sub-process any personal data except as necessary to engage Shred-IT for the purpose of secure destruction.</Clause>
+        <Clause num="3.5">Confidentiality — Both parties agree to maintain strict confidentiality in respect of all information, records, and data encountered during the performance of this Agreement. This obligation shall survive the termination of this Agreement indefinitely.</Clause>
+        <Clause num="3.6">Data Breach — In the event of a suspected or confirmed data breach, ScanVault will notify the Client without undue delay and in any event within 72 hours of becoming aware, and will cooperate fully with any investigation.</Clause>
 
         <View style={s.rule} />
 
         {/* Section 4 */}
-        <Text style={s.sectionNumber}>4.  CHAIN OF CUSTODY</Text>
-        <Clause num="4.1">Collection Receipt — Upon collection of archive boxes from the Client's premises, ScanVault will provide a signed written receipt detailing the number and condition of boxes collected.</Clause>
-        <Clause num="4.2">Secure Transport — All documents will be transported in a locked, secure vehicle directly to ScanVault's processing facility. Documents will not be left unattended during transit.</Clause>
-        <Clause num="4.3">Secure Storage — Whilst on ScanVault's premises, all documents will be stored in a secure, access-controlled environment accessible only to authorised personnel.</Clause>
-        <Clause num="4.4">Custody Log — ScanVault will maintain a full chain of custody log for all archive boxes from the point of collection through scanning and until destruction. This log will be made available to the Client upon request.</Clause>
-        <Clause num="4.5">Return of Documents — Unless the Client instructs otherwise in writing, all physical documents will be passed to Shred-IT for destruction following confirmation of successful digital delivery. Any documents excluded from destruction must be identified by the Client in advance.</Clause>
+        <Text style={s.sectionNumber}>4.  DOCUMENT HANDLING AND CHAIN OF CUSTODY</Text>
+        <Clause num="4.1">On-Site Working — All scanning and document preparation activities are carried out entirely at the Client's premises. Physical documents will not be removed from the Client's premises by ScanVault at any point during the provision of the Services.</Clause>
+        <Clause num="4.2">Document Access Record — Upon commencing work, ScanVault will prepare a written record of the number and condition of archive boxes/bags to be processed. This will be signed by a representative of both parties.</Clause>
+        <Clause num="4.3">Handling Standards — All documents will be handled with care at all times. ScanVault will not leave documents unattended or accessible to unauthorised persons whilst on the Client's premises.</Clause>
+        <Clause num="4.4">Custody Log — ScanVault will maintain a full log of all archive boxes processed, from initial access through scanning and quality assurance until handover to Shred-IT. This log will be made available to the Client upon request.</Clause>
+        <Clause num="4.5">Shred-IT Handover — Following written confirmation of successful digital delivery, ScanVault will arrange for Shred-IT to attend the premises. At the point of Shred-IT collection, responsibility for the physical documents transfers from the Client to Shred-IT. Any documents the Client wishes to retain must be clearly identified to ScanVault before scanning commences.</Clause>
 
         <View style={s.rule} />
 
@@ -190,7 +196,7 @@ export function ContractPDF(p: ContractPDFProps) {
         {/* Section 6 */}
         <Text style={s.sectionNumber}>6.  CLIENT OBLIGATIONS</Text>
         <Text style={s.body}>The Client agrees to:</Text>
-        <Clause num="6.1">Provide reasonable access to the premises for the collection of archive boxes at an agreed time.</Clause>
+        <Clause num="6.1">Provide reasonable access to the premises for ScanVault personnel to carry out scanning activities at agreed times, and for Shred-IT to attend the premises for collection of physical documents post-scanning.</Clause>
         <Clause num="6.2">Ensure archive boxes are clearly labelled and accessible prior to collection.</Clause>
         <Clause num="6.3">Provide valid SharePoint access credentials to ScanVault in advance of the digital upload stage.</Clause>
         <Clause num="6.4">Nominate a named point of contact for the duration of the project who has authority to make decisions on the Client's behalf.</Clause>
