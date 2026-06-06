@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Edit, Loader2, Download, TrendingUp } from "lucide-react";
 import LeadsTab from "@/components/leads-tab";
+import ContractsTab from "@/components/contracts-tab";
 
 interface User {
   id: string;
@@ -308,6 +309,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="leads" className="relative">
             Leads &amp; Quotes
           </TabsTrigger>
+          <TabsTrigger value="contracts">Contracts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -834,6 +836,14 @@ export default function AdminDashboard() {
               </Card>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="contracts" className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <FileText className="w-5 h-5 text-scanvault-red" />
+            <h2 className="text-2xl font-bold">Client Contracts</h2>
+          </div>
+          <ContractsTab />
         </TabsContent>
 
         <TabsContent value="leads" className="space-y-4">

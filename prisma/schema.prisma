@@ -20,6 +20,7 @@ model User {
   invoices      Invoice[]
   receipts      Receipt[]
   documents     Document[]
+  contracts     Contract[]
 }
 
 model Invoice {
@@ -107,6 +108,33 @@ model Lead {
 
   @@index([type])
   @@index([createdAt])
+}
+
+model Contract {
+  id             String         @id @default(cuid())
+  title          String
+  clientName     String
+  clientAddress  String?
+  clientContact  String?
+  clientEmail    String?
+  userId         String?
+  user           User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status         ContractStatus @default(DRAFT)
+  pricePerBox    Float          @default(140)
+  estimatedBoxes Int?
+  startDate      DateTime?
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  SIGNED
+  ACTIVE
+  COMPLETED
+  CANCELLED
 }
 
 enum LeadType {
