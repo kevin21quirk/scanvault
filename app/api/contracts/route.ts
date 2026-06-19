@@ -24,7 +24,13 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { title, clientName, clientAddress, clientContact, clientEmail, pricePerBox, estimatedBoxes, startDate, notes, userId } = body;
+  const {
+    title, clientName, clientAddress, clientContact, clientEmail,
+    careHomeName, careHomeAddress,
+    pricePerBox, estimatedBoxes, totalCost, projectDuration,
+    depositPercent, scopeOfWorks, requirements, paymentTerms,
+    startDate, notes, userId,
+  } = body;
 
   if (!title || !clientName) {
     return NextResponse.json({ error: "Title and client name are required" }, { status: 400 });
@@ -34,14 +40,22 @@ export async function POST(req: NextRequest) {
     data: {
       title,
       clientName,
-      clientAddress: clientAddress || null,
-      clientContact: clientContact || null,
-      clientEmail:   clientEmail   || null,
-      pricePerBox:   pricePerBox   ? parseFloat(pricePerBox) : 140,
-      estimatedBoxes: estimatedBoxes ? parseInt(estimatedBoxes) : null,
-      startDate:     startDate ? new Date(startDate) : null,
-      notes:         notes || null,
-      userId:        userId || null,
+      clientAddress:   clientAddress   || null,
+      clientContact:   clientContact   || null,
+      clientEmail:     clientEmail     || null,
+      careHomeName:    careHomeName    || null,
+      careHomeAddress: careHomeAddress || null,
+      pricePerBox:     pricePerBox     ? parseFloat(pricePerBox) : 140,
+      estimatedBoxes:  estimatedBoxes  ? parseInt(estimatedBoxes) : null,
+      totalCost:       totalCost       ? parseFloat(totalCost) : null,
+      projectDuration: projectDuration || null,
+      depositPercent:  depositPercent  ? parseFloat(depositPercent) : 30,
+      scopeOfWorks:    scopeOfWorks    || null,
+      requirements:    requirements    || null,
+      paymentTerms:    paymentTerms    || null,
+      startDate:       startDate       ? new Date(startDate) : null,
+      notes:           notes           || null,
+      userId:          userId          || null,
     },
     include: { user: { select: { id: true, name: true, email: true } } },
   });

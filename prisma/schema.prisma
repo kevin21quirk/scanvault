@@ -111,21 +111,29 @@ model Lead {
 }
 
 model Contract {
-  id             String         @id @default(cuid())
-  title          String
-  clientName     String
-  clientAddress  String?
-  clientContact  String?
-  clientEmail    String?
-  userId         String?
-  user           User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
-  status         ContractStatus @default(DRAFT)
-  pricePerBox    Float          @default(140)
-  estimatedBoxes Int?
-  startDate      DateTime?
-  notes          String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id               String         @id @default(cuid())
+  title            String
+  clientName       String
+  clientAddress    String?
+  clientContact    String?
+  clientEmail      String?
+  careHomeName     String?
+  careHomeAddress  String?
+  userId           String?
+  user             User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status           ContractStatus @default(DRAFT)
+  pricePerBox      Float          @default(140)
+  estimatedBoxes   Int?
+  totalCost        Float?
+  projectDuration  String?
+  depositPercent   Float?         @default(30)
+  scopeOfWorks     String?
+  requirements     String?
+  paymentTerms     String?
+  startDate        DateTime?
+  notes            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
 enum ContractStatus {

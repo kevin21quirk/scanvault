@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  FileText, Plus, Download, Trash2, UserCheck, X,
+  FileText, Plus, Download, Trash2, UserCheck, X, Building2,
   Clock, CheckCircle2, Send, PenLine, XCircle, Loader2,
 } from "lucide-react";
 
@@ -14,19 +14,27 @@ type ContractStatus = "DRAFT" | "SENT" | "SIGNED" | "ACTIVE" | "COMPLETED" | "CA
 
 interface ContractUser { id: string; name: string | null; email: string; }
 interface Contract {
-  id:             string;
-  title:          string;
-  clientName:     string;
-  clientAddress:  string | null;
-  clientContact:  string | null;
-  clientEmail:    string | null;
-  status:         ContractStatus;
-  pricePerBox:    number;
-  estimatedBoxes: number | null;
-  startDate:      string | null;
-  notes:          string | null;
-  createdAt:      string;
-  user:           ContractUser | null;
+  id:              string;
+  title:           string;
+  clientName:      string;
+  clientAddress:   string | null;
+  clientContact:   string | null;
+  clientEmail:     string | null;
+  careHomeName:    string | null;
+  careHomeAddress: string | null;
+  status:          ContractStatus;
+  pricePerBox:     number;
+  estimatedBoxes:  number | null;
+  totalCost:       number | null;
+  projectDuration: string | null;
+  depositPercent:  number | null;
+  scopeOfWorks:    string | null;
+  requirements:    string | null;
+  paymentTerms:    string | null;
+  startDate:       string | null;
+  notes:           string | null;
+  createdAt:       string;
+  user:            ContractUser | null;
 }
 
 interface UserOption { id: string; name: string | null; email: string; }
@@ -42,12 +50,20 @@ const STATUS_META: Record<ContractStatus, { label: string; color: string; Icon: 
 
 const BLANK = {
   title: "Document Scanning and Archiving Services Agreement",
-  clientName: "Abbey Healthcare Group",
+  clientName: "",
   clientAddress: "",
   clientContact: "",
   clientEmail: "",
+  careHomeName: "",
+  careHomeAddress: "",
   pricePerBox: "140",
   estimatedBoxes: "",
+  totalCost: "",
+  projectDuration: "",
+  depositPercent: "30",
+  scopeOfWorks: "",
+  requirements: "Access to an on-site laptop or secure network point to enable internal uploads in line with GDPR and data protection requirements.\nSigned declaration and risk assessment to be completed on the first day of contract commencement.\nSuitable access to archive storage areas throughout the duration of the works.",
+  paymentTerms: "",
   startDate: "",
   notes: "",
   userId: "",
@@ -198,62 +214,148 @@ export default function ContractsTab() {
             </button>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <Label>Agreement Title *</Label>
-                <Input value={form.title} onChange={set("title")} required className="mt-1" />
-              </div>
+            <form onSubmit={handleCreate} className="space-y-6">
+              {/* Section: Client & Care Home */}
               <div>
-                <Label>Client Name *</Label>
-                <Input value={form.clientName} onChange={set("clientName")} required className="mt-1" />
+                <h3 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Client &amp; Care Home Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <Label>Agreement Title *</Label>
+                    <Input value={form.title} onChange={set("title")} required className="mt-1" />
+                  </div>
+                  <div>
+                    <Label>Client / Billing Company *</Label>
+                    <Input value={form.clientName} onChange={set("clientName")} required className="mt-1" placeholder="e.g. Abbey Healthcare Group" />
+                  </div>
+                  <div>
+                    <Label>Client Email</Label>
+                    <Input type="email" value={form.clientEmail} onChange={set("clientEmail")} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label>Client Contact Name</Label>
+                    <Input value={form.clientContact} onChange={set("clientContact")} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label>Client Address</Label>
+                    <Input value={form.clientAddress} onChange={set("clientAddress")} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label>Care Home Name *</Label>
+                    <Input value={form.careHomeName} onChange={set("careHomeName")} className="mt-1" placeholder="e.g. Elmcroft Care Home" />
+                  </div>
+                  <div>
+                    <Label>Care Home Address</Label>
+                    <Input value={form.careHomeAddress} onChange={set("careHomeAddress")} className="mt-1" placeholder="Full site address" />
+                  </div>
+                </div>
               </div>
+
+              {/* Section: Scope of Works */}
               <div>
-                <Label>Client Email</Label>
-                <Input type="email" value={form.clientEmail} onChange={set("clientEmail")} className="mt-1" />
+                <h3 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Scope of Works</h3>
+                <div>
+                  <Label>Detailed Scope of Works</Label>
+                  <p className="text-xs text-gray-400 mb-1">Describe all archiving, scanning, digitisation, and indexing work to be carried out at this care home. Include quantities of archive boxes, drawers, files, etc.</p>
+                  <textarea
+                    value={form.scopeOfWorks}
+                    onChange={set("scopeOfWorks")}
+                    rows={8}
+                    className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm resize-y"
+                    placeholder="e.g. Scanning, digitisation, organisation and indexing of approximately:\n- 15 archive holders\n- 43 completed archive files\n- 83 additional archive boxes\n- Secure uploading to cloud-based platform\n- Structured digital organisation and labelling\n- Creation of indexing and numbering system"
+                  />
+                </div>
               </div>
+
+              {/* Section: Pricing & Duration */}
               <div>
-                <Label>Client Contact (name)</Label>
-                <Input value={form.clientContact} onChange={set("clientContact")} className="mt-1" />
+                <h3 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Pricing &amp; Project Duration</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label>Total Project Cost (£)</Label>
+                    <Input type="number" step="0.01" value={form.totalCost} onChange={set("totalCost")} className="mt-1" placeholder="e.g. 9840.00" />
+                  </div>
+                  <div>
+                    <Label>Price Per Box (£)</Label>
+                    <Input type="number" step="0.01" value={form.pricePerBox} onChange={set("pricePerBox")} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label>Estimated Boxes</Label>
+                    <Input type="number" value={form.estimatedBoxes} onChange={set("estimatedBoxes")} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label>Project Duration</Label>
+                    <Input value={form.projectDuration} onChange={set("projectDuration")} className="mt-1" placeholder="e.g. Approximately 2 weeks" />
+                  </div>
+                  <div>
+                    <Label>Deposit (%)</Label>
+                    <Input type="number" step="1" value={form.depositPercent} onChange={set("depositPercent")} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label>Start Date</Label>
+                    <Input type="date" value={form.startDate} onChange={set("startDate")} className="mt-1" />
+                  </div>
+                </div>
               </div>
+
+              {/* Section: Requirements & Payment Terms */}
               <div>
-                <Label>Start Date</Label>
-                <Input type="date" value={form.startDate} onChange={set("startDate")} className="mt-1" />
+                <h3 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Requirements &amp; Payment Terms</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Site Requirements</Label>
+                    <p className="text-xs text-gray-400 mb-1">What the client must provide (one per line)</p>
+                    <textarea
+                      value={form.requirements}
+                      onChange={set("requirements")}
+                      rows={4}
+                      className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm resize-y"
+                    />
+                  </div>
+                  <div>
+                    <Label>Payment Terms (optional override)</Label>
+                    <p className="text-xs text-gray-400 mb-1">Leave blank for standard deposit + balance terms</p>
+                    <textarea
+                      value={form.paymentTerms}
+                      onChange={set("paymentTerms")}
+                      rows={4}
+                      className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm resize-y"
+                      placeholder="Custom payment terms if different from standard..."
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="md:col-span-2">
-                <Label>Client Address</Label>
-                <Input value={form.clientAddress} onChange={set("clientAddress")} className="mt-1" />
-              </div>
+
+              {/* Section: Assignment & Notes */}
               <div>
-                <Label>Price Per Box (£)</Label>
-                <Input type="number" step="0.01" value={form.pricePerBox} onChange={set("pricePerBox")} className="mt-1" />
+                <h3 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Assignment &amp; Notes</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Assign to Client Login</Label>
+                    <select
+                      value={form.userId}
+                      onChange={set("userId")}
+                      className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm"
+                    >
+                      <option value="">— None —</option>
+                      {users.filter((u) => u.id).map((u) => (
+                        <option key={u.id} value={u.id}>{u.name || u.email} ({u.email})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <Label>Internal Notes</Label>
+                    <textarea
+                      value={form.notes}
+                      onChange={set("notes")}
+                      rows={2}
+                      className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm resize-y"
+                      placeholder="Internal notes (not shown on PDF unless specified)"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <Label>Estimated Boxes</Label>
-                <Input type="number" value={form.estimatedBoxes} onChange={set("estimatedBoxes")} className="mt-1" />
-              </div>
-              <div className="md:col-span-2">
-                <Label>Assign to Client Login</Label>
-                <select
-                  value={form.userId}
-                  onChange={set("userId")}
-                  className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm"
-                >
-                  <option value="">— None —</option>
-                  {users.filter((u) => u.id).map((u) => (
-                    <option key={u.id} value={u.id}>{u.name || u.email} ({u.email})</option>
-                  ))}
-                </select>
-              </div>
-              <div className="md:col-span-2">
-                <Label>Notes (appended to contract)</Label>
-                <textarea
-                  value={form.notes}
-                  onChange={set("notes")}
-                  rows={2}
-                  className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm resize-y"
-                />
-              </div>
-              <div className="md:col-span-2 flex justify-end gap-3">
+
+              <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
                 <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
                 <Button type="submit" disabled={saving} className="bg-scanvault-red hover:bg-red-700 text-white">
                   {saving ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Saving…</> : "Create Contract"}
@@ -278,7 +380,11 @@ export default function ContractsTab() {
           {contracts.map((c) => {
             const meta = STATUS_META[c.status];
             const Icon = meta.Icon;
-            const est  = c.estimatedBoxes ? `${c.estimatedBoxes} boxes · est. £${(c.estimatedBoxes * c.pricePerBox).toLocaleString("en-GB")}` : `£${c.pricePerBox}/box`;
+            const cost = c.totalCost
+              ? `£${c.totalCost.toLocaleString("en-GB", { minimumFractionDigits: 2 })}`
+              : c.estimatedBoxes
+                ? `${c.estimatedBoxes} boxes · est. £${(c.estimatedBoxes * c.pricePerBox).toLocaleString("en-GB")}`
+                : `£${c.pricePerBox}/box`;
             return (
               <Card key={c.id} className="border border-gray-100 shadow-sm">
                 <CardContent className="p-4">
@@ -292,11 +398,13 @@ export default function ContractsTab() {
                       </div>
                       <p className="text-sm text-gray-600 mb-1">
                         <span className="font-medium">{c.clientName}</span>
+                        {c.careHomeName && <span className="text-gray-400"> · <Building2 className="w-3 h-3 inline" /> {c.careHomeName}</span>}
                         {c.clientContact && <span className="text-gray-400"> · {c.clientContact}</span>}
                         {c.clientEmail   && <span className="text-gray-400"> · {c.clientEmail}</span>}
                       </p>
                       <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
-                        <span className="flex items-center gap-1"><FileText className="w-3 h-3" /> {est}</span>
+                        <span className="flex items-center gap-1"><FileText className="w-3 h-3" /> {cost}</span>
+                        {c.projectDuration && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {c.projectDuration}</span>}
                         {c.startDate && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Start: {new Date(c.startDate).toLocaleDateString("en-GB")}</span>}
                         {c.user && <span className="flex items-center gap-1 text-emerald-600"><UserCheck className="w-3 h-3" /> {c.user.name || c.user.email}</span>}
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Created {new Date(c.createdAt).toLocaleDateString("en-GB")}</span>

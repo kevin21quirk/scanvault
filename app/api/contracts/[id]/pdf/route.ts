@@ -26,21 +26,32 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const buffer = await renderToBuffer(
     React.createElement(ContractPDF, {
-      id:             contract.id,
-      title:          contract.title,
-      clientName:     contract.clientName,
-      clientAddress:  contract.clientAddress  ?? "",
-      clientContact:  contract.clientContact  ?? "",
-      clientEmail:    contract.clientEmail    ?? "",
-      pricePerBox:    contract.pricePerBox,
-      estimatedBoxes: contract.estimatedBoxes ?? null,
-      startDate:      contract.startDate ? contract.startDate.toISOString() : "",
-      createdAt:      contract.createdAt.toISOString(),
-      notes:          contract.notes ?? "",
+      id:              contract.id,
+      title:           contract.title,
+      clientName:      contract.clientName,
+      clientAddress:   contract.clientAddress   ?? "",
+      clientContact:   contract.clientContact   ?? "",
+      clientEmail:     contract.clientEmail     ?? "",
+      careHomeName:    contract.careHomeName    ?? "",
+      careHomeAddress: contract.careHomeAddress ?? "",
+      pricePerBox:     contract.pricePerBox,
+      estimatedBoxes:  contract.estimatedBoxes  ?? null,
+      totalCost:       contract.totalCost       ?? null,
+      projectDuration: contract.projectDuration ?? "",
+      depositPercent:  contract.depositPercent  ?? 30,
+      scopeOfWorks:    contract.scopeOfWorks    ?? "",
+      requirements:    contract.requirements    ?? "",
+      paymentTerms:    contract.paymentTerms    ?? "",
+      startDate:       contract.startDate ? contract.startDate.toISOString() : "",
+      createdAt:       contract.createdAt.toISOString(),
+      notes:           contract.notes ?? "",
     })
   );
 
-  const filename = `ScanVault-Contract-${contract.clientName.replace(/\s+/g, "-")}-${contract.id.slice(-6)}.pdf`;
+  const nameSlug = contract.careHomeName
+    ? `${contract.clientName}-${contract.careHomeName}`.replace(/\s+/g, "-")
+    : contract.clientName.replace(/\s+/g, "-");
+  const filename = `ScanVault-Contract-${nameSlug}-${contract.id.slice(-6)}.pdf`;
 
   return new Response(new Uint8Array(buffer), {
     headers: {
