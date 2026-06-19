@@ -72,6 +72,8 @@ export default function AdminDashboard() {
 
   const [submitting, setSubmitting] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [deletingInvoice, setDeletingInvoice] = useState<string | null>(null);
+  const [deletingReceipt, setDeletingReceipt] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -202,6 +204,44 @@ export default function AdminDashboard() {
       alert("Failed to update status");
     } finally {
       setUpdatingStatus(null);
+    }
+  };
+
+  const handleDeleteInvoice = async (id: string) => {
+    if (!confirm("Delete this invoice? This cannot be undone.")) return;
+    setDeletingInvoice(id);
+    try {
+      const res = await fetch(`/api/invoices/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setInvoices(invoices.filter(inv => inv.id !== id));
+      } else {
+        const error = await res.json();
+        alert(error.error || "Failed to delete invoice");
+      }
+    } catch (error) {
+      console.error("Error deleting invoice:", error);
+      alert("Failed to delete invoice");
+    } finally {
+      setDeletingInvoice(null);
+    }
+  };
+
+  const handleDeleteReceipt = async (id: string) => {
+    if (!confirm("Delete this receipt? This cannot be undone.")) return;
+    setDeletingReceipt(id);
+    try {
+      const res = await fetch(`/api/receipts/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setReceipts(receipts.filter(r => r.id !== id));
+      } else {
+        const error = await res.json();
+        alert(error.error || "Failed to delete receipt");
+      }
+    } catch (error) {
+      console.error("Error deleting receipt:", error);
+      alert("Failed to delete receipt");
+    } finally {
+      setDeletingReceipt(null);
     }
   };
 
@@ -493,6 +533,15 @@ export default function AdminDashboard() {
                             <Download className="h-4 w-4 mr-2" />
                             Download PDF
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:bg-red-50 border-red-200"
+                            onClick={() => handleDeleteInvoice(invoice.id)}
+                            disabled={deletingInvoice === invoice.id}
+                          >
+                            {deletingInvoice === invoice.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -675,9 +724,20 @@ export default function AdminDashboard() {
                           <p className="text-sm text-gray-600">{receipt.description}</p>
                           <p className="text-sm text-gray-600">{receipt.paymentMethod}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold text-lg">£{receipt.amount.toFixed(2)}</p>
-                          <p className="text-sm text-gray-600">{new Date(receipt.date).toLocaleDateString()}</p>
+                        <div className="text-right flex flex-col items-end gap-2">
+                          <div>
+                            <p className="font-bold text-lg">£{receipt.amount.toFixed(2)}</p>
+                            <p className="text-sm text-gray-600">{new Date(receipt.date).toLocaleDateString()}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:bg-red-50 border-red-200"
+                            onClick={() => handleDeleteReceipt(receipt.id)}
+                            disabled={deletingReceipt === receipt.id}
+                          >
+                            {deletingReceipt === receipt.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          </Button>
                         </div>
                       </div>
                     </div>
