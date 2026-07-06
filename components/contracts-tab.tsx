@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  FileText, Plus, Download, Trash2, UserCheck, X, Building2,
+  FileText, Plus, Download, Trash2, UserCheck, X, Building2, Pencil,
   Clock, CheckCircle2, Send, PenLine, XCircle, Loader2,
 } from "lucide-react";
 
@@ -74,6 +74,7 @@ export default function ContractsTab() {
   const [users,     setUsers]     = useState<UserOption[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [showForm,  setShowForm]  = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form,      setForm]      = useState({ ...BLANK });
   const [saving,    setSaving]    = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
@@ -92,20 +93,64 @@ export default function ContractsTab() {
 
   useEffect(() => { fetch$(); }, [fetch$]);
 
+  const contractToForm = (c: Contract): typeof BLANK => ({
+    title:           c.title,
+    clientName:      c.clientName,
+    clientAddress:   c.clientAddress   ?? "",
+    clientContact:   c.clientContact   ?? "",
+    clientEmail:     c.clientEmail     ?? "",
+    careHomeName:    c.careHomeName    ?? "",
+    careHomeAddress: c.careHomeAddress ?? "",
+    pricePerBox:     c.pricePerBox != null ? String(c.pricePerBox) : "140",
+    estimatedBoxes:  c.estimatedBoxes != null ? String(c.estimatedBoxes) : "",
+    totalCost:       c.totalCost != null ? String(c.totalCost) : "",
+    projectDuration: c.projectDuration ?? "",
+    depositPercent:  c.depositPercent != null ? String(c.depositPercent) : "30",
+    scopeOfWorks:    c.scopeOfWorks    ?? "",
+    requirements:    c.requirements    ?? "",
+    paymentTerms:    c.paymentTerms    ?? "",
+    startDate:       c.startDate ? c.startDate.slice(0, 10) : "",
+    notes:           c.notes           ?? "",
+    userId:          c.user?.id        ?? "",
+  });
+
+  const openNew = () => {
+    setEditingId(null);
+    setForm({ ...BLANK });
+    setShowForm(true);
+  };
+
+  const handleEdit = (c: Contract) => {
+    setEditingId(c.id);
+    setForm(contractToForm(c));
+    setShowForm(true);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setForm({ ...BLANK });
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch("/api/contracts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const res = await fetch(
+        editingId ? `/api/contracts/${editingId}` : "/api/contracts",
+        {
+          method: editingId ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        }
+      );
       if (res.ok) {
-        const created = await res.json();
-        setContracts((p) => [created, ...p]);
-        setShowForm(false);
-        setForm({ ...BLANK });
+        const saved = await res.json();
+        setContracts((p) =>
+          editingId ? p.map((c) => (c.id === editingId ? saved : c)) : [saved, ...p]
+        );
+        closeForm();
       }
     } finally {
       setSaving(false);
@@ -197,19 +242,19 @@ export default function ContractsTab() {
             ))}
           </div>
         </div>
-        <Button onClick={() => setShowForm(true)} className="bg-scanvault-red hover:bg-red-700 text-white flex items-center gap-2">
+        <Button onClick={openNew} className="bg-scanvault-red hover:bg-red-700 text-white flex items-center gap-2">
           <Plus className="w-4 h-4" /> New Contract
         </Button>
       </div>
 
-      {/* New Contract Form */}
+      {/* Contract Form (create + edit) */}
       {showForm && (
         <Card className="border-2 border-scanvault-red/20 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <FileText className="w-4 h-4 text-scanvault-red" /> New Contract
+              <FileText className="w-4 h-4 text-scanvault-red" /> {editingId ? "Edit Contract" : "New Contract"}
             </CardTitle>
-            <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
+            <button onClick={closeForm} className="text-gray-400 hover:text-gray-600">
               <X className="w-4 h-4" />
             </button>
           </CardHeader>
@@ -356,9 +401,9 @@ export default function ContractsTab() {
               </div>
 
               <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={closeForm}>Cancel</Button>
                 <Button type="submit" disabled={saving} className="bg-scanvault-red hover:bg-red-700 text-white">
-                  {saving ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Saving…</> : "Create Contract"}
+                  {saving ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Saving…</> : editingId ? "Save Changes" : "Create Contract"}
                 </Button>
               </div>
             </form>
@@ -458,15 +503,25 @@ export default function ContractsTab() {
                         </Button>
                       </div>
 
-                      {/* Delete */}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDelete(c.id)}
-                        className="h-7 px-2 text-xs text-red-600 hover:bg-red-50 border-red-200"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+                      {/* Edit + Delete */}
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(c)}
+                          className="h-7 px-2 text-xs flex items-center gap-1"
+                        >
+                          <Pencil className="w-3 h-3" /> Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDelete(c.id)}
+                          className="h-7 px-2 text-xs text-red-600 hover:bg-red-50 border-red-200"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

@@ -57,6 +57,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     headers: {
       "Content-Type":        "application/pdf",
       "Content-Disposition": `attachment; filename="${filename}"`,
+      "Cache-Control":       "no-store, max-age=0",
     },
   });
 }
