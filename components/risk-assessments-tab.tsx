@@ -14,6 +14,7 @@ interface RiskAssessment {
   id:              string;
   careHomeName:    string;
   careHomeAddress: string | null;
+  careHomeId:      string | null;
   clientName:      string;
   clientAddress:   string | null;
   assessorName:    string | null;
@@ -33,9 +34,12 @@ interface UserOption {
   address?: string | null;
 }
 
+interface CareHomeOption { id: string; name: string; address: string | null; }
+
 const BLANK = {
   careHomeName: "",
   careHomeAddress: "",
+  careHomeId: "",
   clientName: "",
   clientAddress: "",
   assessorName: "Kevin Quirk",
@@ -53,6 +57,7 @@ export default function RiskAssessmentsTab() {
   const [form, setForm] = useState({ ...BLANK });
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [careHomeOptions, setCareHomeOptions] = useState<CareHomeOption[]>([]);
 
   const fetch$ = useCallback(async () => {
     try {
@@ -72,6 +77,7 @@ export default function RiskAssessmentsTab() {
   const toForm = (r: RiskAssessment): typeof BLANK => ({
     careHomeName:    r.careHomeName,
     careHomeAddress: r.careHomeAddress ?? "",
+    careHomeId:      r.careHomeId ?? "",
     clientName:      r.clientName,
     clientAddress:   r.clientAddress ?? "",
     assessorName:    r.assessorName ?? "Kevin Quirk",
@@ -84,7 +90,8 @@ export default function RiskAssessmentsTab() {
 
   const handleSelectClient = (clientId: string) => {
     if (!clientId) {
-      setForm((p) => ({ ...p, userId: "" }));
+      setForm((p) => ({ ...p, userId: "", careHomeId: "" }));
+      setCareHomeOptions([]);
       return;
     }
     const c = users.find((u) => u.id === clientId);
@@ -94,6 +101,27 @@ export default function RiskAssessmentsTab() {
       userId:        c.id,
       clientName:    c.companyName || c.name || p.clientName,
       clientAddress: c.address || p.clientAddress,
+      careHomeId:    "",
+    }));
+    setCareHomeOptions([]);
+    fetch(`/api/care-homes?userId=${clientId}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: CareHomeOption[]) => setCareHomeOptions(data))
+      .catch(() => {});
+  };
+
+  const handleSelectCareHome = (careHomeId: string) => {
+    if (!careHomeId) {
+      setForm((p) => ({ ...p, careHomeId: "" }));
+      return;
+    }
+    const h = careHomeOptions.find((o) => o.id === careHomeId);
+    if (!h) return;
+    setForm((p) => ({
+      ...p,
+      careHomeId: h.id,
+      careHomeName: h.name,
+      careHomeAddress: h.address || p.careHomeAddress,
     }));
   };
 
@@ -102,6 +130,13 @@ export default function RiskAssessmentsTab() {
     setEditingId(r.id);
     setForm(toForm(r));
     setShowForm(true);
+    setCareHomeOptions([]);
+    if (r.user?.id) {
+      fetch(`/api/care-homes?userId=${r.user.id}`)
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data: CareHomeOption[]) => setCareHomeOptions(data))
+        .catch(() => {});
+    }
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const closeForm = () => { setShowForm(false); setEditingId(null); setForm({ ...BLANK }); };
@@ -207,6 +242,21 @@ export default function RiskAssessmentsTab() {
                       ))}
                     </select>
                   </div>
+                  {careHomeOptions.length > 0 && (
+                    <div className="md:col-span-2">
+                      <Label>Select Saved Care Home <span className="text-gray-400 font-normal">(autofills below, or enter manually)</span></Label>
+                      <select
+                        value={form.careHomeId}
+                        onChange={(e) => handleSelectCareHome(e.target.value)}
+                        className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white"
+                      >
+                        <option value="">— Enter details manually —</option>
+                        {careHomeOptions.map((h) => (
+                          <option key={h.id} value={h.id}>{h.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div>
                     <Label>Care Home / Site Name *</Label>
                     <Input value={form.careHomeName} onChange={set("careHomeName")} required className="mt-1" placeholder="e.g. Cromwell House Care Home" />

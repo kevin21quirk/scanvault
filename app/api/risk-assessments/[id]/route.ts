@@ -17,6 +17,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     data: {
       ...(body.careHomeName    !== undefined && { careHomeName: body.careHomeName }),
       ...(body.careHomeAddress !== undefined && { careHomeAddress: body.careHomeAddress || null }),
+      ...(body.careHomeId      !== undefined && { careHomeId: body.careHomeId || null }),
       ...(body.clientName      !== undefined && { clientName: body.clientName }),
       ...(body.clientAddress   !== undefined && { clientAddress: body.clientAddress || null }),
       ...(body.assessorName    !== undefined && { assessorName: body.assessorName || "Kevin Quirk" }),

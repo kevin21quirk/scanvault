@@ -22,6 +22,7 @@ interface Contract {
   clientEmail:     string | null;
   careHomeName:    string | null;
   careHomeAddress: string | null;
+  careHomeId:      string | null;
   status:          ContractStatus;
   pricePerBox:     number;
   estimatedBoxes:  number | null;
@@ -57,6 +58,8 @@ const STATUS_META: Record<ContractStatus, { label: string; color: string; Icon: 
   CANCELLED: { label: "Cancelled", color: "bg-red-50 text-red-700",       Icon: XCircle },
 };
 
+interface CareHomeOption { id: string; name: string; address: string | null; }
+
 const BLANK = {
   title: "Document Scanning and Archiving Services Agreement",
   clientName: "",
@@ -65,6 +68,7 @@ const BLANK = {
   clientEmail: "",
   careHomeName: "",
   careHomeAddress: "",
+  careHomeId: "",
   pricePerBox: "140",
   estimatedBoxes: "",
   totalCost: "",
@@ -90,6 +94,7 @@ export default function ContractsTab() {
   const [downloadingRA, setDownloadingRA] = useState<string | null>(null);
   const [assigning,   setAssigning]   = useState<string | null>(null);
   const [assignUser,  setAssignUser]  = useState<Record<string, string>>({});
+  const [careHomeOptions, setCareHomeOptions] = useState<CareHomeOption[]>([]);
 
   const fetch$ = useCallback(async () => {
     try {
@@ -111,6 +116,7 @@ export default function ContractsTab() {
     clientEmail:     c.clientEmail     ?? "",
     careHomeName:    c.careHomeName    ?? "",
     careHomeAddress: c.careHomeAddress ?? "",
+    careHomeId:      c.careHomeId      ?? "",
     pricePerBox:     c.pricePerBox != null ? String(c.pricePerBox) : "140",
     estimatedBoxes:  c.estimatedBoxes != null ? String(c.estimatedBoxes) : "",
     totalCost:       c.totalCost != null ? String(c.totalCost) : "",
@@ -128,7 +134,8 @@ export default function ContractsTab() {
 
   const handleSelectClient = (clientId: string) => {
     if (!clientId) {
-      setForm((p) => ({ ...p, userId: "" }));
+      setForm((p) => ({ ...p, userId: "", careHomeId: "" }));
+      setCareHomeOptions([]);
       return;
     }
     const c = users.find((u) => u.id === clientId);
@@ -140,6 +147,27 @@ export default function ContractsTab() {
       clientEmail:   c.email || p.clientEmail,
       clientContact: c.contactName || c.name || p.clientContact,
       clientAddress: c.address || p.clientAddress,
+      careHomeId:    "",
+    }));
+    setCareHomeOptions([]);
+    fetch(`/api/care-homes?userId=${clientId}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: CareHomeOption[]) => setCareHomeOptions(data))
+      .catch(() => {});
+  };
+
+  const handleSelectCareHome = (careHomeId: string) => {
+    if (!careHomeId) {
+      setForm((p) => ({ ...p, careHomeId: "" }));
+      return;
+    }
+    const h = careHomeOptions.find((o) => o.id === careHomeId);
+    if (!h) return;
+    setForm((p) => ({
+      ...p,
+      careHomeId: h.id,
+      careHomeName: h.name,
+      careHomeAddress: h.address || p.careHomeAddress,
     }));
   };
 
@@ -153,6 +181,13 @@ export default function ContractsTab() {
     setEditingId(c.id);
     setForm(contractToForm(c));
     setShowForm(true);
+    setCareHomeOptions([]);
+    if (c.user?.id) {
+      fetch(`/api/care-homes?userId=${c.user.id}`)
+        .then((r) => (r.ok ? r.json() : []))
+        .then((data: CareHomeOption[]) => setCareHomeOptions(data))
+        .catch(() => {});
+    }
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -342,6 +377,21 @@ export default function ContractsTab() {
                     <Label>Client Address</Label>
                     <Input value={form.clientAddress} onChange={set("clientAddress")} className="mt-1" />
                   </div>
+                  {careHomeOptions.length > 0 && (
+                    <div className="md:col-span-2">
+                      <Label>Select Saved Care Home <span className="text-gray-400 font-normal">(autofills below, or enter manually)</span></Label>
+                      <select
+                        value={form.careHomeId}
+                        onChange={(e) => handleSelectCareHome(e.target.value)}
+                        className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white"
+                      >
+                        <option value="">— Enter details manually —</option>
+                        {careHomeOptions.map((h) => (
+                          <option key={h.id} value={h.id}>{h.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div>
                     <Label>Care Home Name *</Label>
                     <Input value={form.careHomeName} onChange={set("careHomeName")} className="mt-1" placeholder="e.g. Elmcroft Care Home" />

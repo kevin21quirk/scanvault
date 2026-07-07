@@ -32,8 +32,11 @@ interface Invoice {
   dueDate: string;
   status: string;
   notes: string | null;
+  careHomeName: string | null;
   user: { email: string; name: string | null };
 }
+
+interface CareHomeOption { id: string; name: string; address: string | null; }
 
 interface ReceiptType {
   id: string;
@@ -66,8 +69,29 @@ export default function AdminDashboard() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
-  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "" });
+  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "" });
   const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([{ description: "", quantity: "1", rate: "" }]);
+  const [invoiceCareHomeOptions, setInvoiceCareHomeOptions] = useState<CareHomeOption[]>([]);
+
+  const handleSelectInvoiceClient = (clientId: string) => {
+    setInvoiceForm((prev) => ({ ...prev, userId: clientId, careHomeId: "", careHomeName: "", careHomeAddress: "" }));
+    setInvoiceCareHomeOptions([]);
+    if (!clientId) return;
+    fetch(`/api/care-homes?userId=${clientId}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: CareHomeOption[]) => setInvoiceCareHomeOptions(data))
+      .catch(() => {});
+  };
+
+  const handleSelectInvoiceCareHome = (careHomeId: string) => {
+    if (!careHomeId) {
+      setInvoiceForm((prev) => ({ ...prev, careHomeId: "" }));
+      return;
+    }
+    const h = invoiceCareHomeOptions.find((o) => o.id === careHomeId);
+    if (!h) return;
+    setInvoiceForm((prev) => ({ ...prev, careHomeId: h.id, careHomeName: h.name, careHomeAddress: h.address || prev.careHomeAddress }));
+  };
   const [receiptForm, setReceiptForm] = useState({ userId: "", receiptNumber: "", amount: "", description: "", paymentMethod: "Bank Transfer", date: "" });
   const [documentForm, setDocumentForm] = useState({ userId: "", title: "", description: "", category: "OTHER", fileUrl: "" });
 
@@ -131,8 +155,9 @@ export default function AdminDashboard() {
         const newInvoice = await res.json();
         setInvoices([newInvoice, ...invoices]);
         setShowInvoiceModal(false);
-        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "" });
+        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "" });
         setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
+        setInvoiceCareHomeOptions([]);
         alert("Invoice created successfully!");
       } else {
         const error = await res.json();
@@ -420,7 +445,7 @@ export default function AdminDashboard() {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <p className="font-semibold">{invoice.invoiceNumber}</p>
-                          <p className="text-sm text-gray-600">{invoice.user.email}</p>
+                          <p className="text-sm text-gray-600">{invoice.user.email}{invoice.careHomeName ? ` · ${invoice.careHomeName}` : ""}</p>
                           <p className="text-sm text-gray-600">{invoice.description}</p>
                           <div className="mt-2 text-xs text-gray-500">
                             <p>Subtotal: £{invoice.subtotal.toFixed(2)}</p>
@@ -488,7 +513,7 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="client">Client *</Label>
-                        <select id="client" required className="w-full px-3 py-2 border rounded-md" value={invoiceForm.userId} onChange={(e) => setInvoiceForm({...invoiceForm, userId: e.target.value})}>
+                        <select id="client" required className="w-full px-3 py-2 border rounded-md" value={invoiceForm.userId} onChange={(e) => handleSelectInvoiceClient(e.target.value)}>
                           <option value="">Select client...</option>
                           {clientUsers.map(user => (
                             <option key={user.id} value={user.id}>{user.companyName || user.name || user.email}</option>
@@ -500,6 +525,19 @@ export default function AdminDashboard() {
                         <Input id="invoiceNumber" required value={invoiceForm.invoiceNumber} readOnly className="bg-gray-50" placeholder="Loading..." />
                       </div>
                     </div>
+
+                    {invoiceCareHomeOptions.length > 0 && (
+                      <div>
+                        <Label htmlFor="careHome">Care Home / Site <span className="text-gray-400 font-normal">(this client has multiple sites — select which one this invoice is for)</span></Label>
+                        <select id="careHome" className="w-full px-3 py-2 border rounded-md" value={invoiceForm.careHomeId} onChange={(e) => handleSelectInvoiceCareHome(e.target.value)}>
+                          <option value="">— Not site-specific —</option>
+                          {invoiceCareHomeOptions.map((h) => (
+                            <option key={h.id} value={h.id}>{h.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="date">Issue Date *</Label>
@@ -629,7 +667,7 @@ export default function AdminDashboard() {
                                 {daysOverdue} day{daysOverdue !== 1 ? 's' : ''} overdue
                               </span>
                             </div>
-                            <p className="text-sm text-gray-700 mt-1">{invoice.user.email}</p>
+                            <p className="text-sm text-gray-700 mt-1">{invoice.user.email}{invoice.careHomeName ? ` · ${invoice.careHomeName}` : ""}</p>
                             <p className="text-sm text-gray-600">{invoice.description}</p>
                             <div className="mt-2 text-xs text-gray-600">
                               <p>Due Date: <span className="font-semibold text-red-600">{new Date(invoice.dueDate).toLocaleDateString('en-GB')}</span></p>

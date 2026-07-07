@@ -25,6 +25,23 @@ model User {
   documents        Document[]
   contracts        Contract[]
   riskAssessments  RiskAssessment[]
+  careHomes        CareHome[]
+}
+
+model CareHome {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  address       String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  invoices      Invoice[]
+  contracts     Contract[]
+  riskAssessments RiskAssessment[]
+
+  @@index([userId])
 }
 
 model Invoice {
@@ -39,6 +56,10 @@ model Invoice {
   description   String
   items         Json?
   depositPercent Float?   @default(50)
+  careHomeId    String?
+  careHome      CareHome? @relation(fields: [careHomeId], references: [id], onDelete: SetNull)
+  careHomeName  String?
+  careHomeAddress String?
   status        InvoiceStatus @default(PENDING)
   issueDate     DateTime
   dueDate       DateTime
@@ -49,6 +70,7 @@ model Invoice {
   updatedAt     DateTime  @updatedAt
   
   @@index([userId])
+  @@index([careHomeId])
 }
 
 model Receipt {
@@ -124,6 +146,8 @@ model Contract {
   clientEmail      String?
   careHomeName     String?
   careHomeAddress  String?
+  careHomeId       String?
+  careHome         CareHome?      @relation(fields: [careHomeId], references: [id], onDelete: SetNull)
   userId           String?
   user             User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   status           ContractStatus @default(DRAFT)
@@ -147,6 +171,8 @@ model RiskAssessment {
   careHomeAddress  String?
   clientName       String
   clientAddress    String?
+  careHomeId       String?
+  careHome         CareHome? @relation(fields: [careHomeId], references: [id], onDelete: SetNull)
   assessorName     String?   @default("Kevin Quirk")
   workStartDate    DateTime?
   notes            String?

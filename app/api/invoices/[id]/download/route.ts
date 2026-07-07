@@ -102,6 +102,25 @@ export async function GET(
     doc.text(client.email, 20, billY); billY += 5;
     if (client.phone) { doc.text(client.phone, 20, billY); billY += 5; }
 
+    // Site / Care Home (when the invoice is for a specific site)
+    if (invoice.careHomeName) {
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(120, 120, 120);
+      doc.text("SITE / CARE HOME", 150, 55);
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10.5);
+      doc.text(invoice.careHomeName, 150, 61);
+
+      if (invoice.careHomeAddress) {
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        const siteAddrLines = doc.splitTextToSize(invoice.careHomeAddress, 45);
+        doc.text(siteAddrLines, 150, 66);
+      }
+    }
+
     // Line separator
     const sepY = Math.max(billY + 3, 80);
     doc.setDrawColor(220, 38, 38);

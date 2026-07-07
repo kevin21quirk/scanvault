@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Users, Plus, Trash2, X, Pencil, Loader2, Mail, Phone, MapPin, Building2,
+  Users, Plus, Trash2, X, Pencil, Loader2, Mail, Phone, MapPin, Building2, Home, ChevronDown, ChevronUp, Check,
 } from "lucide-react";
 
 interface Client {
@@ -20,6 +20,16 @@ interface Client {
   address:     string | null;
   createdAt:   string;
 }
+
+interface CareHome {
+  id:        string;
+  userId:    string;
+  name:      string;
+  address:   string | null;
+  notes:     string | null;
+}
+
+const BLANK_CARE_HOME = { name: "", address: "", notes: "" };
 
 const BLANK = {
   companyName: "",
@@ -38,6 +48,12 @@ export default function ClientsTab() {
   const [form, setForm] = useState({ ...BLANK });
   const [saving, setSaving] = useState(false);
 
+  const [careHomes, setCareHomes] = useState<Record<string, CareHome[]>>({});
+  const [expandedClient, setExpandedClient] = useState<string | null>(null);
+  const [careHomeForm, setCareHomeForm] = useState({ ...BLANK_CARE_HOME });
+  const [editingCareHomeId, setEditingCareHomeId] = useState<string | null>(null);
+  const [savingCareHome, setSavingCareHome] = useState(false);
+
   const fetch$ = useCallback(async () => {
     try {
       const res = await fetch("/api/users");
@@ -51,6 +67,77 @@ export default function ClientsTab() {
   }, []);
 
   useEffect(() => { fetch$(); }, [fetch$]);
+
+  const fetchCareHomes = useCallback(async (clientId: string) => {
+    const res = await fetch(`/api/care-homes?userId=${clientId}`);
+    if (res.ok) {
+      const data: CareHome[] = await res.json();
+      setCareHomes((p) => ({ ...p, [clientId]: data }));
+    }
+  }, []);
+
+  const toggleExpand = (clientId: string) => {
+    if (expandedClient === clientId) {
+      setExpandedClient(null);
+      return;
+    }
+    setExpandedClient(clientId);
+    setEditingCareHomeId(null);
+    setCareHomeForm({ ...BLANK_CARE_HOME });
+    if (!careHomes[clientId]) fetchCareHomes(clientId);
+  };
+
+  const setCareHomeField = (k: keyof typeof BLANK_CARE_HOME) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setCareHomeForm((p) => ({ ...p, [k]: e.target.value }));
+
+  const openNewCareHome = () => { setEditingCareHomeId(null); setCareHomeForm({ ...BLANK_CARE_HOME }); };
+  const openEditCareHome = (h: CareHome) => {
+    setEditingCareHomeId(h.id);
+    setCareHomeForm({ name: h.name, address: h.address ?? "", notes: h.notes ?? "" });
+  };
+
+  const handleSaveCareHome = async (clientId: string, e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingCareHome(true);
+    try {
+      const payload = { ...careHomeForm, userId: clientId };
+      const res = await fetch(
+        editingCareHomeId ? `/api/care-homes/${editingCareHomeId}` : "/api/care-homes",
+        {
+          method: editingCareHomeId ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (res.ok) {
+        const saved: CareHome = await res.json();
+        setCareHomes((p) => ({
+          ...p,
+          [clientId]: editingCareHomeId
+            ? (p[clientId] || []).map((h) => (h.id === editingCareHomeId ? saved : h))
+            : [...(p[clientId] || []), saved].sort((a, b) => a.name.localeCompare(b.name)),
+        }));
+        setEditingCareHomeId(null);
+        setCareHomeForm({ ...BLANK_CARE_HOME });
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to save care home");
+      }
+    } finally {
+      setSavingCareHome(false);
+    }
+  };
+
+  const handleDeleteCareHome = async (clientId: string, id: string) => {
+    if (!confirm("Delete this care home? Any contracts, invoices or risk assessments referencing it will keep their existing text but lose the link.")) return;
+    const res = await fetch(`/api/care-homes/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setCareHomes((p) => ({ ...p, [clientId]: (p[clientId] || []).filter((h) => h.id !== id) }));
+    } else {
+      const err = await res.json();
+      alert(err.error || "Failed to delete care home");
+    }
+  };
 
   const set = (k: keyof typeof BLANK) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((p) => ({ ...p, [k]: e.target.value }));
@@ -220,6 +307,16 @@ export default function ClientsTab() {
                     </div>
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => toggleExpand(c.id)}
+                      className="h-7 px-2 text-xs flex items-center gap-1"
+                    >
+                      <Home className="w-3 h-3" />
+                      Care Homes{careHomes[c.id] ? ` (${careHomes[c.id].length})` : ""}
+                      {expandedClient === c.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    </Button>
                     <Button size="sm" variant="outline" onClick={() => openEdit(c)} className="h-7 px-2 text-xs flex items-center gap-1">
                       <Pencil className="w-3 h-3" /> Edit
                     </Button>
@@ -233,6 +330,71 @@ export default function ClientsTab() {
                     </Button>
                   </div>
                 </div>
+
+                {expandedClient === c.id && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <p className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1">
+                      <Home className="w-3 h-3" /> Care Homes for {c.companyName || c.name || c.email}
+                    </p>
+                    {(careHomes[c.id] || []).length === 0 ? (
+                      <p className="text-xs text-gray-400 mb-3">No care homes added yet.</p>
+                    ) : (
+                      <div className="space-y-2 mb-3">
+                        {(careHomes[c.id] || []).map((h) => (
+                          <div key={h.id} className="flex items-start justify-between gap-3 bg-gray-50 rounded-md px-3 py-2">
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-gray-800 truncate">{h.name}</p>
+                              {h.address ? <p className="text-xs text-gray-500 truncate">{h.address}</p> : null}
+                            </div>
+                            <div className="flex gap-1 flex-shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => openEditCareHome(h)}
+                                className="h-6 px-2 text-xs border border-gray-200 rounded hover:bg-white flex items-center gap-1"
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteCareHome(c.id, h.id)}
+                                className="h-6 px-2 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 flex items-center gap-1"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <form onSubmit={(e) => handleSaveCareHome(c.id, e)} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-2 items-start">
+                      <Input
+                        value={careHomeForm.name}
+                        onChange={setCareHomeField("name")}
+                        placeholder="Care home name *"
+                        required
+                        className="h-8 text-sm"
+                      />
+                      <Input
+                        value={careHomeForm.address}
+                        onChange={setCareHomeField("address")}
+                        placeholder="Care home address"
+                        className="h-8 text-sm"
+                      />
+                      <div className="flex gap-1">
+                        <Button type="submit" size="sm" disabled={savingCareHome} className="h-8 bg-scanvault-red hover:bg-red-700 text-white text-xs flex items-center gap-1">
+                          {savingCareHome ? <Loader2 className="w-3 h-3 animate-spin" /> : editingCareHomeId ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                          {editingCareHomeId ? "Save" : "Add"}
+                        </Button>
+                        {editingCareHomeId && (
+                          <Button type="button" size="sm" variant="outline" onClick={openNewCareHome} className="h-8 text-xs">
+                            <X className="w-3 h-3" />
+                          </Button>
+                        )}
+                      </div>
+                    </form>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

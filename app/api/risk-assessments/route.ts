@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const {
-    careHomeName, careHomeAddress, clientName, clientAddress,
+    careHomeName, careHomeAddress, careHomeId, clientName, clientAddress,
     assessorName, workStartDate, notes, userId,
   } = body;
 
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     data: {
       careHomeName,
       careHomeAddress: careHomeAddress || null,
+      careHomeId:      careHomeId      || null,
       clientName,
       clientAddress:   clientAddress   || null,
       assessorName:    assessorName    || "Kevin Quirk",

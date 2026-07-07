@@ -24,6 +24,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.clientEmail     !== undefined && { clientEmail: body.clientEmail }),
       ...(body.careHomeName    !== undefined && { careHomeName: body.careHomeName || null }),
       ...(body.careHomeAddress !== undefined && { careHomeAddress: body.careHomeAddress || null }),
+      ...(body.careHomeId      !== undefined && { careHomeId: body.careHomeId || null }),
       ...(body.pricePerBox     !== undefined && { pricePerBox: parseFloat(body.pricePerBox) }),
       ...(body.estimatedBoxes  !== undefined && { estimatedBoxes: body.estimatedBoxes ? parseInt(body.estimatedBoxes) : null }),
       ...(body.totalCost       !== undefined && { totalCost: body.totalCost ? parseFloat(body.totalCost) : null }),

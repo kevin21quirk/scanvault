@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     title, clientName, clientAddress, clientContact, clientEmail,
-    careHomeName, careHomeAddress,
+    careHomeName, careHomeAddress, careHomeId,
     pricePerBox, estimatedBoxes, totalCost, projectDuration,
     depositPercent, scopeOfWorks, requirements, paymentTerms,
     startDate, notes, userId,
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
       clientEmail:     clientEmail     || null,
       careHomeName:    careHomeName    || null,
       careHomeAddress: careHomeAddress || null,
+      careHomeId:      careHomeId      || null,
       pricePerBox:     pricePerBox     ? parseFloat(pricePerBox) : 140,
       estimatedBoxes:  estimatedBoxes  ? parseInt(estimatedBoxes) : null,
       totalCost:       totalCost       ? parseFloat(totalCost) : null,
