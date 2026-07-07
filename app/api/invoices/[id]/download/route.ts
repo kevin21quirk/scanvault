@@ -197,38 +197,45 @@ export async function GET(
     const balanceAmount = invoice.total - depositAmount;
     const balancePct = Math.round((100 - deposit) * 100) / 100;
 
-    let py = y + 14;
-    doc.setDrawColor(225, 225, 225);
-    doc.setFillColor(248, 248, 248);
-    doc.setLineWidth(0.2);
-    doc.roundedRect(20, py, 170, 32, 2, 2, "FD");
-
-    py += 7;
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10.5);
-    doc.text("Payment Schedule", 26, py);
-
-    py += 7;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
-    doc.text(`Deposit (${deposit}%) due upon acceptance of this invoice`, 26, py);
-    doc.setFont("helvetica", "bold");
-    doc.text(`£${depositAmount.toFixed(2)}`, 184, py, { align: "right" });
-
-    py += 6;
-    doc.setFont("helvetica", "normal");
     const balText = doc.splitTextToSize(
       `Remaining balance (${balancePct}%) due no later than 30 days (net) following completion of the works`,
       150
     );
-    doc.text(balText, 26, py);
+
+    // Compute row baselines before drawing so the box height matches the content exactly
+    const boxTop = y + 14;
+    const titleY = boxTop + 9;
+    const row1Y = titleY + 7;
+    const row2Y = row1Y + 6;
+    const lastLineY = row2Y + (balText.length - 1) * 5;
+    const boxBottom = lastLineY + 7;
+    const boxHeight = boxBottom - boxTop;
+
+    doc.setDrawColor(225, 225, 225);
+    doc.setFillColor(248, 248, 248);
+    doc.setLineWidth(0.2);
+    doc.roundedRect(20, boxTop, 170, boxHeight, 2, 2, "FD");
+
+    doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
-    doc.text(`£${balanceAmount.toFixed(2)}`, 184, py, { align: "right" });
-    py += balText.length * 5;
+    doc.setFontSize(10.5);
+    doc.text("Payment Schedule", 26, titleY);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.text(`Deposit (${deposit}%) due upon acceptance of this invoice`, 26, row1Y);
+    doc.setFont("helvetica", "bold");
+    doc.text(`£${depositAmount.toFixed(2)}`, 184, row1Y, { align: "right" });
+
+    doc.setFont("helvetica", "normal");
+    doc.text(balText, 26, row2Y);
+    doc.setFont("helvetica", "bold");
+    doc.text(`£${balanceAmount.toFixed(2)}`, 184, row2Y, { align: "right" });
 
     // Notes
-    let noteY = py + 8;
+    let noteY = boxBottom + 10;
     if (invoice.notes) {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
