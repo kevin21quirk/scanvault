@@ -180,17 +180,6 @@ export async function GET(
       y += 6;
       doc.text(`VAT (${invoice.vatRate}%)`, labelX, y);
       doc.text(`£${invoice.vatAmount.toFixed(2)}`, valueX, y, { align: "right" });
-    } else {
-      y += 6;
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "italic");
-      doc.setTextColor(120, 120, 120);
-      const vatNote = doc.splitTextToSize("Exclusive of VAT. VAT chargeable at the prevailing rate where applicable.", 65);
-      doc.text(vatNote, valueX, y, { align: "right" });
-      y += (vatNote.length - 1) * 4;
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
     }
 
     y += 3;
@@ -203,6 +192,26 @@ export async function GET(
     doc.setFontSize(12);
     doc.text("Total Due", labelX, y);
     doc.text(`£${invoice.total.toFixed(2)}`, valueX, y, { align: "right" });
+
+    // VAT Registration Status (shown only while VAT is not yet applicable)
+    if (invoice.vatRate === 0) {
+      y += 10;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(0, 0, 0);
+      doc.text("VAT Registration Status", 20, y);
+      y += 5;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(90, 90, 90);
+      const vatStatusText = doc.splitTextToSize(
+        "VAT registration pending. Scan Vault Ltd is awaiting confirmation of its VAT registration number from HM Revenue & Customs. A valid VAT invoice will be issued following confirmation of VAT registration, where applicable.",
+        170
+      );
+      doc.text(vatStatusText, 20, y);
+      y += vatStatusText.length * 4;
+      doc.setTextColor(0, 0, 0);
+    }
 
     // Payment schedule
     const deposit = invoice.depositPercent ?? 50;
@@ -218,7 +227,7 @@ export async function GET(
     );
 
     // Compute row baselines before drawing so the box height matches the content exactly
-    const boxTop = y + 14;
+    const boxTop = y + (invoice.vatRate === 0 ? 8 : 14);
     const titleY = boxTop + 9;
     const row1Y = titleY + 7;
     const row2Y = row1Y + 6;
@@ -247,8 +256,66 @@ export async function GET(
     doc.setFont("helvetica", "bold");
     doc.text(`£${balanceAmount.toFixed(2)}`, 184, row2Y, { align: "right" });
 
+    // Bank Payment Details
+    let bankBoxTop = boxBottom + 8;
+    if (bankBoxTop + 45 > 270) {
+      doc.addPage();
+      bankBoxTop = 20;
+    }
+    const bankTitleY = bankBoxTop + 9;
+    const bankRow1Y = bankTitleY + 8;
+    const bankRow2Y = bankRow1Y + 6;
+    const bankRow3Y = bankRow2Y + 6;
+    const bankRow4Y = bankRow3Y + 6;
+    const bankBoxBottom = bankRow4Y + 7;
+    const bankBoxHeight = bankBoxBottom - bankBoxTop;
+
+    doc.setDrawColor(220, 220, 220);
+    doc.setFillColor(255, 255, 255);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(20, bankBoxTop, 170, bankBoxHeight, 2, 2, "FD");
+    doc.setFillColor(220, 38, 38);
+    doc.rect(20, bankBoxTop, 2.5, bankBoxHeight, "F");
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.text("Bank Payment Details", 28, bankTitleY);
+
+    const bankLabelX = 28;
+    const bankValueX = 80;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.text("Account Name", bankLabelX, bankRow1Y);
+    doc.setFont("helvetica", "bold");
+    doc.text("SCANVAULT LIMITED", bankValueX, bankRow1Y);
+
+    doc.setFont("helvetica", "normal");
+    doc.text("Account Number", bankLabelX, bankRow2Y);
+    doc.setFont("helvetica", "bold");
+    doc.text("74091072", bankValueX, bankRow2Y);
+
+    doc.setFont("helvetica", "normal");
+    doc.text("Sort Code", bankLabelX, bankRow3Y);
+    doc.setFont("helvetica", "bold");
+    doc.text("23-01-20", bankValueX, bankRow3Y);
+
+    doc.setFont("helvetica", "normal");
+    doc.text("Payment Reference", bankLabelX, bankRow4Y);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(220, 38, 38);
+    doc.text(invoice.invoiceNumber, bankValueX, bankRow4Y);
+    doc.setTextColor(0, 0, 0);
+
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8.5);
+    doc.setTextColor(120, 120, 120);
+    doc.text("Please use the payment reference above so we can match your payment to this invoice.", bankLabelX, bankBoxBottom - 2.5);
+    doc.setTextColor(0, 0, 0);
+
     // Notes
-    let noteY = boxBottom + 10;
+    let noteY = bankBoxBottom + 10;
     if (invoice.notes) {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);

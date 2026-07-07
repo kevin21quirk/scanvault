@@ -424,10 +424,8 @@ export default function AdminDashboard() {
                           <p className="text-sm text-gray-600">{invoice.description}</p>
                           <div className="mt-2 text-xs text-gray-500">
                             <p>Subtotal: £{invoice.subtotal.toFixed(2)}</p>
-                            {invoice.vatRate > 0 ? (
+                            {invoice.vatRate > 0 && (
                               <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
-                            ) : (
-                              <p className="italic">Exclusive of VAT. VAT chargeable at the prevailing rate where applicable.</p>
                             )}
                           </div>
                         </div>
@@ -564,14 +562,17 @@ export default function AdminDashboard() {
                     {/* Totals preview */}
                     <div className="rounded-md border bg-gray-50 p-3 text-sm space-y-1">
                       <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="tabular-nums">£{invSubtotal.toFixed(2)}</span></div>
-                      {(parseFloat(invoiceForm.vatRate) || 0) > 0 ? (
+                      {(parseFloat(invoiceForm.vatRate) || 0) > 0 && (
                         <div className="flex justify-between"><span className="text-gray-600">VAT ({invoiceForm.vatRate}%)</span><span className="tabular-nums">£{invVat.toFixed(2)}</span></div>
-                      ) : (
-                        <p className="text-xs text-gray-500 italic">Exclusive of VAT. VAT chargeable at the prevailing rate where applicable.</p>
                       )}
                       <div className="flex justify-between font-semibold border-t pt-1"><span>Total Due</span><span className="tabular-nums">£{invTotal.toFixed(2)}</span></div>
                       <div className="flex justify-between text-scanvault-red"><span>Deposit due upfront ({invoiceForm.depositPercent || 0}%)</span><span className="tabular-nums">£{invDeposit.toFixed(2)}</span></div>
                       <div className="flex justify-between text-gray-600"><span>Balance (net 30 days after completion)</span><span className="tabular-nums">£{invBalance.toFixed(2)}</span></div>
+                      {(parseFloat(invoiceForm.vatRate) || 0) === 0 && (
+                        <p className="text-xs text-gray-500 pt-1 border-t mt-1">
+                          <span className="font-semibold">VAT Registration Status:</span> VAT registration pending. Scan Vault Ltd is awaiting confirmation of its VAT registration number from HM Revenue & Customs. A valid VAT invoice will be issued following confirmation of VAT registration, where applicable.
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -633,10 +634,8 @@ export default function AdminDashboard() {
                             <div className="mt-2 text-xs text-gray-600">
                               <p>Due Date: <span className="font-semibold text-red-600">{new Date(invoice.dueDate).toLocaleDateString('en-GB')}</span></p>
                               <p className="mt-1">Subtotal: £{invoice.subtotal.toFixed(2)}</p>
-                              {invoice.vatRate > 0 ? (
+                              {invoice.vatRate > 0 && (
                                 <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
-                              ) : (
-                                <p className="italic">Exclusive of VAT. VAT chargeable at the prevailing rate where applicable.</p>
                               )}
                             </div>
                           </div>
