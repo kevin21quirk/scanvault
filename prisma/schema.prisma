@@ -38,6 +38,7 @@ model Invoice {
   total         Float
   description   String
   items         Json?
+  depositPercent Float?   @default(50)
   status        InvoiceStatus @default(PENDING)
   issueDate     DateTime
   dueDate       DateTime

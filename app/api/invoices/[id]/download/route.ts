@@ -26,6 +26,9 @@ export async function GET(
             email: true,
             name: true,
             companyName: true,
+            contactName: true,
+            phone: true,
+            address: true,
           },
         },
       },
@@ -59,8 +62,8 @@ export async function GET(
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text("Document Management Solutions", 20, 27);
-    doc.text("VAT Registration No: GB123456789", 20, 32);
-    doc.text("Company Registration No: 12345678", 20, 37);
+    doc.text("Company Registration No: 17229057", 20, 32);
+    doc.text("kevin@scanvault.co.uk  |  scanvault.co.uk", 20, 37);
     
     // Invoice Title
     doc.setFontSize(24);
@@ -76,122 +79,173 @@ export async function GET(
     doc.text(`Status: ${invoice.status}`, 150, 45);
     
     // Bill To
-    doc.setFontSize(12);
+    const client = invoice.user;
+    doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    doc.text("Bill To:", 20, 55);
-    
-    doc.setFontSize(10);
+    doc.setTextColor(120, 120, 120);
+    doc.text("BILL TO", 20, 55);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text(client.companyName || client.name || "Client", 20, 61);
+
+    doc.setFontSize(9.5);
     doc.setFont("helvetica", "normal");
-    doc.text(invoice.user.companyName || invoice.user.name || "Client", 20, 62);
-    doc.text(invoice.user.email, 20, 67);
-    
+    let billY = 66;
+    if (client.contactName) { doc.text(client.contactName, 20, billY); billY += 5; }
+    if (client.address) {
+      const addrLines = doc.splitTextToSize(client.address, 85);
+      doc.text(addrLines, 20, billY);
+      billY += addrLines.length * 5;
+    }
+    doc.text(client.email, 20, billY); billY += 5;
+    if (client.phone) { doc.text(client.phone, 20, billY); billY += 5; }
+
     // Line separator
+    const sepY = Math.max(billY + 3, 80);
     doc.setDrawColor(220, 38, 38);
     doc.setLineWidth(0.5);
-    doc.line(20, 75, 190, 75);
-    
+    doc.line(20, sepY, 190, sepY);
+
     // Items Table
-    const items = invoice.items as any[] || [
-      { description: invoice.description, quantity: 1, rate: invoice.subtotal }
+    const items = (invoice.items as any[]) || [
+      { description: invoice.description, quantity: 1, rate: invoice.subtotal },
     ];
-    
+
     const tableData = items.map((item: any) => {
-      const qty = item.quantity || 1;
-      const rate = item.rate || invoice.subtotal;
+      const qty = Number(item.quantity) || 1;
+      const rate = Number(item.rate) || invoice.subtotal;
       const amount = qty * rate;
-      
       return [
         String(item.description || invoice.description),
         String(qty),
         `£${rate.toFixed(2)}`,
-        `£${amount.toFixed(2)}`
+        `£${amount.toFixed(2)}`,
       ];
     });
-    
+
     autoTable(doc, {
-      startY: 80,
-      head: [['Description', 'Quantity', 'Rate', 'Amount']],
+      startY: sepY + 6,
+      head: [["Description", "Qty", "Unit Price", "Amount"]],
       body: tableData,
-      theme: 'plain',
-      headStyles: { 
-        fillColor: [220, 38, 38], 
+      theme: "plain",
+      headStyles: {
+        fillColor: [17, 24, 39],
         textColor: 255,
         fontSize: 10,
-        fontStyle: 'bold',
-        lineWidth: 0,
-        lineColor: [220, 38, 38]
+        fontStyle: "bold",
+        cellPadding: 3,
       },
       bodyStyles: {
         lineWidth: 0.1,
-        lineColor: [200, 200, 200]
+        lineColor: [225, 225, 225],
       },
       alternateRowStyles: {
-        fillColor: [245, 245, 245]
+        fillColor: [248, 248, 248],
       },
-      styles: { 
+      styles: {
         fontSize: 10,
         cellPadding: 3,
-        overflow: 'linebreak'
+        overflow: "linebreak",
       },
       columnStyles: {
-        0: { cellWidth: 90, halign: 'left' },
-        1: { cellWidth: 30, halign: 'center' },
-        2: { cellWidth: 35, halign: 'right' },
-        3: { cellWidth: 35, halign: 'right' }
+        0: { cellWidth: 95, halign: "left" },
+        1: { cellWidth: 20, halign: "center" },
+        2: { cellWidth: 30, halign: "right" },
+        3: { cellWidth: 25, halign: "right" },
       },
       didParseCell: (data: any) => {
-        // Force header alignment to match body
-        if (data.section === 'head') {
-          if (data.column.index === 1) {
-            data.cell.styles.halign = 'center';
-          } else if (data.column.index === 2 || data.column.index === 3) {
-            data.cell.styles.halign = 'right';
-          } else {
-            data.cell.styles.halign = 'left';
-          }
+        if (data.section === "head") {
+          if (data.column.index === 1) data.cell.styles.halign = "center";
+          else if (data.column.index >= 2) data.cell.styles.halign = "right";
+          else data.cell.styles.halign = "left";
         }
-      }
+      },
     });
-    
-    // Get the final Y position after the table
+
     const finalY = (doc as any).lastAutoTable.finalY || 120;
-    
+
     // Totals
-    const totalsX = 130;
-    let currentY = finalY + 10;
-    
+    const labelX = 140;
+    const valueX = 190;
+    let y = finalY + 8;
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
-    doc.text("Subtotal:", totalsX, currentY);
-    doc.text(`£${invoice.subtotal.toFixed(2)}`, 185, currentY, { align: "right" });
-    
-    currentY += 6;
-    doc.text(`VAT (${invoice.vatRate}%):`, totalsX, currentY);
-    doc.text(`£${invoice.vatAmount.toFixed(2)}`, 185, currentY, { align: "right" });
-    
-    currentY += 8;
+    doc.setFont("helvetica", "normal");
+    doc.text("Subtotal", labelX, y);
+    doc.text(`£${invoice.subtotal.toFixed(2)}`, valueX, y, { align: "right" });
+
+    y += 6;
+    doc.text(`VAT (${invoice.vatRate}%)`, labelX, y);
+    doc.text(`£${invoice.vatAmount.toFixed(2)}`, valueX, y, { align: "right" });
+
+    y += 3;
+    doc.setDrawColor(220, 38, 38);
+    doc.setLineWidth(0.4);
+    doc.line(labelX, y, valueX, y);
+
+    y += 6;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("Total:", totalsX, currentY);
-    doc.text(`£${invoice.total.toFixed(2)}`, 185, currentY, { align: "right" });
-    
+    doc.text("Total Due", labelX, y);
+    doc.text(`£${invoice.total.toFixed(2)}`, valueX, y, { align: "right" });
+
+    // Payment schedule
+    const deposit = invoice.depositPercent ?? 50;
+    const depositAmount = (invoice.total * deposit) / 100;
+    const balanceAmount = invoice.total - depositAmount;
+    const balancePct = Math.round((100 - deposit) * 100) / 100;
+
+    let py = y + 14;
+    doc.setDrawColor(225, 225, 225);
+    doc.setFillColor(248, 248, 248);
+    doc.setLineWidth(0.2);
+    doc.roundedRect(20, py, 170, 32, 2, 2, "FD");
+
+    py += 7;
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    doc.text("Payment Schedule", 26, py);
+
+    py += 7;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.text(`Deposit (${deposit}%) due upon acceptance of this invoice`, 26, py);
+    doc.setFont("helvetica", "bold");
+    doc.text(`£${depositAmount.toFixed(2)}`, 184, py, { align: "right" });
+
+    py += 6;
+    doc.setFont("helvetica", "normal");
+    const balText = doc.splitTextToSize(
+      `Remaining balance (${balancePct}%) due no later than 30 days (net) following completion of the works`,
+      150
+    );
+    doc.text(balText, 26, py);
+    doc.setFont("helvetica", "bold");
+    doc.text(`£${balanceAmount.toFixed(2)}`, 184, py, { align: "right" });
+    py += balText.length * 5;
+
     // Notes
+    let noteY = py + 8;
     if (invoice.notes) {
-      currentY += 15;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
-      doc.text("Notes:", 20, currentY);
-      
+      doc.setTextColor(0, 0, 0);
+      doc.text("Notes", 20, noteY);
       doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
       const splitNotes = doc.splitTextToSize(invoice.notes, 170);
-      doc.text(splitNotes, 20, currentY + 5);
+      doc.text(splitNotes, 20, noteY + 5);
     }
-    
+
     // Footer
     doc.setFontSize(8);
-    doc.setFont("helvetica", "italic");
-    doc.setTextColor(128, 128, 128);
-    doc.text("Thank you for your business!", 105, 280, { align: "center" });
-    doc.text("Payment terms: Net 30 days", 105, 285, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(120, 120, 120);
+    doc.text("ScanVault  ·  Document Management Solutions", 105, 283, { align: "center" });
+    doc.text("Thank you for your business. Please quote the invoice number with any payment.", 105, 288, { align: "center" });
     
     // Generate PDF buffer
     const pdfBuffer = doc.output("arraybuffer");

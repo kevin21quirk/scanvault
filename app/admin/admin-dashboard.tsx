@@ -66,7 +66,8 @@ export default function AdminDashboard() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
-  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", subtotal: "", vatRate: "20", description: "", issueDate: "", dueDate: "", notes: "" });
+  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "" });
+  const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([{ description: "", quantity: "1", rate: "" }]);
   const [receiptForm, setReceiptForm] = useState({ userId: "", receiptNumber: "", amount: "", description: "", paymentMethod: "Bank Transfer", date: "" });
   const [documentForm, setDocumentForm] = useState({ userId: "", title: "", description: "", category: "OTHER", fileUrl: "" });
 
@@ -123,14 +124,15 @@ export default function AdminDashboard() {
       const res = await fetch("/api/invoices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(invoiceForm),
+        body: JSON.stringify({ ...invoiceForm, items: invoiceItems }),
       });
 
       if (res.ok) {
         const newInvoice = await res.json();
         setInvoices([newInvoice, ...invoices]);
         setShowInvoiceModal(false);
-        setInvoiceForm({ userId: "", invoiceNumber: "", subtotal: "", vatRate: "20", description: "", issueDate: "", dueDate: "", notes: "" });
+        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "" });
+        setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
         alert("Invoice created successfully!");
       } else {
         const error = await res.json();
@@ -143,6 +145,11 @@ export default function AdminDashboard() {
       setSubmitting(false);
     }
   };
+
+  const addInvoiceItem = () => setInvoiceItems((p) => [...p, { description: "", quantity: "1", rate: "" }]);
+  const removeInvoiceItem = (idx: number) => setInvoiceItems((p) => p.filter((_, i) => i !== idx));
+  const updateInvoiceItem = (idx: number, key: "description" | "quantity" | "rate", value: string) =>
+    setInvoiceItems((p) => p.map((it, i) => (i === idx ? { ...it, [key]: value } : it)));
 
   const handleStatusChange = async (invoiceId: string, newStatus: string) => {
     setUpdatingStatus(invoiceId);
@@ -290,6 +297,13 @@ export default function AdminDashboard() {
   }
 
   const clientUsers = users.filter(u => u.role === "CLIENT");
+
+  // Live invoice totals (for the create-invoice modal preview)
+  const invSubtotal = invoiceItems.reduce((sum, it) => sum + (parseFloat(it.quantity) || 0) * (parseFloat(it.rate) || 0), 0);
+  const invVat = invSubtotal * (parseFloat(invoiceForm.vatRate) || 0) / 100;
+  const invTotal = invSubtotal + invVat;
+  const invDeposit = invTotal * (parseFloat(invoiceForm.depositPercent) || 0) / 100;
+  const invBalance = invTotal - invDeposit;
 
   // Calculate overdue invoices
   const overdueInvoices = invoices.filter(invoice => {
@@ -475,7 +489,7 @@ export default function AdminDashboard() {
                         <select id="client" required className="w-full px-3 py-2 border rounded-md" value={invoiceForm.userId} onChange={(e) => setInvoiceForm({...invoiceForm, userId: e.target.value})}>
                           <option value="">Select client...</option>
                           {clientUsers.map(user => (
-                            <option key={user.id} value={user.id}>{user.email}</option>
+                            <option key={user.id} value={user.id}>{user.companyName || user.name || user.email}</option>
                           ))}
                         </select>
                       </div>
@@ -494,23 +508,66 @@ export default function AdminDashboard() {
                         <Input id="dueDate" type="date" required value={invoiceForm.dueDate} onChange={(e) => setInvoiceForm({...invoiceForm, dueDate: e.target.value})} />
                       </div>
                     </div>
+
+                    {/* Line items */}
                     <div>
-                      <Label htmlFor="description">Description *</Label>
-                      <textarea id="description" required className="w-full px-3 py-2 border rounded-md" rows={3} value={invoiceForm.description} onChange={(e) => setInvoiceForm({...invoiceForm, description: e.target.value})} placeholder="Service description..."></textarea>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="subtotal">Subtotal (£) *</Label>
-                        <Input id="subtotal" type="number" step="0.01" required value={invoiceForm.subtotal} onChange={(e) => setInvoiceForm({...invoiceForm, subtotal: e.target.value})} placeholder="0.00" />
+                      <div className="flex items-center justify-between mb-2">
+                        <Label>Line Items *</Label>
+                        <Button type="button" variant="outline" size="sm" onClick={addInvoiceItem} className="h-7 text-xs">
+                          <Plus className="h-3 w-3 mr-1" /> Add item
+                        </Button>
                       </div>
+                      <div className="hidden md:grid grid-cols-12 gap-2 text-xs text-gray-500 px-1 mb-1">
+                        <span className="col-span-6">Description</span>
+                        <span className="col-span-2 text-center">Qty</span>
+                        <span className="col-span-2 text-right">Unit Price (£)</span>
+                        <span className="col-span-2 text-right">Amount</span>
+                      </div>
+                      <div className="space-y-2">
+                        {invoiceItems.map((it, idx) => {
+                          const amt = (parseFloat(it.quantity) || 0) * (parseFloat(it.rate) || 0);
+                          return (
+                            <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                              <Input className="col-span-6" placeholder="e.g. Scanning & archiving of 83 archive boxes" value={it.description} onChange={(e) => updateInvoiceItem(idx, "description", e.target.value)} />
+                              <Input className="col-span-2 text-center" type="number" min="0" step="1" value={it.quantity} onChange={(e) => updateInvoiceItem(idx, "quantity", e.target.value)} />
+                              <Input className="col-span-2 text-right" type="number" min="0" step="0.01" placeholder="0.00" value={it.rate} onChange={(e) => updateInvoiceItem(idx, "rate", e.target.value)} />
+                              <div className="col-span-2 flex items-center justify-end gap-2">
+                                <span className="text-sm tabular-nums">£{amt.toFixed(2)}</span>
+                                {invoiceItems.length > 1 && (
+                                  <button type="button" onClick={() => removeInvoiceItem(idx)} className="text-gray-400 hover:text-red-600">
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="vatRate">VAT Rate (%) *</Label>
                         <Input id="vatRate" type="number" step="0.01" required value={invoiceForm.vatRate} onChange={(e) => setInvoiceForm({...invoiceForm, vatRate: e.target.value})} placeholder="20" />
                       </div>
+                      <div>
+                        <Label htmlFor="depositPercent">Deposit Payable Upfront (%) *</Label>
+                        <Input id="depositPercent" type="number" step="1" min="0" max="100" required value={invoiceForm.depositPercent} onChange={(e) => setInvoiceForm({...invoiceForm, depositPercent: e.target.value})} placeholder="50" />
+                      </div>
                     </div>
+
+                    {/* Totals preview */}
+                    <div className="rounded-md border bg-gray-50 p-3 text-sm space-y-1">
+                      <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="tabular-nums">£{invSubtotal.toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-600">VAT ({invoiceForm.vatRate || 0}%)</span><span className="tabular-nums">£{invVat.toFixed(2)}</span></div>
+                      <div className="flex justify-between font-semibold border-t pt-1"><span>Total Due</span><span className="tabular-nums">£{invTotal.toFixed(2)}</span></div>
+                      <div className="flex justify-between text-scanvault-red"><span>Deposit due upfront ({invoiceForm.depositPercent || 0}%)</span><span className="tabular-nums">£{invDeposit.toFixed(2)}</span></div>
+                      <div className="flex justify-between text-gray-600"><span>Balance (net 30 days after completion)</span><span className="tabular-nums">£{invBalance.toFixed(2)}</span></div>
+                    </div>
+
                     <div>
                       <Label htmlFor="notes">Notes (Optional)</Label>
-                      <textarea id="notes" className="w-full px-3 py-2 border rounded-md" rows={2} value={invoiceForm.notes} onChange={(e) => setInvoiceForm({...invoiceForm, notes: e.target.value})} placeholder="Additional notes..."></textarea>
+                      <textarea id="notes" className="w-full px-3 py-2 border rounded-md" rows={2} value={invoiceForm.notes} onChange={(e) => setInvoiceForm({...invoiceForm, notes: e.target.value})} placeholder="Bank/payment details, PO number, or other notes shown on the invoice..."></textarea>
                     </div>
                     <div className="flex gap-2 justify-end">
                       <Button type="button" variant="outline" onClick={() => setShowInvoiceModal(false)}>Cancel</Button>

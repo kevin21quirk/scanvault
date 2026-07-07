@@ -54,11 +54,29 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { userId, invoiceNumber, subtotal, vatRate, description, items, issueDate, dueDate, notes } = body;
+    const { userId, invoiceNumber, subtotal, vatRate, description, items, depositPercent, issueDate, dueDate, notes } = body;
 
-    if (!userId || !invoiceNumber || !subtotal || !description || !issueDate || !dueDate) {
+    if (!userId || !invoiceNumber || !issueDate || !dueDate) {
       return NextResponse.json(
-        { error: "All required fields must be provided" },
+        { error: "Client, invoice number, issue date and due date are required" },
+        { status: 400 }
+      );
+    }
+
+    // Normalise line items
+    const lineItems = Array.isArray(items)
+      ? items
+          .map((i: { description?: string; quantity?: unknown; rate?: unknown }) => ({
+            description: String(i.description ?? "").trim(),
+            quantity: Number(i.quantity) || 0,
+            rate: Number(i.rate) || 0,
+          }))
+          .filter((i) => i.description.length > 0)
+      : [];
+
+    if (lineItems.length === 0 && (subtotal === undefined || subtotal === "")) {
+      return NextResponse.json(
+        { error: "Add at least one line item" },
         { status: 400 }
       );
     }
@@ -75,11 +93,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // Calculate VAT
-    const subtotalAmount = parseFloat(subtotal);
+    // Subtotal is derived from the line items when present, otherwise fall back
+    // to a manually-entered subtotal.
+    const subtotalAmount = lineItems.length
+      ? lineItems.reduce((sum, i) => sum + i.quantity * i.rate, 0)
+      : parseFloat(subtotal);
     const vat = parseFloat(vatRate || "20.0");
     const vatAmount = (subtotalAmount * vat) / 100;
     const total = subtotalAmount + vatAmount;
+    const deposit = depositPercent !== undefined && depositPercent !== "" ? parseFloat(depositPercent) : 50;
+    const finalDescription = (description && String(description).trim())
+      || lineItems.map((i) => i.description).join(", ")
+      || "Document scanning & archiving services";
 
     const invoice = await prisma.invoice.create({
       data: {
@@ -89,8 +114,9 @@ export async function POST(request: Request) {
         vatRate: vat,
         vatAmount,
         total,
-        description,
-        items: items || null,
+        description: finalDescription,
+        items: lineItems.length ? lineItems : undefined,
+        depositPercent: deposit,
         issueDate: new Date(issueDate),
         dueDate: new Date(dueDate),
         notes: notes || null,
