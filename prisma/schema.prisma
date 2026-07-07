@@ -17,10 +17,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
-  invoices      Invoice[]
-  receipts      Receipt[]
-  documents     Document[]
-  contracts     Contract[]
+  invoices         Invoice[]
+  receipts         Receipt[]
+  documents        Document[]
+  contracts        Contract[]
+  riskAssessments  RiskAssessment[]
 }
 
 model Invoice {
@@ -134,6 +135,23 @@ model Contract {
   notes            String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+}
+
+model RiskAssessment {
+  id               String    @id @default(cuid())
+  careHomeName     String
+  careHomeAddress  String?
+  clientName       String
+  clientAddress    String?
+  assessorName     String?   @default("Kevin Quirk")
+  workStartDate    DateTime?
+  notes            String?
+  userId           String?
+  user             User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([createdAt])
 }
 
 enum ContractStatus {
