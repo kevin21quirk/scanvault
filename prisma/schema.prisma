@@ -26,6 +26,7 @@ model User {
   contracts        Contract[]
   riskAssessments  RiskAssessment[]
   careHomes        CareHome[]
+  quotations       Quotation[]
 }
 
 model CareHome {
@@ -40,8 +41,50 @@ model CareHome {
   invoices      Invoice[]
   contracts     Contract[]
   riskAssessments RiskAssessment[]
+  quotations    Quotation[]
 
   @@index([userId])
+}
+
+model Quotation {
+  id               String          @id @default(cuid())
+  quoteNumber      String          @unique
+  title            String          @default("Quotation for Archiving & Digitisation Services")
+  clientName       String
+  clientAddress    String?
+  clientContact    String?
+  clientEmail      String?
+  careHomeName     String?
+  careHomeAddress  String?
+  careHomeId       String?
+  careHome         CareHome?       @relation(fields: [careHomeId], references: [id], onDelete: SetNull)
+  userId           String?
+  user             User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status           QuotationStatus @default(DRAFT)
+  scopeOfWorks     String?
+  requirements     String?
+  projectDuration  String?
+  items            Json?
+  subtotal         Float           @default(0)
+  discountTotal    Float           @default(0)
+  total            Float           @default(0)
+  depositPercent   Float?          @default(30)
+  issueDate        DateTime        @default(now())
+  validUntil       DateTime?
+  notes            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([careHomeId])
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  DECLINED
+  EXPIRED
 }
 
 model Invoice {

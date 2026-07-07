@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck } from "lucide-react";
 import LeadsTab from "@/components/leads-tab";
 import ContractsTab from "@/components/contracts-tab";
+import QuotationsTab from "@/components/quotations-tab";
 import RiskAssessmentsTab from "@/components/risk-assessments-tab";
 import ClientsTab from "@/components/clients-tab";
 
@@ -360,6 +361,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="leads" className="relative">
             Leads &amp; Quotes
           </TabsTrigger>
+          <TabsTrigger value="quotations">Quotations</TabsTrigger>
           <TabsTrigger value="contracts">Contracts</TabsTrigger>
           <TabsTrigger value="risk-assessments">Risk Assessments</TabsTrigger>
         </TabsList>
@@ -912,6 +914,14 @@ export default function AdminDashboard() {
               </Card>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="quotations" className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <FileText className="w-5 h-5 text-scanvault-red" />
+            <h2 className="text-2xl font-bold">Client Quotations</h2>
+          </div>
+          <QuotationsTab />
         </TabsContent>
 
         <TabsContent value="contracts" className="space-y-4">
