@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   FileText, Plus, Download, Trash2, UserCheck, X, Building2, Pencil,
-  Clock, CheckCircle2, Send, PenLine, XCircle, Loader2,
+  Clock, CheckCircle2, Send, PenLine, XCircle, Loader2, ShieldCheck,
 } from "lucide-react";
 
 type ContractStatus = "DRAFT" | "SENT" | "SIGNED" | "ACTIVE" | "COMPLETED" | "CANCELLED";
@@ -78,6 +78,7 @@ export default function ContractsTab() {
   const [form,      setForm]      = useState({ ...BLANK });
   const [saving,    setSaving]    = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [downloadingRA, setDownloadingRA] = useState<string | null>(null);
   const [assigning,   setAssigning]   = useState<string | null>(null);
   const [assignUser,  setAssignUser]  = useState<Record<string, string>>({});
 
@@ -192,18 +193,34 @@ export default function ContractsTab() {
     }
   };
 
+  const downloadPdf = async (path: string, fallbackName: string) => {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error("PDF generation failed");
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = res.headers.get("Content-Disposition")?.split('filename="')[1]?.replace('"', "") ?? fallbackName;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadRA = async (id: string) => {
+    setDownloadingRA(id);
+    try {
+      await downloadPdf(`/api/contracts/${id}/risk-assessment`, "risk-assessment.pdf");
+    } catch (err) {
+      alert("Could not generate risk assessment — please try again.");
+      console.error(err);
+    } finally {
+      setDownloadingRA(null);
+    }
+  };
+
   const handleDownload = async (id: string) => {
     setDownloading(id);
     try {
-      const res = await fetch(`/api/contracts/${id}/pdf`);
-      if (!res.ok) throw new Error("PDF generation failed");
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href     = url;
-      a.download = res.headers.get("Content-Disposition")?.split('filename="')[1]?.replace('"', "") ?? "contract.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
+      await downloadPdf(`/api/contracts/${id}/pdf`, "contract.pdf");
     } catch (err) {
       alert("Could not generate PDF — please try again.");
       console.error(err);
@@ -467,6 +484,19 @@ export default function ContractsTab() {
                         {downloading === c.id
                           ? <><Loader2 className="w-3 h-3 animate-spin" /> Generating…</>
                           : <><Download className="w-3 h-3" /> Download PDF</>}
+                      </Button>
+
+                      {/* Risk Assessment */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDownloadRA(c.id)}
+                        disabled={downloadingRA === c.id}
+                        className="h-7 px-3 text-xs flex items-center gap-1"
+                      >
+                        {downloadingRA === c.id
+                          ? <><Loader2 className="w-3 h-3 animate-spin" /> Generating…</>
+                          : <><ShieldCheck className="w-3 h-3" /> Risk Assessment</>}
                       </Button>
 
                       {/* Status */}
