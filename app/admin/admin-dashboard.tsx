@@ -6,10 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Edit, Loader2, Download, TrendingUp, ShieldCheck } from "lucide-react";
+import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck } from "lucide-react";
 import LeadsTab from "@/components/leads-tab";
 import ContractsTab from "@/components/contracts-tab";
 import RiskAssessmentsTab from "@/components/risk-assessments-tab";
+import ClientsTab from "@/components/clients-tab";
 
 interface User {
   id: string;
@@ -61,12 +62,10 @@ export default function AdminDashboard() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [showUserModal, setShowUserModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
-  const [userForm, setUserForm] = useState({ name: "", email: "", password: "", role: "CLIENT", companyName: "" });
   const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", subtotal: "", vatRate: "20", description: "", issueDate: "", dueDate: "", notes: "" });
   const [receiptForm, setReceiptForm] = useState({ userId: "", receiptNumber: "", amount: "", description: "", paymentMethod: "Bank Transfer", date: "" });
   const [documentForm, setDocumentForm] = useState({ userId: "", title: "", description: "", category: "OTHER", fileUrl: "" });
@@ -114,34 +113,6 @@ export default function AdminDashboard() {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userForm),
-      });
-
-      if (res.ok) {
-        const newUser = await res.json();
-        setUsers([newUser, ...users]);
-        setShowUserModal(false);
-        setUserForm({ name: "", email: "", password: "", role: "CLIENT", companyName: "" });
-        alert("User created successfully!");
-      } else {
-        const error = await res.json();
-        alert(error.error || "Failed to create user");
-      }
-    } catch (error) {
-      console.error("Error creating user:", error);
-      alert("Failed to create user");
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -335,7 +306,7 @@ export default function AdminDashboard() {
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="clients">Clients</TabsTrigger>
           <TabsTrigger value="invoices">Invoices</TabsTrigger>
           <TabsTrigger value="overdue" className="relative">
             Overdue
@@ -405,76 +376,12 @@ export default function AdminDashboard() {
           </div>
         </TabsContent>
 
-        <TabsContent value="users" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">User Management</h2>
-            <Button onClick={() => setShowUserModal(true)} className="bg-scanvault-red hover:bg-red-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Add New User
-            </Button>
+        <TabsContent value="clients" className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Users className="w-5 h-5 text-scanvault-red" />
+            <h2 className="text-2xl font-bold">Clients</h2>
           </div>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                {users.map((user) => (
-                  <div key={user.id} className="border rounded-lg p-4 flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold">{user.email}</p>
-                      <p className="text-sm text-gray-600">{user.role} • {user.name || "No name"}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm"><Edit className="h-4 w-4" /></Button>
-                      <Button variant="outline" size="sm"><Trash2 className="h-4 w-4" /></Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {showUserModal && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <Card className="w-full max-w-md">
-                <CardHeader>
-                  <CardTitle>Create New User</CardTitle>
-                  <CardDescription>Add a new client or admin user</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleCreateUser} className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input id="name" value={userForm.name} onChange={(e) => setUserForm({...userForm, name: e.target.value})} placeholder="John Doe" />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email *</Label>
-                      <Input id="email" type="email" required value={userForm.email} onChange={(e) => setUserForm({...userForm, email: e.target.value})} placeholder="john@example.com" />
-                    </div>
-                    <div>
-                      <Label htmlFor="password">Password *</Label>
-                      <Input id="password" type="password" required value={userForm.password} onChange={(e) => setUserForm({...userForm, password: e.target.value})} />
-                    </div>
-                    <div>
-                      <Label htmlFor="role">Role *</Label>
-                      <select id="role" className="w-full px-3 py-2 border rounded-md" value={userForm.role} onChange={(e) => setUserForm({...userForm, role: e.target.value})}>
-                        <option value="CLIENT">Client</option>
-                        <option value="ADMIN">Admin</option>
-                      </select>
-                    </div>
-                    <div>
-                      <Label htmlFor="companyName">Company Name</Label>
-                      <Input id="companyName" value={userForm.companyName} onChange={(e) => setUserForm({...userForm, companyName: e.target.value})} placeholder="Company Ltd" />
-                    </div>
-                    <div className="flex gap-2 justify-end">
-                      <Button type="button" variant="outline" onClick={() => setShowUserModal(false)}>Cancel</Button>
-                      <Button type="submit" className="bg-scanvault-red hover:bg-red-700" disabled={submitting}>
-                        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create User"}
-                      </Button>
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+          <ClientsTab />
         </TabsContent>
 
         <TabsContent value="invoices" className="space-y-4">

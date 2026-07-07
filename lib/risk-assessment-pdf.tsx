@@ -220,17 +220,6 @@ const HAZARDS: Hazard[] = [
     L: 2, S: 3, add: "Engineers work in pairs where practicable on larger sites.",
   },
   {
-    hazard: "Security & Access Control",
-    who: "Residents, staff, engineers",
-    controls: [
-      "Photographic company ID and lanyard worn and visible at all times.",
-      "Sign in/out; adhere to secure door and key-code policies.",
-      "Do not admit or hold doors for unknown persons.",
-      "Report any security concern to the home manager.",
-    ],
-    L: 2, S: 3, add: "DBS-checked personnel. Escort provided by home into secure areas if required.",
-  },
-  {
     hazard: "Confidentiality & Data Protection (UK GDPR)",
     who: "Residents (data subjects), Client",
     controls: [
@@ -383,7 +372,7 @@ export function RiskAssessmentPDF(p: RiskAssessmentPDFProps) {
           "First Aid: ScanVault engineers carry a personal first aid kit; the care home's first aiders and emergency procedures take precedence on site.",
           "Accident Reporting: Any injury or dangerous occurrence recorded in the home's accident book and reported to ScanVault management; RIDDOR-reportable incidents notified to the HSE.",
           "Insurance: ScanVault holds Public Liability and Professional Indemnity insurance; certificates available on request.",
-          "Personnel: All engineers are DBS-checked and briefed on safeguarding and infection control prior to attendance.",
+          "Personnel: All engineers are briefed on safeguarding and infection control prior to attendance.",
           "This assessment is reviewed annually, or sooner following any incident, near miss, or significant change to the site or activity.",
         ]} />
 

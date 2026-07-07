@@ -37,7 +37,16 @@ interface Contract {
   user:            ContractUser | null;
 }
 
-interface UserOption { id: string; name: string | null; email: string; }
+interface UserOption {
+  id: string;
+  name: string | null;
+  email: string;
+  role?: string;
+  companyName?: string | null;
+  contactName?: string | null;
+  phone?: string | null;
+  address?: string | null;
+}
 
 const STATUS_META: Record<ContractStatus, { label: string; color: string; Icon: React.ElementType }> = {
   DRAFT:     { label: "Draft",     color: "bg-gray-100 text-gray-600",    Icon: PenLine },
@@ -114,6 +123,25 @@ export default function ContractsTab() {
     notes:           c.notes           ?? "",
     userId:          c.user?.id        ?? "",
   });
+
+  const clientOptions = users.filter((u) => u.role === "CLIENT" || u.role === undefined);
+
+  const handleSelectClient = (clientId: string) => {
+    if (!clientId) {
+      setForm((p) => ({ ...p, userId: "" }));
+      return;
+    }
+    const c = users.find((u) => u.id === clientId);
+    if (!c) return;
+    setForm((p) => ({
+      ...p,
+      userId:        c.id,
+      clientName:    c.companyName || c.name || p.clientName,
+      clientEmail:   c.email || p.clientEmail,
+      clientContact: c.contactName || c.name || p.clientContact,
+      clientAddress: c.address || p.clientAddress,
+    }));
+  };
 
   const openNew = () => {
     setEditingId(null);
@@ -281,6 +309,19 @@ export default function ContractsTab() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Client &amp; Care Home Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <Label>Select Existing Client <span className="text-gray-400 font-normal">(autofills their details below)</span></Label>
+                    <select
+                      value={form.userId}
+                      onChange={(e) => handleSelectClient(e.target.value)}
+                      className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white"
+                    >
+                      <option value="">— Enter details manually —</option>
+                      {clientOptions.map((u) => (
+                        <option key={u.id} value={u.id}>{u.companyName || u.name || u.email}</option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="md:col-span-2">
                     <Label>Agreement Title *</Label>
                     <Input value={form.title} onChange={set("title")} required className="mt-1" />

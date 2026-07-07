@@ -19,6 +19,9 @@ export async function GET() {
         name: true,
         role: true,
         companyName: true,
+        contactName: true,
+        phone: true,
+        address: true,
         createdAt: true,
       },
       orderBy: {
@@ -42,11 +45,11 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { email, name, password, role, companyName } = body;
+    const { email, name, password, role, companyName, contactName, phone, address } = body;
 
-    if (!email || !password || !role) {
+    if (!email) {
       return NextResponse.json(
-        { error: "Email, password, and role are required" },
+        { error: "Email is required" },
         { status: 400 }
       );
     }
@@ -58,13 +61,17 @@ export async function POST(request: Request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "User with this email already exists" },
+        { error: "A client/user with this email already exists" },
         { status: 400 }
       );
     }
 
-    // Hash password
-    const hashedPassword = await hash(password, 12);
+    // Password is optional when creating a client record. If omitted, generate a
+    // random one so the account exists (a login password can be set later).
+    const rawPassword = password && password.length > 0
+      ? password
+      : `${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+    const hashedPassword = await hash(rawPassword, 12);
 
     // Create user
     const user = await prisma.user.create({
@@ -72,8 +79,11 @@ export async function POST(request: Request) {
         email,
         name,
         password: hashedPassword,
-        role,
+        role: role || "CLIENT",
         companyName,
+        contactName,
+        phone,
+        address,
       },
       select: {
         id: true,
@@ -81,6 +91,9 @@ export async function POST(request: Request) {
         name: true,
         role: true,
         companyName: true,
+        contactName: true,
+        phone: true,
+        address: true,
         createdAt: true,
       },
     });

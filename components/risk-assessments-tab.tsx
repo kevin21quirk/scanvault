@@ -22,7 +22,16 @@ interface RiskAssessment {
   createdAt:       string;
   user:            RAUser | null;
 }
-interface UserOption { id: string; name: string | null; email: string; }
+interface UserOption {
+  id: string;
+  name: string | null;
+  email: string;
+  role?: string;
+  companyName?: string | null;
+  contactName?: string | null;
+  phone?: string | null;
+  address?: string | null;
+}
 
 const BLANK = {
   careHomeName: "",
@@ -70,6 +79,23 @@ export default function RiskAssessmentsTab() {
     notes:           r.notes ?? "",
     userId:          r.user?.id ?? "",
   });
+
+  const clientOptions = users.filter((u) => u.role === "CLIENT" || u.role === undefined);
+
+  const handleSelectClient = (clientId: string) => {
+    if (!clientId) {
+      setForm((p) => ({ ...p, userId: "" }));
+      return;
+    }
+    const c = users.find((u) => u.id === clientId);
+    if (!c) return;
+    setForm((p) => ({
+      ...p,
+      userId:        c.id,
+      clientName:    c.companyName || c.name || p.clientName,
+      clientAddress: c.address || p.clientAddress,
+    }));
+  };
 
   const openNew = () => { setEditingId(null); setForm({ ...BLANK }); setShowForm(true); };
   const openEdit = (r: RiskAssessment) => {
@@ -168,6 +194,19 @@ export default function RiskAssessmentsTab() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Care Home &amp; Client Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <Label>Select Existing Client <span className="text-gray-400 font-normal">(autofills client details below)</span></Label>
+                    <select
+                      value={form.userId}
+                      onChange={(e) => handleSelectClient(e.target.value)}
+                      className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white"
+                    >
+                      <option value="">— Enter details manually —</option>
+                      {clientOptions.map((u) => (
+                        <option key={u.id} value={u.id}>{u.companyName || u.name || u.email}</option>
+                      ))}
+                    </select>
+                  </div>
                   <div>
                     <Label>Care Home / Site Name *</Label>
                     <Input value={form.careHomeName} onChange={set("careHomeName")} required className="mt-1" placeholder="e.g. Cromwell House Care Home" />
