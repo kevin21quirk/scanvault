@@ -176,9 +176,22 @@ export async function GET(
     doc.text("Subtotal", labelX, y);
     doc.text(`£${invoice.subtotal.toFixed(2)}`, valueX, y, { align: "right" });
 
-    y += 6;
-    doc.text(`VAT (${invoice.vatRate}%)`, labelX, y);
-    doc.text(`£${invoice.vatAmount.toFixed(2)}`, valueX, y, { align: "right" });
+    if (invoice.vatRate > 0) {
+      y += 6;
+      doc.text(`VAT (${invoice.vatRate}%)`, labelX, y);
+      doc.text(`£${invoice.vatAmount.toFixed(2)}`, valueX, y, { align: "right" });
+    } else {
+      y += 6;
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(120, 120, 120);
+      const vatNote = doc.splitTextToSize("Exclusive of VAT. VAT chargeable at the prevailing rate where applicable.", 65);
+      doc.text(vatNote, valueX, y, { align: "right" });
+      y += (vatNote.length - 1) * 4;
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+    }
 
     y += 3;
     doc.setDrawColor(220, 38, 38);

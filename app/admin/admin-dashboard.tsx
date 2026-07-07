@@ -66,7 +66,7 @@ export default function AdminDashboard() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
-  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "" });
+  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "" });
   const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([{ description: "", quantity: "1", rate: "" }]);
   const [receiptForm, setReceiptForm] = useState({ userId: "", receiptNumber: "", amount: "", description: "", paymentMethod: "Bank Transfer", date: "" });
   const [documentForm, setDocumentForm] = useState({ userId: "", title: "", description: "", category: "OTHER", fileUrl: "" });
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
         const newInvoice = await res.json();
         setInvoices([newInvoice, ...invoices]);
         setShowInvoiceModal(false);
-        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "" });
+        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "" });
         setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
         alert("Invoice created successfully!");
       } else {
@@ -424,7 +424,11 @@ export default function AdminDashboard() {
                           <p className="text-sm text-gray-600">{invoice.description}</p>
                           <div className="mt-2 text-xs text-gray-500">
                             <p>Subtotal: £{invoice.subtotal.toFixed(2)}</p>
-                            <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
+                            {invoice.vatRate > 0 ? (
+                              <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
+                            ) : (
+                              <p className="italic">Exclusive of VAT. VAT chargeable at the prevailing rate where applicable.</p>
+                            )}
                           </div>
                         </div>
                         <div className="text-right flex flex-col items-end gap-2">
@@ -547,8 +551,9 @@ export default function AdminDashboard() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="vatRate">VAT Rate (%) *</Label>
-                        <Input id="vatRate" type="number" step="0.01" required value={invoiceForm.vatRate} onChange={(e) => setInvoiceForm({...invoiceForm, vatRate: e.target.value})} placeholder="20" />
+                        <Label htmlFor="vatRate">VAT Rate (%)</Label>
+                        <Input id="vatRate" type="number" step="0.01" value={invoiceForm.vatRate} onChange={(e) => setInvoiceForm({...invoiceForm, vatRate: e.target.value})} placeholder="0" />
+                        <p className="text-xs text-gray-500 mt-1">Leave at 0 to invoice exclusive of VAT.</p>
                       </div>
                       <div>
                         <Label htmlFor="depositPercent">Deposit Payable Upfront (%) *</Label>
@@ -559,7 +564,11 @@ export default function AdminDashboard() {
                     {/* Totals preview */}
                     <div className="rounded-md border bg-gray-50 p-3 text-sm space-y-1">
                       <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="tabular-nums">£{invSubtotal.toFixed(2)}</span></div>
-                      <div className="flex justify-between"><span className="text-gray-600">VAT ({invoiceForm.vatRate || 0}%)</span><span className="tabular-nums">£{invVat.toFixed(2)}</span></div>
+                      {(parseFloat(invoiceForm.vatRate) || 0) > 0 ? (
+                        <div className="flex justify-between"><span className="text-gray-600">VAT ({invoiceForm.vatRate}%)</span><span className="tabular-nums">£{invVat.toFixed(2)}</span></div>
+                      ) : (
+                        <p className="text-xs text-gray-500 italic">Exclusive of VAT. VAT chargeable at the prevailing rate where applicable.</p>
+                      )}
                       <div className="flex justify-between font-semibold border-t pt-1"><span>Total Due</span><span className="tabular-nums">£{invTotal.toFixed(2)}</span></div>
                       <div className="flex justify-between text-scanvault-red"><span>Deposit due upfront ({invoiceForm.depositPercent || 0}%)</span><span className="tabular-nums">£{invDeposit.toFixed(2)}</span></div>
                       <div className="flex justify-between text-gray-600"><span>Balance (net 30 days after completion)</span><span className="tabular-nums">£{invBalance.toFixed(2)}</span></div>
@@ -624,7 +633,11 @@ export default function AdminDashboard() {
                             <div className="mt-2 text-xs text-gray-600">
                               <p>Due Date: <span className="font-semibold text-red-600">{new Date(invoice.dueDate).toLocaleDateString('en-GB')}</span></p>
                               <p className="mt-1">Subtotal: £{invoice.subtotal.toFixed(2)}</p>
-                              <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
+                              {invoice.vatRate > 0 ? (
+                                <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
+                              ) : (
+                                <p className="italic">Exclusive of VAT. VAT chargeable at the prevailing rate where applicable.</p>
+                              )}
                             </div>
                           </div>
                           <div className="text-right flex flex-col items-end gap-2">
