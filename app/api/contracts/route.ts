@@ -5,11 +5,14 @@ import { prisma } from "@/lib/db";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
 
+  const where = session.user.role === "ADMIN" ? {} : { userId: session.user.id };
+
   const contracts = await prisma.contract.findMany({
+    where,
     orderBy: { createdAt: "desc" },
     include: { user: { select: { id: true, name: true, email: true } } },
   });

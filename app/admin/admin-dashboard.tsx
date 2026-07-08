@@ -21,6 +21,8 @@ interface User {
   companyName: string | null;
 }
 
+interface InvoiceLineItem { description: string; quantity: number; rate: number; }
+
 interface Invoice {
   id: string;
   invoiceNumber: string;
@@ -29,12 +31,16 @@ interface Invoice {
   vatAmount: number;
   total: number;
   description: string;
+  items: InvoiceLineItem[] | null;
+  depositPercent: number | null;
   issueDate: string;
   dueDate: string;
   status: string;
   notes: string | null;
+  careHomeId: string | null;
   careHomeName: string | null;
-  user: { email: string; name: string | null };
+  careHomeAddress: string | null;
+  user: { id: string; email: string; name: string | null };
 }
 
 interface CareHomeOption { id: string; name: string; address: string | null; }
@@ -73,6 +79,7 @@ export default function AdminDashboard() {
   const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "" });
   const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([{ description: "", quantity: "1", rate: "" }]);
   const [invoiceCareHomeOptions, setInvoiceCareHomeOptions] = useState<CareHomeOption[]>([]);
+  const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
 
   const handleSelectInvoiceClient = (clientId: string) => {
     setInvoiceForm((prev) => ({ ...prev, userId: clientId, careHomeId: "", careHomeName: "", careHomeAddress: "" }));
@@ -118,8 +125,40 @@ export default function AdminDashboard() {
   };
 
   const handleOpenInvoiceModal = () => {
+    setEditingInvoiceId(null);
+    setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "" });
+    setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
+    setInvoiceCareHomeOptions([]);
     setShowInvoiceModal(true);
     fetchNextInvoiceNumber();
+  };
+
+  const handleEditInvoice = (invoice: Invoice) => {
+    setEditingInvoiceId(invoice.id);
+    setInvoiceForm({
+      userId: invoice.user.id,
+      invoiceNumber: invoice.invoiceNumber,
+      vatRate: String(invoice.vatRate),
+      depositPercent: invoice.depositPercent != null ? String(invoice.depositPercent) : "50",
+      description: invoice.description,
+      issueDate: invoice.issueDate.slice(0, 10),
+      dueDate: invoice.dueDate.slice(0, 10),
+      notes: invoice.notes || "",
+      careHomeId: invoice.careHomeId || "",
+      careHomeName: invoice.careHomeName || "",
+      careHomeAddress: invoice.careHomeAddress || "",
+    });
+    setInvoiceItems(
+      invoice.items && invoice.items.length
+        ? invoice.items.map((it) => ({ description: it.description, quantity: String(it.quantity), rate: String(it.rate) }))
+        : [{ description: "", quantity: "1", rate: "" }]
+    );
+    setInvoiceCareHomeOptions([]);
+    fetch(`/api/care-homes?userId=${invoice.user.id}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: CareHomeOption[]) => setInvoiceCareHomeOptions(data))
+      .catch(() => {});
+    setShowInvoiceModal(true);
   };
 
   const fetchData = async () => {
@@ -146,27 +185,35 @@ export default function AdminDashboard() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const res = await fetch("/api/invoices", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...invoiceForm, items: invoiceItems }),
-      });
+      const res = await fetch(
+        editingInvoiceId ? `/api/invoices/${editingInvoiceId}` : "/api/invoices",
+        {
+          method: editingInvoiceId ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...invoiceForm, items: invoiceItems }),
+        }
+      );
 
       if (res.ok) {
-        const newInvoice = await res.json();
-        setInvoices([newInvoice, ...invoices]);
+        const savedInvoice = await res.json();
+        setInvoices(
+          editingInvoiceId
+            ? invoices.map((inv) => (inv.id === editingInvoiceId ? savedInvoice : inv))
+            : [savedInvoice, ...invoices]
+        );
         setShowInvoiceModal(false);
+        setEditingInvoiceId(null);
         setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "" });
         setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
         setInvoiceCareHomeOptions([]);
-        alert("Invoice created successfully!");
+        alert(editingInvoiceId ? "Invoice updated successfully!" : "Invoice created successfully!");
       } else {
         const error = await res.json();
-        alert(error.error || "Failed to create invoice");
+        alert(error.error || `Failed to ${editingInvoiceId ? "update" : "create"} invoice`);
       }
     } catch (error) {
-      console.error("Error creating invoice:", error);
-      alert("Failed to create invoice");
+      console.error("Error saving invoice:", error);
+      alert(`Failed to ${editingInvoiceId ? "update" : "create"} invoice`);
     } finally {
       setSubmitting(false);
     }
@@ -480,6 +527,13 @@ export default function AdminDashboard() {
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => handleEditInvoice(invoice)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => window.open(`/api/invoices/${invoice.id}/download`, '_blank')}
                           >
                             <Download className="h-4 w-4 mr-2" />
@@ -507,8 +561,8 @@ export default function AdminDashboard() {
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
               <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <CardHeader>
-                  <CardTitle>Create New Invoice</CardTitle>
-                  <CardDescription>Generate an invoice for a client</CardDescription>
+                  <CardTitle>{editingInvoiceId ? "Edit Invoice" : "Create New Invoice"}</CardTitle>
+                  <CardDescription>{editingInvoiceId ? "Update the invoice details" : "Generate an invoice for a client"}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleCreateInvoice} className="space-y-4">
@@ -622,7 +676,7 @@ export default function AdminDashboard() {
                     <div className="flex gap-2 justify-end">
                       <Button type="button" variant="outline" onClick={() => setShowInvoiceModal(false)}>Cancel</Button>
                       <Button type="submit" className="bg-scanvault-red hover:bg-red-700" disabled={submitting}>
-                        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create Invoice"}
+                        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : editingInvoiceId ? "Update Invoice" : "Create Invoice"}
                       </Button>
                     </div>
                   </form>
