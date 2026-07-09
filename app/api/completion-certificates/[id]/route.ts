@@ -22,7 +22,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     ? (body.workItems as WorkItemInput[])
         .map((i) => ({
           description: String(i.description ?? "").trim(),
-          quantity:    Number(i.quantity) || 0,
+          quantity:    String(i.quantity ?? "").trim(),
           unit:        String(i.unit ?? "").trim(),
         }))
         .filter((i) => i.description.length > 0)

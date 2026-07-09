@@ -25,7 +25,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const React                            = (await import("react")).default;
 
   const workItems = Array.isArray(cert.workItems)
-    ? (cert.workItems as { description: string; quantity: number; unit: string }[])
+    ? (cert.workItems as { description: string; quantity: string; unit: string }[])
     : [];
 
   const element = React.createElement(CompletionCertificatePDF, {

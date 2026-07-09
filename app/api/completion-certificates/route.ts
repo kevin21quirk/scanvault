@@ -26,6 +26,7 @@ interface WorkItemInput {
   unit?: string;
 }
 
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "ADMIN") {
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
     ? (workItems as WorkItemInput[])
         .map((i) => ({
           description: String(i.description ?? "").trim(),
-          quantity:    Number(i.quantity) || 0,
+          quantity:    String(i.quantity ?? "").trim(),
           unit:        String(i.unit ?? "").trim(),
         }))
         .filter((i) => i.description.length > 0)

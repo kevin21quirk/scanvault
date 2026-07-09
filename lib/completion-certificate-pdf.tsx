@@ -5,7 +5,7 @@ import {
 
 export interface WorkItem {
   description: string;
-  quantity: number;
+  quantity: string;
   unit: string;
 }
 
@@ -185,7 +185,7 @@ export function CompletionCertificatePDF(props: CompletionCertificatePDFProps) {
           <View style={{ border: `1 solid ${RULE}`, borderRadius: 4, marginBottom: 10 }}>
             <View style={s.tHead}>
               <Text style={[s.tHeadCell, s.cDesc]}>Description of Work</Text>
-              <Text style={[s.tHeadCell, s.cQty]}>Quantity</Text>
+              <Text style={[s.tHeadCell, s.cQty]}>Amount / Size</Text>
               <Text style={[s.tHeadCell, s.cUnit]}>Unit</Text>
             </View>
             {workItems.map((item, i) => (
@@ -196,10 +196,8 @@ export function CompletionCertificatePDF(props: CompletionCertificatePDFProps) {
               </View>
             ))}
             <View style={s.tFoot}>
-              <Text style={[s.tFootCell, s.cDesc]}>Total Items Completed</Text>
-              <Text style={[s.tFootCell, s.cQty]}>
-                {workItems.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0)}
-              </Text>
+              <Text style={[s.tFootCell, s.cDesc]}>Total Line Items</Text>
+              <Text style={[s.tFootCell, s.cQty]}>{workItems.length}</Text>
               <Text style={[s.tFootCell, s.cUnit]}> </Text>
             </View>
           </View>

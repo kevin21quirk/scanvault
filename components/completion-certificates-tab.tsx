@@ -64,7 +64,7 @@ const WORK_ITEM_PRESETS = [
   { description: "Archive boxes scanned & digitised", unit: "boxes" },
   { description: "Archive files scanned & digitised", unit: "files" },
   { description: "Loose document drawers processed", unit: "drawers" },
-  { description: "Documents uploaded to cloud platform", unit: "documents" },
+  { description: "Documents uploaded to SharePoint location", unit: "GB" },
   { description: "Damaged/broken boxes recovered & reorganised", unit: "boxes" },
   { description: "Physical archive materials consolidated & labelled", unit: "items" },
 ];
@@ -395,28 +395,32 @@ export default function CompletionCertificatesTab() {
                   </div>
                 </div>
 
-                {/* Care Home */}
-                {careHomeOptions.length > 0 && (
-                  <div>
-                    <Label>Care Home / Site</Label>
-                    <select
-                      className="w-full px-3 py-2 border rounded-md text-sm"
-                      value={form.careHomeId}
-                      onChange={(e) => handleSelectCareHome(e.target.value)}
-                    >
-                      <option value="">— Not site-specific —</option>
-                      {careHomeOptions.map((h) => (
-                        <option key={h.id} value={h.id}>{h.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                {/* Care Home / Site */}
+                <div className="rounded-md border border-gray-200 p-4 space-y-3 bg-gray-50">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Care Home / Site Details</p>
 
-                {/* Manual care home override if no options */}
-                {careHomeOptions.length === 0 && (
+                  {/* Dropdown — only shown when the client has registered care homes */}
+                  {careHomeOptions.length > 0 && (
+                    <div>
+                      <Label>Select Care Home</Label>
+                      <select
+                        className="w-full px-3 py-2 border rounded-md text-sm bg-white"
+                        value={form.careHomeId}
+                        onChange={(e) => handleSelectCareHome(e.target.value)}
+                      >
+                        <option value="">— Select a care home / site —</option>
+                        {careHomeOptions.map((h) => (
+                          <option key={h.id} value={h.id}>{h.name}{h.address ? ` — ${h.address}` : ""}</option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-gray-500 mt-1">Selecting a care home populates the name and address below.</p>
+                    </div>
+                  )}
+
+                  {/* Name + Address — always visible, pre-filled by dropdown or typed manually */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Care Home / Site Name</Label>
+                      <Label>Care Home Name {careHomeOptions.length === 0 ? "" : <span className="text-gray-400 font-normal">(auto-filled)</span>}</Label>
                       <Input
                         value={form.careHomeName}
                         onChange={(e) => setForm((p) => ({ ...p, careHomeName: e.target.value }))}
@@ -424,15 +428,15 @@ export default function CompletionCertificatesTab() {
                       />
                     </div>
                     <div>
-                      <Label>Site Address</Label>
+                      <Label>Care Home Address {careHomeOptions.length === 0 ? "" : <span className="text-gray-400 font-normal">(auto-filled)</span>}</Label>
                       <Input
                         value={form.careHomeAddress}
                         onChange={(e) => setForm((p) => ({ ...p, careHomeAddress: e.target.value }))}
-                        placeholder="Full address"
+                        placeholder="Full site address"
                       />
                     </div>
                   </div>
-                )}
+                </div>
 
                 {/* Client details */}
                 <div className="grid grid-cols-2 gap-4">
@@ -462,10 +466,11 @@ export default function CompletionCertificatesTab() {
                     />
                   </div>
                   <div>
-                    <Label>Client Address</Label>
+                    <Label>Client Main Address <span className="text-gray-400 font-normal text-xs">(head office / registered address)</span></Label>
                     <Input
                       value={form.clientAddress}
                       onChange={(e) => setForm((p) => ({ ...p, clientAddress: e.target.value }))}
+                      placeholder="e.g. Abbey Healthcare Group head office"
                     />
                   </div>
                 </div>
@@ -515,7 +520,7 @@ export default function CompletionCertificatesTab() {
 
                   <div className="hidden md:grid grid-cols-12 gap-2 text-xs text-gray-500 px-1 mb-1">
                     <span className="col-span-6">Description</span>
-                    <span className="col-span-2 text-center">Qty</span>
+                    <span className="col-span-2 text-center">Amount / Size</span>
                     <span className="col-span-3">Unit</span>
                     <span className="col-span-1" />
                   </div>
@@ -530,11 +535,10 @@ export default function CompletionCertificatesTab() {
                         />
                         <Input
                           className="col-span-2 text-center"
-                          type="number"
-                          min="0"
-                          step="1"
+                          type="text"
                           value={item.quantity}
                           onChange={(e) => updateItem(i, "quantity", e.target.value)}
+                          placeholder="e.g. 83 or 6.5GB"
                         />
                         <Input
                           className="col-span-3"
