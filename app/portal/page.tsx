@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   FileText, Receipt, FolderOpen, Download, ClipboardList, ShieldCheck,
-  Loader2, Building2, Clock,
+  Loader2, Building2, Clock, Award,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -26,6 +26,11 @@ interface Contract {
 interface RiskAssessment {
   id: string; careHomeName: string; assessorName: string | null;
   workStartDate: string | null; createdAt: string;
+}
+interface CompletionCert {
+  id: string; certificateNumber: string; clientName: string;
+  careHomeName: string | null; completionDate: string; status: string;
+  workItems: { description: string; quantity: number; unit: string }[] | null;
 }
 interface ReceiptItem {
   id: string; receiptNumber: string; description: string; date: string;
@@ -64,6 +69,7 @@ export default function Portal() {
   const [quotations, setQuotations] = useState<Quotation[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [riskAssessments, setRiskAssessments] = useState<RiskAssessment[]>([]);
+  const [completionCerts, setCompletionCerts] = useState<CompletionCert[]>([]);
   const [receipts, setReceipts] = useState<ReceiptItem[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [downloading, setDownloading] = useState<string | null>(null);
@@ -76,13 +82,14 @@ export default function Portal() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const [invRes, quoRes, conRes, raRes, recRes, docRes] = await Promise.all([
+      const [invRes, quoRes, conRes, raRes, recRes, docRes, ccRes] = await Promise.all([
         fetch("/api/invoices"),
         fetch("/api/quotations"),
         fetch("/api/contracts"),
         fetch("/api/risk-assessments"),
         fetch("/api/receipts"),
         fetch("/api/documents"),
+        fetch("/api/completion-certificates"),
       ]);
       if (invRes.ok) setInvoices(await invRes.json());
       if (quoRes.ok) setQuotations(await quoRes.json());
@@ -90,6 +97,7 @@ export default function Portal() {
       if (raRes.ok) setRiskAssessments(await raRes.json());
       if (recRes.ok) setReceipts(await recRes.json());
       if (docRes.ok) setDocuments(await docRes.json());
+      if (ccRes.ok) setCompletionCerts(await ccRes.json());
     } catch (err) {
       console.error("Error fetching portal data:", err);
     } finally {
@@ -169,6 +177,10 @@ export default function Portal() {
           <TabsTrigger value="risk-assessments">
             <ShieldCheck className="h-4 w-4 mr-2" />
             Risk Assessments
+          </TabsTrigger>
+          <TabsTrigger value="completion-certificates">
+            <Award className="h-4 w-4 mr-2" />
+            Certificates
           </TabsTrigger>
           <TabsTrigger value="receipts">
             <Receipt className="h-4 w-4 mr-2" />
@@ -353,6 +365,55 @@ export default function Portal() {
                         className="text-sm text-scanvault-red hover:underline flex items-center gap-1 disabled:opacity-50"
                       >
                         {downloading === ra.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />} Download
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Completion Certificates */}
+        <TabsContent value="completion-certificates" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Completion Certificates</CardTitle>
+              <CardDescription>Certificates confirming works carried out at your sites</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {completionCerts.length === 0 ? (
+                <div className="text-center py-12">
+                  <Award className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No completion certificates found</p>
+                  <p className="text-sm text-gray-500 mt-2">Certificates will appear here once works have been completed</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {completionCerts.filter((c) => c.status === "ISSUED").map((cert) => (
+                    <div key={cert.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 flex-wrap gap-3">
+                      <div>
+                        <p className="font-semibold">{cert.certificateNumber}</p>
+                        {cert.careHomeName && (
+                          <p className="text-sm text-gray-600 flex items-center gap-1"><Building2 className="h-3 w-3" /> {cert.careHomeName}</p>
+                        )}
+                        {cert.workItems && cert.workItems.length > 0 && (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {cert.workItems.map((wi, i) => (
+                              <span key={i} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                                {wi.quantity} {wi.unit}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-500 mt-1">Completed: {formatDate(cert.completionDate)}</p>
+                      </div>
+                      <button
+                        onClick={() => downloadPdf(cert.id, `/api/completion-certificates/${cert.id}/pdf`, `Certificate-${cert.certificateNumber}.pdf`)}
+                        disabled={downloading === cert.id}
+                        className="text-sm text-scanvault-red hover:underline flex items-center gap-1 disabled:opacity-50"
+                      >
+                        {downloading === cert.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />} Download
                       </button>
                     </div>
                   ))}

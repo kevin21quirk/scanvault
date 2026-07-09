@@ -6,12 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck } from "lucide-react";
+import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award } from "lucide-react";
 import LeadsTab from "@/components/leads-tab";
 import ContractsTab from "@/components/contracts-tab";
 import QuotationsTab from "@/components/quotations-tab";
 import RiskAssessmentsTab from "@/components/risk-assessments-tab";
 import ClientsTab from "@/components/clients-tab";
+import CompletionCertificatesTab from "@/components/completion-certificates-tab";
 
 interface User {
   id: string;
@@ -411,6 +412,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="quotations">Quotations</TabsTrigger>
           <TabsTrigger value="contracts">Contracts</TabsTrigger>
           <TabsTrigger value="risk-assessments">Risk Assessments</TabsTrigger>
+          <TabsTrigger value="completion-certificates">Completion Certs</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -992,6 +994,14 @@ export default function AdminDashboard() {
             <h2 className="text-2xl font-bold">Care Home Risk Assessments</h2>
           </div>
           <RiskAssessmentsTab />
+        </TabsContent>
+
+        <TabsContent value="completion-certificates" className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Award className="w-5 h-5 text-scanvault-red" />
+            <h2 className="text-2xl font-bold">Completion Certificates</h2>
+          </div>
+          <CompletionCertificatesTab />
         </TabsContent>
 
         <TabsContent value="leads" className="space-y-4">

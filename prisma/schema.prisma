@@ -20,13 +20,14 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
-  invoices         Invoice[]
-  receipts         Receipt[]
-  documents        Document[]
-  contracts        Contract[]
-  riskAssessments  RiskAssessment[]
-  careHomes        CareHome[]
-  quotations       Quotation[]
+  invoices                Invoice[]
+  receipts                Receipt[]
+  documents               Document[]
+  contracts               Contract[]
+  riskAssessments         RiskAssessment[]
+  careHomes               CareHome[]
+  quotations              Quotation[]
+  completionCertificates  CompletionCertificate[]
 }
 
 model CareHome {
@@ -38,12 +39,46 @@ model CareHome {
   notes         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  invoices      Invoice[]
-  contracts     Contract[]
-  riskAssessments RiskAssessment[]
-  quotations    Quotation[]
+  invoices                Invoice[]
+  contracts               Contract[]
+  riskAssessments         RiskAssessment[]
+  quotations              Quotation[]
+  completionCertificates  CompletionCertificate[]
 
   @@index([userId])
+}
+
+model CompletionCertificate {
+  id                 String            @id @default(cuid())
+  certificateNumber  String            @unique
+  clientName         String
+  clientAddress      String?
+  clientContact      String?
+  clientEmail        String?
+  careHomeName       String?
+  careHomeAddress    String?
+  careHomeId         String?
+  careHome           CareHome?         @relation(fields: [careHomeId], references: [id], onDelete: SetNull)
+  userId             String?
+  user               User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status             CertificateStatus @default(DRAFT)
+  worksDescription   String?
+  workItems          Json?
+  completionDate     DateTime
+  boxesScanned       Int?
+  filesScanned       Int?
+  assessorName       String?           @default("Kevin Quirk")
+  notes              String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([careHomeId])
+}
+
+enum CertificateStatus {
+  DRAFT
+  ISSUED
 }
 
 model Quotation {
