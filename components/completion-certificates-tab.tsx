@@ -297,7 +297,7 @@ export default function CompletionCertificatesTab() {
                 const meta = STATUS_META[cert.status];
                 return (
                   <div key={cert.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start gap-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-semibold">{cert.certificateNumber}</p>
@@ -374,7 +374,7 @@ export default function CompletionCertificatesTab() {
               <form onSubmit={handleSave} className="space-y-5">
 
                 {/* Client + Certificate Number */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Client *</Label>
                     <select
@@ -439,7 +439,7 @@ export default function CompletionCertificatesTab() {
                 </div>
 
                 {/* Client details */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Client Name *</Label>
                     <Input
@@ -476,7 +476,7 @@ export default function CompletionCertificatesTab() {
                 </div>
 
                 {/* Dates & Assessor */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Date of Completion *</Label>
                     <Input
@@ -524,29 +524,29 @@ export default function CompletionCertificatesTab() {
                     <span className="col-span-3">Unit</span>
                     <span className="col-span-1" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {workItems.map((item, i) => (
-                      <div key={i} className="grid grid-cols-12 gap-2 items-center">
+                      <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center rounded-md border bg-white p-2 sm:border-0 sm:bg-transparent sm:p-0">
                         <Input
-                          className="col-span-6"
+                          className="sm:col-span-6"
                           placeholder="e.g. Archive boxes scanned & digitised"
                           value={item.description}
                           onChange={(e) => updateItem(i, "description", e.target.value)}
                         />
                         <Input
-                          className="col-span-2 text-center"
+                          className="sm:col-span-2 text-center"
                           type="text"
                           value={item.quantity}
                           onChange={(e) => updateItem(i, "quantity", e.target.value)}
                           placeholder="e.g. 83 or 6.5GB"
                         />
                         <Input
-                          className="col-span-3"
-                          placeholder="boxes / files / drawers…"
+                          className="sm:col-span-3"
+                          placeholder="boxes / files / GB…"
                           value={item.unit}
                           onChange={(e) => updateItem(i, "unit", e.target.value)}
                         />
-                        <div className="col-span-1 flex justify-end">
+                        <div className="sm:col-span-1 flex justify-end">
                           {workItems.length > 1 && (
                             <button type="button" onClick={() => removeItem(i)} className="text-gray-400 hover:text-red-600">
                               <X className="h-3.5 w-3.5" />
@@ -571,7 +571,7 @@ export default function CompletionCertificatesTab() {
                 </div>
 
                 {/* Status + Notes */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Status</Label>
                     <select

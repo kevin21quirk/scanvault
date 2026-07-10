@@ -392,7 +392,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="overview">
-        <TabsList>
+        <TabsList className="w-full flex-wrap md:flex-nowrap overflow-x-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="clients">Clients</TabsTrigger>
           <TabsTrigger value="invoices">Invoices</TabsTrigger>

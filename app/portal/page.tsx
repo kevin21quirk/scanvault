@@ -161,7 +161,7 @@ export default function Portal() {
         </div>
       ) : (
       <Tabs defaultValue="invoices" className="space-y-6">
-        <TabsList>
+        <TabsList className="w-full flex-wrap md:flex-nowrap overflow-x-auto">
           <TabsTrigger value="quotations">
             <ClipboardList className="h-4 w-4 mr-2" />
             Quotations
