@@ -212,26 +212,6 @@ export async function GET(
     doc.text("Total Due", labelX, y);
     doc.text(`£${invoice.total.toFixed(2)}`, valueX, y, { align: "right" });
 
-    // VAT Registration Status (shown only while VAT is not yet applicable)
-    if (invoice.vatRate === 0) {
-      y += 10;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9.5);
-      doc.setTextColor(0, 0, 0);
-      doc.text("VAT Registration Status", 20, y);
-      y += 5;
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8.5);
-      doc.setTextColor(90, 90, 90);
-      const vatStatusText = doc.splitTextToSize(
-        "VAT registration pending. Scan Vault Ltd is awaiting confirmation of its VAT registration number from HM Revenue & Customs. A valid VAT invoice will be issued following confirmation of VAT registration, where applicable.",
-        170
-      );
-      doc.text(vatStatusText, 20, y);
-      y += vatStatusText.length * 4;
-      doc.setTextColor(0, 0, 0);
-    }
-
     // Payment schedule
     const deposit = invoice.depositPercent ?? 50;
     const depositAmount = (invoice.total * deposit) / 100;
@@ -246,7 +226,7 @@ export async function GET(
     );
 
     // Compute row baselines before drawing so the box height matches the content exactly
-    const boxTop = y + (invoice.vatRate === 0 ? 8 : 14);
+    const boxTop = y + 14;
     const titleY = boxTop + 9;
     const row1Y = titleY + 7;
     const row2Y = row1Y + 6;

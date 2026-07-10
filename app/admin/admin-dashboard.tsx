@@ -664,11 +664,6 @@ export default function AdminDashboard() {
                       <div className="flex justify-between font-semibold border-t pt-1"><span>Total Due</span><span className="tabular-nums">£{invTotal.toFixed(2)}</span></div>
                       <div className="flex justify-between text-scanvault-red"><span>Deposit due upfront ({invoiceForm.depositPercent || 0}%)</span><span className="tabular-nums">£{invDeposit.toFixed(2)}</span></div>
                       <div className="flex justify-between text-gray-600"><span>Balance (net 30 days after completion)</span><span className="tabular-nums">£{invBalance.toFixed(2)}</span></div>
-                      {(parseFloat(invoiceForm.vatRate) || 0) === 0 && (
-                        <p className="text-xs text-gray-500 pt-1 border-t mt-1">
-                          <span className="font-semibold">VAT Registration Status:</span> VAT registration pending. Scan Vault Ltd is awaiting confirmation of its VAT registration number from HM Revenue & Customs. A valid VAT invoice will be issued following confirmation of VAT registration, where applicable.
-                        </p>
-                      )}
                     </div>
 
                     <div>
