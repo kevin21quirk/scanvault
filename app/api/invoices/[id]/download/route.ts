@@ -177,6 +177,7 @@ export async function GET(
 
     autoTable(doc, {
       startY: sepY + 6,
+      margin: { left: 20, right: 20 },
       head: [["Description", "Qty", "Unit Price", "Amount"]],
       body: tableData,
       theme: "plain",
