@@ -81,6 +81,7 @@ export async function PATCH(
       include: {
         user: {
           select: {
+            id: true,
             email: true,
             name: true,
             companyName: true,

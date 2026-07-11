@@ -195,10 +195,11 @@ export default function AdminDashboard() {
         }
       );
 
+      const wasEditing = !!editingInvoiceId;
       if (res.ok) {
         const savedInvoice = await res.json();
         setInvoices(
-          editingInvoiceId
+          wasEditing
             ? invoices.map((inv) => (inv.id === editingInvoiceId ? savedInvoice : inv))
             : [savedInvoice, ...invoices]
         );
@@ -207,14 +208,14 @@ export default function AdminDashboard() {
         setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "" });
         setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
         setInvoiceCareHomeOptions([]);
-        alert(editingInvoiceId ? "Invoice updated successfully!" : "Invoice created successfully!");
+        alert(wasEditing ? "Invoice updated successfully!" : "Invoice created successfully!");
       } else {
         const error = await res.json();
-        alert(error.error || `Failed to ${editingInvoiceId ? "update" : "create"} invoice`);
+        alert(error.error || `Failed to ${wasEditing ? "update" : "create"} invoice`);
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
-      alert(`Failed to ${editingInvoiceId ? "update" : "create"} invoice`);
+      alert(`Failed to ${!!editingInvoiceId ? "update" : "create"} invoice`);
     } finally {
       setSubmitting(false);
     }
@@ -560,11 +561,21 @@ export default function AdminDashboard() {
           </Card>
 
           {showInvoiceModal && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <CardHeader>
-                  <CardTitle>{editingInvoiceId ? "Edit Invoice" : "Create New Invoice"}</CardTitle>
-                  <CardDescription>{editingInvoiceId ? "Update the invoice details" : "Generate an invoice for a client"}</CardDescription>
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <Card className="w-full max-w-2xl max-h-[92vh] overflow-y-auto">
+                <CardHeader className="flex flex-row items-start justify-between">
+                  <div>
+                    <CardTitle>{editingInvoiceId ? "Edit Invoice" : "Create New Invoice"}</CardTitle>
+                    <CardDescription>{editingInvoiceId ? "Update the invoice details" : "Generate an invoice for a client"}</CardDescription>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setShowInvoiceModal(false); setEditingInvoiceId(null); }}
+                    className="text-gray-400 hover:text-gray-700 ml-4 mt-1"
+                  >
+                    <span className="sr-only">Close</span>
+                    ✕
+                  </button>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleCreateInvoice} className="space-y-4">

@@ -129,6 +129,7 @@ export async function POST(request: Request) {
       include: {
         user: {
           select: {
+            id: true,
             email: true,
             name: true,
             companyName: true,
