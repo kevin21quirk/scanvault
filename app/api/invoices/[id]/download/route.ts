@@ -59,11 +59,12 @@ export async function GET(
     doc.text("Vault", 20 + scanWidth, 20);
     
     doc.setTextColor(0, 0, 0); // Reset to black
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.text("Document Management Solutions", 20, 27);
-    doc.text("Company Registration No: 17229057", 20, 32);
-    doc.text("kevin@scanvault.co.uk  |  scanvault.co.uk", 20, 37);
+    doc.text("77 Church Street, Burton Latimer, Kettering, England, NN15 5LU", 20, 32);
+    doc.text("Company Registration No: 17229057", 20, 37);
+    doc.text("kevin@scanvault.co.uk  |  scanvault.co.uk", 20, 42);
     
     // Invoice Title
     doc.setFontSize(24);
@@ -71,7 +72,7 @@ export async function GET(
     doc.text("INVOICE", 150, 20);
     
     // Invoice Details
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.text(`Invoice Number: ${invoice.invoiceNumber}`, 150, 30);
     doc.text(`Date: ${new Date(invoice.issueDate).toLocaleDateString("en-GB")}`, 150, 35);
