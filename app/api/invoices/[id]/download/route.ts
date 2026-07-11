@@ -62,9 +62,10 @@ export async function GET(
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.text("Document Management Solutions", 20, 27);
-    doc.text("77 Church Street, Burton Latimer, Kettering, England, NN15 5LU", 20, 32);
-    doc.text("Company Registration No: 17229057", 20, 37);
-    doc.text("kevin@scanvault.co.uk  |  scanvault.co.uk", 20, 42);
+    doc.text("77 Church Street, Burton Latimer", 20, 32);
+    doc.text("Kettering, England, NN15 5LU", 20, 37);
+    doc.text("Company Registration No: 17229057", 20, 42);
+    doc.text("kevin@scanvault.co.uk  |  scanvault.co.uk", 20, 47);
     
     // Invoice Title
     doc.setFontSize(24);
