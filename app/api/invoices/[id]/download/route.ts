@@ -31,6 +31,12 @@ export async function GET(
             address: true,
           },
         },
+        careHome: {
+          select: {
+            name: true,
+            address: true,
+          },
+        },
       },
     });
 
@@ -42,6 +48,10 @@ export async function GET(
     if (session.user.role !== "ADMIN" && invoice.userId !== session.user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Always use the live care home name/address if the relation still exists
+    const liveCareHomeName    = invoice.careHome?.name    ?? invoice.careHomeName    ?? null;
+    const liveCareHomeAddress = invoice.careHome?.address ?? invoice.careHomeAddress ?? null;
 
     // Generate PDF
     const doc = new jsPDF();
@@ -82,7 +92,7 @@ export async function GET(
     
     // Bill To — respects billTo field ("CLIENT" or "CARE_HOME")
     const client = invoice.user;
-    const billToHome = invoice.billTo === "CARE_HOME" && !!invoice.careHomeName;
+    const billToHome = invoice.billTo === "CARE_HOME" && !!liveCareHomeName;
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
@@ -97,11 +107,11 @@ export async function GET(
 
     if (billToHome) {
       // Primary billing entity is the care home
-      doc.text(invoice.careHomeName!, 20, 61);
+      doc.text(liveCareHomeName!, 20, 61);
       doc.setFontSize(9.5);
       doc.setFont("helvetica", "normal");
-      if (invoice.careHomeAddress) {
-        const addrLines = doc.splitTextToSize(invoice.careHomeAddress, 85);
+      if (liveCareHomeAddress) {
+        const addrLines = doc.splitTextToSize(liveCareHomeAddress, 85);
         doc.text(addrLines, 20, billY);
         billY += addrLines.length * 5;
       }
@@ -135,7 +145,7 @@ export async function GET(
       if (client.phone) { doc.text(client.phone, 20, billY); billY += 5; }
 
       // Site / Care Home on the right
-      if (invoice.careHomeName) {
+      if (liveCareHomeName) {
         doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(120, 120, 120);
@@ -143,11 +153,11 @@ export async function GET(
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(10.5);
         doc.setFont("helvetica", "bold");
-        doc.text(invoice.careHomeName, 150, 61);
-        if (invoice.careHomeAddress) {
+        doc.text(liveCareHomeName, 150, 61);
+        if (liveCareHomeAddress) {
           doc.setFontSize(9);
           doc.setFont("helvetica", "normal");
-          const siteAddrLines = doc.splitTextToSize(invoice.careHomeAddress, 45);
+          const siteAddrLines = doc.splitTextToSize(liveCareHomeAddress, 45);
           doc.text(siteAddrLines, 150, 66);
         }
       }
