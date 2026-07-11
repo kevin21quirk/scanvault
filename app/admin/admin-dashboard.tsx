@@ -41,6 +41,7 @@ interface Invoice {
   careHomeId: string | null;
   careHomeName: string | null;
   careHomeAddress: string | null;
+  billTo: string;
   user: { id: string; email: string; name: string | null };
 }
 
@@ -77,7 +78,7 @@ export default function AdminDashboard() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
-  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "" });
+  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT" });
   const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([{ description: "", quantity: "1", rate: "" }]);
   const [invoiceCareHomeOptions, setInvoiceCareHomeOptions] = useState<CareHomeOption[]>([]);
   const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
@@ -127,7 +128,7 @@ export default function AdminDashboard() {
 
   const handleOpenInvoiceModal = () => {
     setEditingInvoiceId(null);
-    setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "" });
+    setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT" });
     setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
     setInvoiceCareHomeOptions([]);
     setShowInvoiceModal(true);
@@ -148,6 +149,7 @@ export default function AdminDashboard() {
       careHomeId: invoice.careHomeId || "",
       careHomeName: invoice.careHomeName || "",
       careHomeAddress: invoice.careHomeAddress || "",
+      billTo: invoice.billTo || "CLIENT",
     });
     setInvoiceItems(
       invoice.items && invoice.items.length
@@ -205,7 +207,7 @@ export default function AdminDashboard() {
         );
         setShowInvoiceModal(false);
         setEditingInvoiceId(null);
-        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "" });
+        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT" });
         setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
         setInvoiceCareHomeOptions([]);
         alert(wasEditing ? "Invoice updated successfully!" : "Invoice created successfully!");
@@ -596,14 +598,53 @@ export default function AdminDashboard() {
                     </div>
 
                     {invoiceCareHomeOptions.length > 0 && (
-                      <div>
-                        <Label htmlFor="careHome">Care Home / Site <span className="text-gray-400 font-normal">(this client has multiple sites — select which one this invoice is for)</span></Label>
-                        <select id="careHome" className="w-full px-3 py-2 border rounded-md" value={invoiceForm.careHomeId} onChange={(e) => handleSelectInvoiceCareHome(e.target.value)}>
-                          <option value="">— Not site-specific —</option>
-                          {invoiceCareHomeOptions.map((h) => (
-                            <option key={h.id} value={h.id}>{h.name}</option>
-                          ))}
-                        </select>
+                      <div className="space-y-3">
+                        <div>
+                          <Label htmlFor="careHome">Care Home / Site <span className="text-gray-400 font-normal">(select which site this invoice is for)</span></Label>
+                          <select id="careHome" className="w-full px-3 py-2 border rounded-md" value={invoiceForm.careHomeId} onChange={(e) => handleSelectInvoiceCareHome(e.target.value)}>
+                            <option value="">— Not site-specific —</option>
+                            {invoiceCareHomeOptions.map((h) => (
+                              <option key={h.id} value={h.id}>{h.name}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {invoiceForm.careHomeId && (
+                          <div className="rounded-md border border-gray-200 bg-gray-50 p-3">
+                            <Label className="text-sm font-medium text-gray-700 mb-2 block">Bill To</Label>
+                            <div className="flex gap-4">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="billTo"
+                                  value="CLIENT"
+                                  checked={invoiceForm.billTo === "CLIENT"}
+                                  onChange={() => setInvoiceForm((p) => ({ ...p, billTo: "CLIENT" }))}
+                                  className="accent-red-600"
+                                />
+                                <span className="text-sm">
+                                  <span className="font-medium">Client</span>
+                                  <span className="text-gray-500 ml-1">({clientUsers.find(u => u.id === invoiceForm.userId)?.companyName || clientUsers.find(u => u.id === invoiceForm.userId)?.name || "main account"})</span>
+                                </span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="billTo"
+                                  value="CARE_HOME"
+                                  checked={invoiceForm.billTo === "CARE_HOME"}
+                                  onChange={() => setInvoiceForm((p) => ({ ...p, billTo: "CARE_HOME" }))}
+                                  className="accent-red-600"
+                                />
+                                <span className="text-sm">
+                                  <span className="font-medium">Care Home</span>
+                                  <span className="text-gray-500 ml-1">({invoiceCareHomeOptions.find(h => h.id === invoiceForm.careHomeId)?.name || "selected site"})</span>
+                                </span>
+                              </label>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-2">Controls whose name and address appears in the "BILL TO" section of the PDF.</p>
+                          </div>
+                        )}
                       </div>
                     )}
 

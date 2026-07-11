@@ -78,8 +78,10 @@ export async function GET(
     doc.text(`Due Date: ${new Date(invoice.dueDate).toLocaleDateString("en-GB")}`, 150, 40);
     doc.text(`Status: ${invoice.status}`, 150, 45);
     
-    // Bill To
+    // Bill To — respects billTo field ("CLIENT" or "CARE_HOME")
     const client = invoice.user;
+    const billToHome = invoice.billTo === "CARE_HOME" && !!invoice.careHomeName;
+
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(120, 120, 120);
@@ -88,36 +90,64 @@ export async function GET(
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
-    doc.text(client.companyName || client.name || "Client", 20, 61);
 
-    doc.setFontSize(9.5);
-    doc.setFont("helvetica", "normal");
     let billY = 66;
-    if (client.contactName) { doc.text(client.contactName, 20, billY); billY += 5; }
-    if (client.address) {
-      const addrLines = doc.splitTextToSize(client.address, 85);
-      doc.text(addrLines, 20, billY);
-      billY += addrLines.length * 5;
-    }
-    doc.text(client.email, 20, billY); billY += 5;
-    if (client.phone) { doc.text(client.phone, 20, billY); billY += 5; }
 
-    // Site / Care Home (when the invoice is for a specific site)
-    if (invoice.careHomeName) {
+    if (billToHome) {
+      // Primary billing entity is the care home
+      doc.text(invoice.careHomeName!, 20, 61);
+      doc.setFontSize(9.5);
+      doc.setFont("helvetica", "normal");
+      if (invoice.careHomeAddress) {
+        const addrLines = doc.splitTextToSize(invoice.careHomeAddress, 85);
+        doc.text(addrLines, 20, billY);
+        billY += addrLines.length * 5;
+      }
+
+      // Show client as account holder on the right
       doc.setFontSize(9);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(120, 120, 120);
-      doc.text("SITE / CARE HOME", 150, 55);
-
+      doc.text("CLIENT ACCOUNT", 150, 55);
       doc.setTextColor(0, 0, 0);
-      doc.setFontSize(10.5);
-      doc.text(invoice.careHomeName, 150, 61);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text(client.companyName || client.name || "Client", 150, 61);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      let rightY = 66;
+      if (client.contactName) { doc.text(client.contactName, 150, rightY); rightY += 5; }
+      doc.text(client.email, 150, rightY);
+    } else {
+      // Primary billing entity is the client
+      doc.text(client.companyName || client.name || "Client", 20, 61);
+      doc.setFontSize(9.5);
+      doc.setFont("helvetica", "normal");
+      if (client.contactName) { doc.text(client.contactName, 20, billY); billY += 5; }
+      if (client.address) {
+        const addrLines = doc.splitTextToSize(client.address, 85);
+        doc.text(addrLines, 20, billY);
+        billY += addrLines.length * 5;
+      }
+      doc.text(client.email, 20, billY); billY += 5;
+      if (client.phone) { doc.text(client.phone, 20, billY); billY += 5; }
 
-      if (invoice.careHomeAddress) {
+      // Site / Care Home on the right
+      if (invoice.careHomeName) {
         doc.setFontSize(9);
-        doc.setFont("helvetica", "normal");
-        const siteAddrLines = doc.splitTextToSize(invoice.careHomeAddress, 45);
-        doc.text(siteAddrLines, 150, 66);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(120, 120, 120);
+        doc.text("SITE / CARE HOME", 150, 55);
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10.5);
+        doc.setFont("helvetica", "bold");
+        doc.text(invoice.careHomeName, 150, 61);
+        if (invoice.careHomeAddress) {
+          doc.setFontSize(9);
+          doc.setFont("helvetica", "normal");
+          const siteAddrLines = doc.splitTextToSize(invoice.careHomeAddress, 45);
+          doc.text(siteAddrLines, 150, 66);
+        }
       }
     }
 
