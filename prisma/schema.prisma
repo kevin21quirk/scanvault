@@ -138,8 +138,9 @@ model Invoice {
   careHome      CareHome? @relation(fields: [careHomeId], references: [id], onDelete: SetNull)
   careHomeName  String?
   careHomeAddress String?
-  billTo        String    @default("CLIENT")
-  status        InvoiceStatus @default(PENDING)
+  billTo             String    @default("CLIENT")
+  showCompanyAddress Boolean   @default(true)
+  status             InvoiceStatus @default(PENDING)
   issueDate     DateTime
   dueDate       DateTime
   paidDate      DateTime?

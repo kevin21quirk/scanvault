@@ -42,6 +42,7 @@ interface Invoice {
   careHomeName: string | null;
   careHomeAddress: string | null;
   billTo: string;
+  showCompanyAddress: boolean;
   user: { id: string; email: string; name: string | null };
 }
 
@@ -78,7 +79,7 @@ export default function AdminDashboard() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
-  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT" });
+  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
   const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([{ description: "", quantity: "1", rate: "" }]);
   const [invoiceCareHomeOptions, setInvoiceCareHomeOptions] = useState<CareHomeOption[]>([]);
   const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
@@ -128,7 +129,7 @@ export default function AdminDashboard() {
 
   const handleOpenInvoiceModal = () => {
     setEditingInvoiceId(null);
-    setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT" });
+    setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
     setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
     setInvoiceCareHomeOptions([]);
     setShowInvoiceModal(true);
@@ -150,6 +151,7 @@ export default function AdminDashboard() {
       careHomeName: invoice.careHomeName || "",
       careHomeAddress: invoice.careHomeAddress || "",
       billTo: invoice.billTo || "CLIENT",
+      showCompanyAddress: invoice.showCompanyAddress !== false,
     });
     setInvoiceItems(
       invoice.items && invoice.items.length
@@ -207,7 +209,7 @@ export default function AdminDashboard() {
         );
         setShowInvoiceModal(false);
         setEditingInvoiceId(null);
-        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT" });
+        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
         setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
         setInvoiceCareHomeOptions([]);
         alert(wasEditing ? "Invoice updated successfully!" : "Invoice created successfully!");
@@ -721,6 +723,20 @@ export default function AdminDashboard() {
                     <div>
                       <Label htmlFor="notes">Notes (Optional)</Label>
                       <textarea id="notes" className="w-full px-3 py-2 border rounded-md" rows={2} value={invoiceForm.notes} onChange={(e) => setInvoiceForm({...invoiceForm, notes: e.target.value})} placeholder="Bank/payment details, PO number, or other notes shown on the invoice..."></textarea>
+                    </div>
+                    <div className="rounded-md border border-gray-200 bg-gray-50 p-3">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={invoiceForm.showCompanyAddress}
+                          onChange={(e) => setInvoiceForm((p) => ({ ...p, showCompanyAddress: e.target.checked }))}
+                          className="h-4 w-4 accent-red-600"
+                        />
+                        <span className="text-sm">
+                          <span className="font-medium">Include registered company address</span>
+                          <span className="block text-xs text-gray-400">77 Church Street, Burton Latimer, Kettering, England, NN15 5LU</span>
+                        </span>
+                      </label>
                     </div>
                     <div className="flex gap-2 justify-end">
                       <Button type="button" variant="outline" onClick={() => setShowInvoiceModal(false)}>Cancel</Button>

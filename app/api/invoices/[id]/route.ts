@@ -29,7 +29,7 @@ export async function PATCH(
     const body = await request.json();
     const {
       userId, invoiceNumber, vatRate, description, items, depositPercent,
-      issueDate, dueDate, notes, careHomeId, careHomeName, careHomeAddress, billTo,
+      issueDate, dueDate, notes, careHomeId, careHomeName, careHomeAddress, billTo, showCompanyAddress,
     } = body;
 
     if (invoiceNumber && invoiceNumber !== existing.invoiceNumber) {
@@ -75,6 +75,7 @@ export async function PATCH(
         ...(careHomeName    !== undefined && { careHomeName: careHomeName || null }),
         ...(careHomeAddress !== undefined && { careHomeAddress: careHomeAddress || null }),
         ...(billTo          !== undefined && { billTo: billTo === "CARE_HOME" ? "CARE_HOME" : "CLIENT" }),
+        ...(showCompanyAddress !== undefined && { showCompanyAddress: showCompanyAddress !== false }),
         ...(issueDate       !== undefined && { issueDate: new Date(issueDate) }),
         ...(dueDate         !== undefined && { dueDate: new Date(dueDate) }),
         ...(notes           !== undefined && { notes: notes || null }),

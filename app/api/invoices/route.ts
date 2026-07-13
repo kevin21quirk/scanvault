@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { userId, invoiceNumber, subtotal, vatRate, description, items, depositPercent, issueDate, dueDate, notes, careHomeId, careHomeName, careHomeAddress, billTo } = body;
+    const { userId, invoiceNumber, subtotal, vatRate, description, items, depositPercent, issueDate, dueDate, notes, careHomeId, careHomeName, careHomeAddress, billTo, showCompanyAddress } = body;
 
     if (!userId || !invoiceNumber || !issueDate || !dueDate) {
       return NextResponse.json(
@@ -122,6 +122,7 @@ export async function POST(request: Request) {
         careHomeName: careHomeName || null,
         careHomeAddress: careHomeAddress || null,
         billTo: billTo === "CARE_HOME" ? "CARE_HOME" : "CLIENT",
+        showCompanyAddress: showCompanyAddress !== false,
         issueDate: new Date(issueDate),
         dueDate: new Date(dueDate),
         notes: notes || null,
