@@ -7,8 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   FileText, Receipt, FolderOpen, Download, ClipboardList, ShieldCheck,
-  Loader2, Building2, Clock, Award,
+  Loader2, Building2, Clock, Award, KeyRound, CheckCircle2,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 interface Invoice {
@@ -189,6 +192,10 @@ export default function Portal() {
           <TabsTrigger value="documents">
             <FolderOpen className="h-4 w-4 mr-2" />
             Documents
+          </TabsTrigger>
+          <TabsTrigger value="account">
+            <KeyRound className="h-4 w-4 mr-2" />
+            Account
           </TabsTrigger>
         </TabsList>
 
@@ -518,8 +525,116 @@ export default function Portal() {
             </CardContent>
           </Card>
         </TabsContent>
+        {/* Account / Change Password */}
+        <TabsContent value="account">
+          <Card className="max-w-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <KeyRound className="h-5 w-5 text-scanvault-red" />
+                Change Password
+              </CardTitle>
+              <CardDescription>Enter your current password, then choose a new one</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChangePasswordForm />
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
       )}
     </div>
+  );
+}
+
+function ChangePasswordForm() {
+  const [form, setForm] = useState({ current: "", next: "", confirm: "" });
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.next !== form.confirm) {
+      setStatus("error");
+      setMessage("New passwords do not match");
+      return;
+    }
+    setStatus("submitting");
+    setMessage("");
+    try {
+      const res = await fetch("/api/user/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword: form.current, newPassword: form.next }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus("success");
+        setMessage("Password changed successfully");
+        setForm({ current: "", next: "", confirm: "" });
+      } else {
+        setStatus("error");
+        setMessage(data.error || "Failed to change password");
+      }
+    } catch {
+      setStatus("error");
+      setMessage("Something went wrong. Please try again.");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="current">Current Password</Label>
+        <Input
+          id="current"
+          type="password"
+          required
+          value={form.current}
+          onChange={(e) => setForm((p) => ({ ...p, current: e.target.value }))}
+          autoComplete="current-password"
+        />
+      </div>
+      <div>
+        <Label htmlFor="next">New Password</Label>
+        <Input
+          id="next"
+          type="password"
+          required
+          minLength={8}
+          value={form.next}
+          onChange={(e) => setForm((p) => ({ ...p, next: e.target.value }))}
+          autoComplete="new-password"
+        />
+        <p className="text-xs text-gray-400 mt-1">Minimum 8 characters</p>
+      </div>
+      <div>
+        <Label htmlFor="confirm">Confirm New Password</Label>
+        <Input
+          id="confirm"
+          type="password"
+          required
+          value={form.confirm}
+          onChange={(e) => setForm((p) => ({ ...p, confirm: e.target.value }))}
+          autoComplete="new-password"
+        />
+      </div>
+
+      {status === "error" && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{message}</p>
+      )}
+      {status === "success" && (
+        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-2 flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4" />{message}
+        </p>
+      )}
+
+      <Button
+        type="submit"
+        className="w-full bg-scanvault-red hover:bg-red-700"
+        disabled={status === "submitting"}
+      >
+        {status === "submitting" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Change Password"}
+      </Button>
+    </form>
   );
 }
