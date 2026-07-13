@@ -55,9 +55,9 @@ export async function PATCH(
     const vat = vatRate !== undefined ? parseFloat(vatRate) : existing.vatRate;
     const vatAmount = (subtotalAmount * vat) / 100;
     const total = subtotalAmount + vatAmount;
-    const finalDescription = (description && String(description).trim())
-      || lineItems.map((i) => i.description).join(", ")
-      || existing.description;
+    const finalDescription = lineItems.length > 0
+      ? lineItems.map((i) => i.description).join(", ")
+      : (description && String(description).trim()) || existing.description;
 
     const invoice = await prisma.invoice.update({
       where: { id },

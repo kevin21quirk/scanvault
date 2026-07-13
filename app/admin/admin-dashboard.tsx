@@ -143,7 +143,7 @@ export default function AdminDashboard() {
       invoiceNumber: invoice.invoiceNumber,
       vatRate: String(invoice.vatRate),
       depositPercent: invoice.depositPercent != null ? String(invoice.depositPercent) : "50",
-      description: invoice.description,
+      description: "",
       issueDate: invoice.issueDate.slice(0, 10),
       dueDate: invoice.dueDate.slice(0, 10),
       notes: invoice.notes || "",
