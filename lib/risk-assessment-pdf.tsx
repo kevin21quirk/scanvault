@@ -356,7 +356,6 @@ export function RiskAssessmentPDF(p: RiskAssessmentPDFProps) {
         <Text style={s.sectionNumber}>SAFE SYSTEM OF WORK / METHOD STATEMENT</Text>
         <ListBlock items={[
           "On arrival, report to reception, sign in via the visitor system and receive a site induction covering fire exits, assembly point, welfare facilities and any resident-specific precautions.",
-          "Wear photographic company ID and lanyard, plus any PPE required by the home, at all times.",
           "Set up a designated work area agreed with the home, away from resident living and communal areas where possible.",
           "Keep all boxes, cables and equipment tidy and clear of walkways, fire exits and resident routes throughout.",
           "Handle all records as confidential Special Category Data; never leave documents unattended.",
@@ -371,7 +370,6 @@ export function RiskAssessmentPDF(p: RiskAssessmentPDFProps) {
         <ListBlock items={[
           "First Aid: ScanVault engineers carry a personal first aid kit; the care home's first aiders and emergency procedures take precedence on site.",
           "Accident Reporting: Any injury or dangerous occurrence recorded in the home's accident book and reported to ScanVault management; RIDDOR-reportable incidents notified to the HSE.",
-          "Insurance: ScanVault holds Public Liability and Professional Indemnity insurance; certificates available on request.",
           "Personnel: All engineers are briefed on safeguarding and infection control prior to attendance.",
           "This assessment is reviewed annually, or sooner following any incident, near miss, or significant change to the site or activity.",
         ]} />
