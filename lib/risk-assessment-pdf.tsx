@@ -12,11 +12,11 @@ const GREEN     = "#16a34a";
 const AMBER     = "#d97706";
 
 const s = StyleSheet.create({
-  page:          { fontFamily: "Helvetica", fontSize: 8.5, color: MID, paddingTop: 46, paddingBottom: 56, paddingHorizontal: 40 },
+  page:          { fontFamily: "Helvetica", fontSize: 9.5, color: MID, paddingTop: 46, paddingBottom: 56, paddingHorizontal: 40 },
   header:        { marginBottom: 16, paddingBottom: 12, borderBottom: `2 solid ${BRAND_RED}`, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" },
   brandScan:     { fontSize: 19, fontFamily: "Helvetica-Bold", color: DARK },
   brandVault:    { fontSize: 19, fontFamily: "Helvetica-Bold", color: BRAND_RED },
-  headerSub:     { fontSize: 7.5, color: LIGHT },
+  headerSub:     { fontSize: 8.5, color: LIGHT },
   headerRight:   { textAlign: "right" },
   docTitle:      { fontSize: 14, fontFamily: "Helvetica-Bold", color: DARK, textAlign: "center", marginBottom: 3 },
   docSubtitle:   { fontSize: 9, color: LIGHT, textAlign: "center", marginBottom: 14 },
@@ -29,23 +29,23 @@ const s = StyleSheet.create({
   infoBox:       { border: `1 solid ${RULE}`, borderRadius: 4, marginBottom: 6 },
   infoRow:       { flexDirection: "row", borderBottom: `1 solid ${RULE}` },
   infoRowLast:   { flexDirection: "row" },
-  infoLabel:     { width: "24%", backgroundColor: "#f9fafb", padding: 5, fontFamily: "Helvetica-Bold", color: DARK, fontSize: 8 },
-  infoVal:       { width: "26%", padding: 5, fontSize: 8, color: MID },
+  infoLabel:     { width: "24%", backgroundColor: "#f9fafb", padding: 5, fontFamily: "Helvetica-Bold", color: DARK, fontSize: 9 },
+  infoVal:       { width: "26%", padding: 5, fontSize: 9, color: MID },
 
   // Risk matrix legend
   legendRow:     { flexDirection: "row", gap: 8, marginBottom: 8, marginTop: 2 },
   legendItem:    { flexDirection: "row", alignItems: "center", gap: 4 },
   legendSwatch:  { width: 10, height: 10, borderRadius: 2 },
-  legendText:    { fontSize: 7.5, color: MID },
+  legendText:    { fontSize: 8.5, color: MID },
 
   // Hazard table
   tHead:         { flexDirection: "row", backgroundColor: BRAND_RED },
-  tHeadCell:     { color: "#ffffff", fontFamily: "Helvetica-Bold", fontSize: 7, padding: 4 },
+  tHeadCell:     { color: "#ffffff", fontFamily: "Helvetica-Bold", fontSize: 7.5, padding: 4 },
   tRow:          { flexDirection: "row", borderBottom: `1 solid ${RULE}` },
   tRowAlt:       { flexDirection: "row", borderBottom: `1 solid ${RULE}`, backgroundColor: "#f9fafb" },
-  tCell:         { fontSize: 7, padding: 4, color: MID, lineHeight: 1.4 },
-  tCellBold:     { fontSize: 7, padding: 4, color: DARK, fontFamily: "Helvetica-Bold", lineHeight: 1.4 },
-  riskChip:      { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: "#ffffff", textAlign: "center", borderRadius: 2, paddingVertical: 2 },
+  tCell:         { fontSize: 7.5, padding: 4, color: MID, lineHeight: 1.4 },
+  tCellBold:     { fontSize: 7.5, padding: 4, color: DARK, fontFamily: "Helvetica-Bold", lineHeight: 1.4 },
+  riskChip:      { fontSize: 8, fontFamily: "Helvetica-Bold", color: "#ffffff", textAlign: "center", borderRadius: 2, paddingVertical: 2 },
 
   // column widths
   cHazard:  { width: "15%" },
@@ -62,12 +62,12 @@ const s = StyleSheet.create({
 
   sigRow:        { flexDirection: "row", gap: 24, marginTop: 20 },
   sigBox:        { flex: 1 },
-  sigLabel:      { fontSize: 8, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 2 },
-  sigLine:       { borderBottom: `1 solid ${DARK}`, marginBottom: 4, paddingBottom: 12 },
-  sigSub:        { fontSize: 7.5, color: LIGHT },
+  sigLabel:      { fontSize: 9, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 4 },
+  sigLine:       { borderBottom: `1 solid ${DARK}`, marginBottom: 8, paddingBottom: 18 },
+  sigSub:        { fontSize: 8.5, color: LIGHT, marginBottom: 8 },
 
   footer:        { position: "absolute", bottom: 24, left: 40, right: 40, flexDirection: "row", justifyContent: "space-between", borderTop: `1 solid ${RULE}`, paddingTop: 6 },
-  footerText:    { fontSize: 7.5, color: LIGHT },
+  footerText:    { fontSize: 8, color: LIGHT },
 });
 
 export interface RiskAssessmentPDFProps {
@@ -336,8 +336,8 @@ export function RiskAssessmentPDF(p: RiskAssessmentPDFProps) {
                 <View style={{ padding: 4 }}>
                   {h.controls.map((c, j) => (
                     <View key={j} style={{ flexDirection: "row", marginBottom: 1.5 }}>
-                      <Text style={{ fontSize: 7, color: BRAND_RED, width: 7 }}>•</Text>
-                      <Text style={{ fontSize: 7, color: MID, flex: 1, lineHeight: 1.35 }}>{c}</Text>
+                      <Text style={{ fontSize: 7.5, color: BRAND_RED, width: 7 }}>•</Text>
+                      <Text style={{ fontSize: 7.5, color: MID, flex: 1, lineHeight: 1.35 }}>{c}</Text>
                     </View>
                   ))}
                 </View>
