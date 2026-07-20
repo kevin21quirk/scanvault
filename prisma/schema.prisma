@@ -188,6 +188,7 @@ model Document {
 
 enum UserRole {
   ADMIN
+  ACCOUNTANT
   CLIENT
 }
 

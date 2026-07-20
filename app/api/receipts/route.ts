@@ -13,7 +13,7 @@ export async function GET() {
 
     let receipts;
     
-    if (session.user.role === "ADMIN") {
+    if (session.user.role === "ADMIN" || session.user.role === "ACCOUNTANT") {
       receipts = await prisma.receipt.findMany({
         include: {
           user: {

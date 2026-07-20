@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +31,14 @@ export default function Login() {
       if (result?.error) {
         setError("Invalid email or password");
       } else {
-        router.push("/portal");
+        const session = await getSession();
+        if (session?.user?.role === "ADMIN") {
+          router.push("/admin");
+        } else if (session?.user?.role === "ACCOUNTANT") {
+          router.push("/accountant");
+        } else {
+          router.push("/portal");
+        }
         router.refresh();
       }
     } catch (err) {
