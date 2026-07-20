@@ -217,6 +217,7 @@ export default function AccountantDashboard() {
                           <th className="text-left px-4 py-3 font-semibold text-gray-600">Date</th>
                           <th className="text-left px-4 py-3 font-semibold text-gray-600">Method</th>
                           <th className="text-right px-4 py-3 font-semibold text-gray-600">Amount</th>
+                          <th className="px-4 py-3"></th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
@@ -230,6 +231,11 @@ export default function AccountantDashboard() {
                             <td className="px-4 py-3 text-gray-600">{formatDate(r.date)}</td>
                             <td className="px-4 py-3 text-gray-600">{r.paymentMethod}</td>
                             <td className="px-4 py-3 text-right font-semibold">{formatCurrency(r.amount)}</td>
+                            <td className="px-4 py-3">
+                              <a href={`/api/receipts/${r.id}/download`} target="_blank" rel="noopener noreferrer">
+                                <Button size="sm" variant="outline"><Download className="h-3 w-3 mr-1" />PDF</Button>
+                              </a>
+                            </td>
                           </tr>
                         ))}
                       </tbody>

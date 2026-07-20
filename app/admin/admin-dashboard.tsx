@@ -911,6 +911,14 @@ export default function AdminDashboard() {
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => window.open(`/api/receipts/${receipt.id}/download`, '_blank')}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download PDF
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             className="text-red-600 hover:bg-red-50 border-red-200"
                             onClick={() => handleDeleteReceipt(receipt.id)}
                             disabled={deletingReceipt === receipt.id}

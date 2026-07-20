@@ -30,9 +30,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
     const depositAmount = parseFloat((invoice.total * (invoice.depositPercent / 100)).toFixed(2));
 
-    // Auto-generate next receipt number
-    const count = await prisma.receipt.count();
-    const receiptNumber = `RCP-${String(count + 1).padStart(5, "0")}`;
+    const receiptNumber = `${invoice.invoiceNumber}D`;
 
     // Create the deposit receipt and update the invoice atomically
     const [receipt, updatedInvoice] = await prisma.$transaction([
