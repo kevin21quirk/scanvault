@@ -3,15 +3,16 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
 
-export async function POST(_req: Request, { params }: { params: { id: string } }) {
+export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const invoice = await prisma.invoice.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { user: { select: { id: true, email: true, name: true } } },
     });
 
@@ -47,7 +48,7 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
         include: { user: { select: { email: true, name: true } } },
       }),
       prisma.invoice.update({
-        where: { id: params.id },
+        where: { id },
         data: { depositPaid: true },
         include: { user: { select: { id: true, email: true, name: true } } },
       }),
