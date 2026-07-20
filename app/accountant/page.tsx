@@ -98,10 +98,9 @@ export default function AccountantDashboard() {
   }
 
   // ── Summaries ───────────────────────────────────────────────
-  const totalInvoiced  = invoices.reduce((s, i) => s + i.total, 0);
-  const totalPaid      = invoices.filter(i => i.status === "PAID").reduce((s, i) => s + i.total, 0);
-  const totalOutstanding = invoices.filter(i => i.status === "PENDING" || i.status === "OVERDUE").reduce((s, i) => s + i.total, 0);
-  const totalReceipts  = receipts.reduce((s, r) => s + r.amount, 0);
+  const totalInvoiced    = invoices.reduce((s, i) => s + i.total, 0);
+  const totalReceipts    = receipts.reduce((s, r) => s + r.amount, 0);
+  const totalOutstanding = Math.max(0, totalInvoiced - totalReceipts);
 
   const revolBalance   = revolut?.accounts?.reduce((s, a) => s + (a.currency === "GBP" ? a.balance : 0), 0) ?? null;
   const revolTx        = revolut?.transactions ?? [];
@@ -126,10 +125,10 @@ export default function AccountantDashboard() {
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="Total Invoiced"    value={formatCurrency(totalInvoiced)}    colour="bg-white border-gray-200" />
-          <StatCard label="Received (Paid)"   value={formatCurrency(totalPaid)}        colour="bg-green-50 border-green-100" />
-          <StatCard label="Outstanding"       value={formatCurrency(totalOutstanding)}  colour="bg-yellow-50 border-yellow-100" />
-          <StatCard label="Total Receipts"    value={formatCurrency(totalReceipts)}     sub={`${receipts.length} items`} colour="bg-blue-50 border-blue-100" />
+          <StatCard label="Total Invoiced"  value={formatCurrency(totalInvoiced)}    colour="bg-white border-gray-200" />
+          <StatCard label="Total Received"   value={formatCurrency(totalReceipts)}    sub={`${receipts.length} receipt${receipts.length !== 1 ? "s" : ""}`} colour="bg-green-50 border-green-100" />
+          <StatCard label="Outstanding"      value={formatCurrency(totalOutstanding)} sub="invoiced minus received" colour="bg-yellow-50 border-yellow-100" />
+          <StatCard label="Paid Invoices"    value={String(invoices.filter(i => i.status === "PAID").length)} sub={`of ${invoices.length} total`} colour="bg-blue-50 border-blue-100" />
         </div>
 
         <Tabs defaultValue="invoices" className="space-y-4">
