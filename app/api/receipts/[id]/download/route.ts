@@ -33,6 +33,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Use care home if this is a deposit receipt, otherwise fall back to client details
+    const recipientName    = (receipt as any).careHomeName    ?? receipt.user.companyName ?? receipt.user.name ?? receipt.user.email ?? "";
+    const recipientAddress = (receipt as any).careHomeAddress ?? receipt.user.address ?? "";
+
     const doc = new jsPDF();
     const pageW = doc.internal.pageSize.getWidth();
 
@@ -70,9 +74,6 @@ export async function GET(
     doc.line(20, 44, pageW - 20, 44);
 
     // ── Received From ─────────────────────────────────────────────────────────
-    const clientName = receipt.user.companyName || receipt.user.name || receipt.user.email;
-    const clientAddr = receipt.user.address || "";
-
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(55, 65, 81);
@@ -81,9 +82,9 @@ export async function GET(
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
     doc.setTextColor(17, 24, 39);
-    doc.text(clientName, 20, 61);
-    if (clientAddr) {
-      const addrLines = doc.splitTextToSize(clientAddr, 90);
+    doc.text(recipientName, 20, 61);
+    if (recipientAddress) {
+      const addrLines = doc.splitTextToSize(recipientAddress, 90);
       doc.setFontSize(8.5);
       doc.setTextColor(107, 114, 128);
       doc.text(addrLines, 20, 67);

@@ -155,18 +155,20 @@ model Invoice {
 }
 
 model Receipt {
-  id            String    @id @default(cuid())
-  receiptNumber String    @unique
-  userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount        Float
-  description   String
-  paymentMethod String    @default("Bank Transfer")
-  date          DateTime
-  fileUrl       String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
+  id              String    @id @default(cuid())
+  receiptNumber   String    @unique
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount          Float
+  description     String
+  paymentMethod   String    @default("Bank Transfer")
+  date            DateTime
+  careHomeName    String?
+  careHomeAddress String?
+  fileUrl         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
   @@index([userId])
 }
 

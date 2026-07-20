@@ -13,7 +13,10 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
-      include: { user: { select: { id: true, email: true, name: true } } },
+      include: {
+        user: { select: { id: true, email: true, name: true } },
+        careHome: { select: { name: true, address: true } },
+      },
     });
 
     if (!invoice) {
@@ -32,6 +35,10 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
     const receiptNumber = `${invoice.invoiceNumber}D`;
 
+    // Resolve live care home name/address (prefer relation, fall back to snapshot)
+    const careHomeName    = invoice.careHome?.name    ?? invoice.careHomeName    ?? null;
+    const careHomeAddress = invoice.careHome?.address ?? invoice.careHomeAddress ?? null;
+
     // Create the deposit receipt and update the invoice atomically
     const [receipt, updatedInvoice] = await prisma.$transaction([
       prisma.receipt.create({
@@ -42,6 +49,8 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
           description: `Deposit payment (${invoice.depositPercent}%) for invoice ${invoice.invoiceNumber}`,
           paymentMethod: "Bank Transfer",
           date: new Date(),
+          ...(careHomeName    && { careHomeName }),
+          ...(careHomeAddress && { careHomeAddress }),
         },
         include: { user: { select: { email: true, name: true } } },
       }),
