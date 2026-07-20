@@ -140,6 +140,7 @@ model Invoice {
   careHomeAddress String?
   billTo             String    @default("CLIENT")
   showCompanyAddress Boolean   @default(true)
+  depositPaid        Boolean   @default(false)
   status             InvoiceStatus @default(PENDING)
   issueDate     DateTime
   dueDate       DateTime

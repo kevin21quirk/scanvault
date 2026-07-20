@@ -43,6 +43,7 @@ interface Invoice {
   careHomeAddress: string | null;
   billTo: string;
   showCompanyAddress: boolean;
+  depositPaid: boolean;
   user: { id: string; email: string; name: string | null };
 }
 
@@ -82,6 +83,7 @@ export default function AdminDashboard() {
   const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
   const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([{ description: "", quantity: "1", rate: "" }]);
   const [invoiceCareHomeOptions, setInvoiceCareHomeOptions] = useState<CareHomeOption[]>([]);
+  const [markingDeposit, setMarkingDeposit] = useState<string | null>(null);
   const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
 
   const handleSelectInvoiceClient = (clientId: string) => {
@@ -134,6 +136,26 @@ export default function AdminDashboard() {
     setInvoiceCareHomeOptions([]);
     setShowInvoiceModal(true);
     fetchNextInvoiceNumber();
+  };
+
+  const handleMarkDepositPaid = async (invoiceId: string) => {
+    if (!confirm("Mark the deposit for this invoice as paid? A receipt will be created automatically.")) return;
+    setMarkingDeposit(invoiceId);
+    try {
+      const res = await fetch(`/api/invoices/${invoiceId}/mark-deposit-paid`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setInvoices((prev) => prev.map((inv) => inv.id === invoiceId ? { ...inv, depositPaid: true } : inv));
+        setReceipts((prev) => [data.receipt, ...prev]);
+        alert(`Deposit receipt ${data.receipt.receiptNumber} created successfully.`);
+      } else {
+        alert(data.error || "Failed to mark deposit as paid");
+      }
+    } catch {
+      alert("Failed to mark deposit as paid");
+    } finally {
+      setMarkingDeposit(null);
+    }
   };
 
   const handleEditInvoice = (invoice: Invoice) => {
@@ -508,6 +530,15 @@ export default function AdminDashboard() {
                             {invoice.vatRate > 0 && (
                               <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
                             )}
+                            {invoice.depositPercent && invoice.depositPercent > 0 && (
+                              <p className="mt-1">
+                                Deposit ({invoice.depositPercent}%): £{(invoice.total * invoice.depositPercent / 100).toFixed(2)}
+                                {invoice.depositPaid
+                                  ? <span className="ml-2 inline-flex items-center gap-1 text-green-700 font-medium">✓ Paid</span>
+                                  : <span className="ml-2 text-yellow-600">Unpaid</span>
+                                }
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="text-right flex flex-col items-end gap-2">
@@ -531,6 +562,17 @@ export default function AdminDashboard() {
                               </select>
                             </div>
                           </div>
+                          {invoice.depositPercent && invoice.depositPercent > 0 && !invoice.depositPaid && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-700 border-green-300 hover:bg-green-50"
+                              onClick={() => handleMarkDepositPaid(invoice.id)}
+                              disabled={markingDeposit === invoice.id}
+                            >
+                              {markingDeposit === invoice.id ? <Loader2 className="h-4 w-4 animate-spin" /> : "Deposit Paid"}
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="outline"
