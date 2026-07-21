@@ -14,6 +14,7 @@ import RiskAssessmentsTab from "@/components/risk-assessments-tab";
 import ClientsTab from "@/components/clients-tab";
 import CompletionCertificatesTab from "@/components/completion-certificates-tab";
 import RevolutImportTab from "./revolut-import";
+import SystemUsersTab from "@/components/system-users-tab";
 
 interface User {
   id: string;
@@ -423,6 +424,7 @@ export default function AdminDashboard() {
         <TabsList className="w-full flex-wrap md:flex-nowrap overflow-x-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="clients">Clients</TabsTrigger>
+          <TabsTrigger value="system-users">Users</TabsTrigger>
           <TabsTrigger value="invoices">Invoices</TabsTrigger>
           <TabsTrigger value="overdue" className="relative">
             Overdue
@@ -501,6 +503,14 @@ export default function AdminDashboard() {
             <h2 className="text-2xl font-bold">Clients</h2>
           </div>
           <ClientsTab />
+        </TabsContent>
+
+        <TabsContent value="system-users" className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Users className="w-5 h-5 text-scanvault-red" />
+            <h2 className="text-xl sm:text-2xl font-bold">System Users</h2>
+          </div>
+          <SystemUsersTab />
         </TabsContent>
 
         <TabsContent value="invoices" className="space-y-4">
