@@ -502,9 +502,9 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="invoices" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">Invoice Management</h2>
-            <Button onClick={handleOpenInvoiceModal} className="bg-scanvault-red hover:bg-red-700">
+          <div className="flex flex-wrap justify-between items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-bold">Invoice Management</h2>
+            <Button onClick={handleOpenInvoiceModal} className="bg-scanvault-red hover:bg-red-700 shrink-0">
               <Plus className="h-4 w-4 mr-2" />
               Create Invoice
             </Button>
@@ -519,11 +519,12 @@ export default function AdminDashboard() {
               ) : (
                 <div className="space-y-4">
                   {invoices.map((invoice) => (
-                    <div key={invoice.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
+                    <div key={invoice.id} className="border rounded-lg p-4 space-y-3">
+                      {/* Top row: info left, total+status right */}
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
                           <p className="font-semibold">{invoice.invoiceNumber}</p>
-                          <p className="text-sm text-gray-600">{invoice.user.email}{invoice.careHomeName ? ` · ${invoice.careHomeName}` : ""}</p>
+                          <p className="text-sm text-gray-600 truncate">{invoice.user.email}{invoice.careHomeName ? ` · ${invoice.careHomeName}` : ""}</p>
                           <p className="text-sm text-gray-600">{invoice.description}</p>
                           <div className="mt-2 text-xs text-gray-500">
                             <p>Subtotal: £{invoice.subtotal.toFixed(2)}</p>
@@ -541,63 +542,60 @@ export default function AdminDashboard() {
                             )}
                           </div>
                         </div>
-                        <div className="text-right flex flex-col items-end gap-2">
-                          <div>
-                            <p className="font-bold text-lg">£{invoice.total.toFixed(2)}</p>
-                            <div className="mt-1">
-                              <select
-                                value={invoice.status}
-                                onChange={(e) => handleStatusChange(invoice.id, e.target.value)}
-                                disabled={updatingStatus === invoice.id}
-                                className={`text-sm px-2 py-1 border rounded ${
-                                  invoice.status === 'PAID' ? 'bg-green-50 text-green-700 border-green-300' :
-                                  invoice.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-300' :
-                                  'bg-red-50 text-red-700 border-red-300'
-                                }`}
-                              >
-                                <option value="PENDING">Pending</option>
-                                <option value="PAID">Paid</option>
-                                <option value="OVERDUE">Overdue</option>
-                                <option value="CANCELLED">Cancelled</option>
-                              </select>
-                            </div>
-                          </div>
-                          {invoice.depositPercent && invoice.depositPercent > 0 && !invoice.depositPaid && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-green-700 border-green-300 hover:bg-green-50"
-                              onClick={() => handleMarkDepositPaid(invoice.id)}
-                              disabled={markingDeposit === invoice.id}
+                        <div className="text-right shrink-0">
+                          <p className="font-bold text-lg">£{invoice.total.toFixed(2)}</p>
+                          <div className="mt-1">
+                            <select
+                              value={invoice.status}
+                              onChange={(e) => handleStatusChange(invoice.id, e.target.value)}
+                              disabled={updatingStatus === invoice.id}
+                              className={`text-sm px-2 py-1 border rounded w-full ${
+                                invoice.status === 'PAID' ? 'bg-green-50 text-green-700 border-green-300' :
+                                invoice.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-300' :
+                                'bg-red-50 text-red-700 border-red-300'
+                              }`}
                             >
-                              {markingDeposit === invoice.id ? <Loader2 className="h-4 w-4 animate-spin" /> : "Deposit Paid"}
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditInvoice(invoice)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => window.open(`/api/invoices/${invoice.id}/download`, '_blank')}
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Download PDF
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:bg-red-50 border-red-200"
-                            onClick={() => handleDeleteInvoice(invoice.id)}
-                            disabled={deletingInvoice === invoice.id}
-                          >
-                            {deletingInvoice === invoice.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                          </Button>
+                              <option value="PENDING">Pending</option>
+                              <option value="PAID">Paid</option>
+                              <option value="OVERDUE">Overdue</option>
+                              <option value="CANCELLED">Cancelled</option>
+                            </select>
+                          </div>
                         </div>
+                      </div>
+                      {/* Bottom row: action buttons — wrap on mobile */}
+                      <div className="flex flex-wrap gap-2">
+                        {invoice.depositPercent && invoice.depositPercent > 0 && !invoice.depositPaid && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-green-700 border-green-300 hover:bg-green-50"
+                            onClick={() => handleMarkDepositPaid(invoice.id)}
+                            disabled={markingDeposit === invoice.id}
+                          >
+                            {markingDeposit === invoice.id ? <Loader2 className="h-4 w-4 animate-spin" /> : "Deposit Paid"}
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" onClick={() => handleEditInvoice(invoice)}>
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.open(`/api/invoices/${invoice.id}/download`, '_blank')}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          PDF
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:bg-red-50 border-red-200"
+                          onClick={() => handleDeleteInvoice(invoice.id)}
+                          disabled={deletingInvoice === invoice.id}
+                        >
+                          {deletingInvoice === invoice.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -878,9 +876,9 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="receipts" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">Receipt Management</h2>
-            <Button onClick={() => setShowReceiptModal(true)} className="bg-scanvault-red hover:bg-red-700">
+          <div className="flex flex-wrap justify-between items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-bold">Receipt Management</h2>
+            <Button onClick={() => setShowReceiptModal(true)} className="bg-scanvault-red hover:bg-red-700 shrink-0">
               <Plus className="h-4 w-4 mr-2" />
               Create Receipt
             </Button>
@@ -895,37 +893,37 @@ export default function AdminDashboard() {
               ) : (
                 <div className="space-y-4">
                   {receipts.map((receipt) => (
-                    <div key={receipt.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
+                    <div key={receipt.id} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
                           <p className="font-semibold">{receipt.receiptNumber}</p>
-                          <p className="text-sm text-gray-600">{receipt.user.email}</p>
+                          <p className="text-sm text-gray-600 truncate">{receipt.user.email}</p>
                           <p className="text-sm text-gray-600">{receipt.description}</p>
                           <p className="text-sm text-gray-600">{receipt.paymentMethod}</p>
                         </div>
-                        <div className="text-right flex flex-col items-end gap-2">
-                          <div>
-                            <p className="font-bold text-lg">£{receipt.amount.toFixed(2)}</p>
-                            <p className="text-sm text-gray-600">{new Date(receipt.date).toLocaleDateString()}</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => window.open(`/api/receipts/${receipt.id}/download`, '_blank')}
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Download PDF
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:bg-red-50 border-red-200"
-                            onClick={() => handleDeleteReceipt(receipt.id)}
-                            disabled={deletingReceipt === receipt.id}
-                          >
-                            {deletingReceipt === receipt.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                          </Button>
+                        <div className="text-right shrink-0">
+                          <p className="font-bold text-lg">£{receipt.amount.toFixed(2)}</p>
+                          <p className="text-sm text-gray-600">{new Date(receipt.date).toLocaleDateString()}</p>
                         </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.open(`/api/receipts/${receipt.id}/download`, '_blank')}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          PDF
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:bg-red-50 border-red-200"
+                          onClick={() => handleDeleteReceipt(receipt.id)}
+                          disabled={deletingReceipt === receipt.id}
+                        >
+                          {deletingReceipt === receipt.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -935,15 +933,15 @@ export default function AdminDashboard() {
           </Card>
 
           {showReceiptModal && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <Card className="w-full max-w-2xl">
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <Card className="w-full max-w-2xl max-h-[92vh] overflow-y-auto">
                 <CardHeader>
                   <CardTitle>Create New Receipt</CardTitle>
                   <CardDescription>Generate a payment receipt</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleCreateReceipt} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="receiptClient">Client *</Label>
                         <select id="receiptClient" required className="w-full px-3 py-2 border rounded-md" value={receiptForm.userId} onChange={(e) => setReceiptForm({...receiptForm, userId: e.target.value})}>
@@ -958,7 +956,7 @@ export default function AdminDashboard() {
                         <Input id="receiptNumber" required value={receiptForm.receiptNumber} onChange={(e) => setReceiptForm({...receiptForm, receiptNumber: e.target.value})} placeholder="REC-001" />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="paymentDate">Payment Date *</Label>
                         <Input id="paymentDate" type="date" required value={receiptForm.date} onChange={(e) => setReceiptForm({...receiptForm, date: e.target.value})} />
@@ -995,9 +993,9 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">Document Management</h2>
-            <Button onClick={() => setShowDocumentModal(true)} className="bg-scanvault-red hover:bg-red-700">
+          <div className="flex flex-wrap justify-between items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-bold">Document Management</h2>
+            <Button onClick={() => setShowDocumentModal(true)} className="bg-scanvault-red hover:bg-red-700 shrink-0">
               <Upload className="h-4 w-4 mr-2" />
               Upload Document
             </Button>
@@ -1013,13 +1011,13 @@ export default function AdminDashboard() {
                 <div className="space-y-4">
                   {documents.map((doc) => (
                     <div key={doc.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
                           <p className="font-semibold">{doc.title}</p>
-                          <p className="text-sm text-gray-600">{doc.user.email}</p>
+                          <p className="text-sm text-gray-600 truncate">{doc.user.email}</p>
                           <p className="text-sm text-gray-600">{doc.category}</p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right shrink-0">
                           <p className="text-sm text-gray-600">{new Date(doc.uploadedAt).toLocaleDateString()}</p>
                         </div>
                       </div>
@@ -1031,8 +1029,8 @@ export default function AdminDashboard() {
           </Card>
 
           {showDocumentModal && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <Card className="w-full max-w-2xl">
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <Card className="w-full max-w-2xl max-h-[92vh] overflow-y-auto">
                 <CardHeader>
                   <CardTitle>Upload Document</CardTitle>
                   <CardDescription>Upload a document for a client</CardDescription>
