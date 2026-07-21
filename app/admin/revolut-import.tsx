@@ -425,6 +425,11 @@ function SessionDetail({
   const needsWork  = txns.filter(t => !t.review && t.matchStatus !== "matched");
   const dismissed  = txns.filter(t => t.review === "rejected" || t.review === "skipped");
 
+  const moneyIn      = txns.filter(t => t.amount > 0).reduce((s, t) =>  s + t.amount, 0);
+  const moneyOut     = txns.filter(t => t.amount < 0).reduce((s, t) =>  s + Math.abs(t.amount), 0);
+  const netChange    = moneyIn - moneyOut;
+  const outstanding  = txns.filter(t => !t.review).reduce((s, t) => s + Math.abs(t.amount), 0);
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -461,6 +466,29 @@ function SessionDetail({
             <p className={`text-2xl font-bold mt-0.5 ${s.text}`}>{s.value}</p>
           </div>
         ))}
+      </div>
+
+      {/* Financial summary */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-xl border p-3 bg-green-50 border-green-100">
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Money In</p>
+          <p className="text-xl font-bold mt-0.5 text-green-700">+£{moneyIn.toFixed(2)}</p>
+        </div>
+        <div className="rounded-xl border p-3 bg-red-50 border-red-100">
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Money Out</p>
+          <p className="text-xl font-bold mt-0.5 text-red-700">−£{moneyOut.toFixed(2)}</p>
+        </div>
+        <div className={`rounded-xl border p-3 ${netChange >= 0 ? "bg-blue-50 border-blue-100" : "bg-orange-50 border-orange-100"}`}>
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Net Change</p>
+          <p className={`text-xl font-bold mt-0.5 ${netChange >= 0 ? "text-blue-700" : "text-orange-700"}`}>
+            {netChange >= 0 ? "+" : "−"}£{Math.abs(netChange).toFixed(2)}
+          </p>
+        </div>
+        <div className="rounded-xl border p-3 bg-amber-50 border-amber-100">
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Unreconciled</p>
+          <p className="text-xl font-bold mt-0.5 text-amber-700">£{outstanding.toFixed(2)}</p>
+          <p className="text-xs text-amber-500 mt-0.5">{needsWork.length} transaction{needsWork.length !== 1 ? "s" : ""}</p>
+        </div>
       </div>
 
       {/* Two-column layout */}
@@ -552,20 +580,59 @@ function SessionsList({
           </CardContent>
         </Card>
       ) : (
+        <>
+        {(() => {
+          const latest = sessions[0];
+          const lt = latest.transactions;
+          const latestIn  = lt.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
+          const latestOut = lt.filter(t => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
+          const latestNet = latestIn - latestOut;
+          const latestOSV = lt.filter(t => !t.review).reduce((s, t) => s + Math.abs(t.amount), 0);
+          const latestOSN = lt.filter(t => !t.review).length;
+          return (
+            <div className="rounded-xl border-2 border-scanvault-red/20 bg-red-50/30 p-4 space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Latest Statement Summary</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-white rounded-lg border border-green-100 p-3">
+                  <p className="text-xs text-gray-500">Money In</p>
+                  <p className="text-lg font-bold text-green-700 mt-0.5">+£{latestIn.toFixed(2)}</p>
+                </div>
+                <div className="bg-white rounded-lg border border-red-100 p-3">
+                  <p className="text-xs text-gray-500">Money Out</p>
+                  <p className="text-lg font-bold text-red-700 mt-0.5">−£{latestOut.toFixed(2)}</p>
+                </div>
+                <div className={`bg-white rounded-lg border p-3 ${latestNet >= 0 ? "border-blue-100" : "border-orange-100"}`}>
+                  <p className="text-xs text-gray-500">Net Change</p>
+                  <p className={`text-lg font-bold mt-0.5 ${latestNet >= 0 ? "text-blue-700" : "text-orange-700"}`}>
+                    {latestNet >= 0 ? "+" : "−"}£{Math.abs(latestNet).toFixed(2)}
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg border border-amber-100 p-3">
+                  <p className="text-xs text-gray-500">Unreconciled</p>
+                  <p className="text-lg font-bold text-amber-700 mt-0.5">£{latestOSV.toFixed(2)}</p>
+                  <p className="text-xs text-amber-500">{latestOSN} transaction{latestOSN !== 1 ? "s" : ""}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         <div className="space-y-3">
           {sessions.map(s => {
-            const txns      = s.transactions;
-            const resolved  = txns.filter(t => t.review).length;
-            const matched   = txns.filter(t => t.matchStatus === "matched").length;
-            const unmatched = txns.filter(t => t.matchStatus === "unmatched").length;
-            const pct       = txns.length ? Math.round((resolved / txns.length) * 100) : 0;
+            const txns        = s.transactions;
+            const resolved    = txns.filter(t => t.review).length;
+            const matched     = txns.filter(t => t.matchStatus === "matched").length;
+            const unmatched   = txns.filter(t => t.matchStatus === "unmatched").length;
+            const pct         = txns.length ? Math.round((resolved / txns.length) * 100) : 0;
+            const netChange   = txns.reduce((s, t) => s + t.amount, 0);
+            const unreconciled = txns.filter(t => !t.review).reduce((s, t) => s + Math.abs(t.amount), 0);
             return (
               <Card key={s.id}
                 className="border border-gray-100 hover:border-red-200 cursor-pointer transition-colors"
                 onClick={() => onOpen(s)}>
                 <CardContent className="py-4 px-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold text-gray-900 truncate">{s.filename}</p>
                       <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-gray-500">
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" />
@@ -574,6 +641,15 @@ function SessionsList({
                         <span>{txns.length} transactions</span>
                         <span className="text-green-600">{matched} matched</span>
                         {unmatched > 0 && <span className="text-red-500">{unmatched} unmatched</span>}
+                      </div>
+                      {/* Financial figures */}
+                      <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-2 text-xs">
+                        <span className={netChange >= 0 ? "text-blue-600 font-medium" : "text-orange-600 font-medium"}>
+                          Net: {netChange >= 0 ? "+" : "−"}£{Math.abs(netChange).toFixed(2)}
+                        </span>
+                        <span className="text-amber-600 font-medium">
+                          Unreconciled: £{unreconciled.toFixed(2)}
+                        </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
@@ -595,6 +671,7 @@ function SessionsList({
             );
           })}
         </div>
+        </>
       )}
     </div>
   );
