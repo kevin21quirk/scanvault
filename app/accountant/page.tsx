@@ -6,9 +6,11 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   FileText, Receipt, Download, Loader2,
-  CheckCircle2, Clock, XCircle, AlertCircle, LogOut,
+  CheckCircle2, Clock, XCircle, AlertCircle, LogOut, KeyRound,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -103,6 +105,7 @@ export default function AccountantDashboard() {
           <TabsList>
             <TabsTrigger value="invoices"><FileText className="h-4 w-4 mr-2" />Invoices ({invoices.length})</TabsTrigger>
             <TabsTrigger value="receipts"><Receipt  className="h-4 w-4 mr-2" />Receipts ({receipts.length})</TabsTrigger>
+            <TabsTrigger value="account"><KeyRound className="h-4 w-4 mr-2" />Account</TabsTrigger>
           </TabsList>
 
           {/* ── INVOICES ── */}
@@ -212,8 +215,110 @@ export default function AccountantDashboard() {
             </Card>
           </TabsContent>
 
+          {/* ── ACCOUNT ── */}
+          <TabsContent value="account">
+            <Card className="max-w-md">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <KeyRound className="h-5 w-5 text-red-600" />
+                  Change Password
+                </CardTitle>
+                <CardDescription>Enter your current password, then choose a new one</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChangePasswordForm />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
         </Tabs>
       </div>
     </div>
+  );
+}
+
+function ChangePasswordForm() {
+  const [form, setForm] = useState({ current: "", next: "", confirm: "" });
+  const [pwStatus, setPwStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (form.next !== form.confirm) {
+      setPwStatus("error");
+      setMessage("New passwords do not match");
+      return;
+    }
+    setPwStatus("submitting");
+    setMessage("");
+    try {
+      const res = await fetch("/api/user/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword: form.current, newPassword: form.next }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPwStatus("success");
+        setMessage("Password changed successfully");
+        setForm({ current: "", next: "", confirm: "" });
+      } else {
+        setPwStatus("error");
+        setMessage(data.error || "Failed to change password");
+      }
+    } catch {
+      setPwStatus("error");
+      setMessage("Something went wrong. Please try again.");
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="current">Current Password</Label>
+        <Input
+          id="current"
+          type="password"
+          required
+          value={form.current}
+          onChange={(e) => setForm((p) => ({ ...p, current: e.target.value }))}
+          autoComplete="current-password"
+        />
+      </div>
+      <div>
+        <Label htmlFor="next">New Password</Label>
+        <Input
+          id="next"
+          type="password"
+          required
+          minLength={8}
+          value={form.next}
+          onChange={(e) => setForm((p) => ({ ...p, next: e.target.value }))}
+          autoComplete="new-password"
+        />
+        <p className="text-xs text-gray-400 mt-1">Minimum 8 characters</p>
+      </div>
+      <div>
+        <Label htmlFor="confirm">Confirm New Password</Label>
+        <Input
+          id="confirm"
+          type="password"
+          required
+          value={form.confirm}
+          onChange={(e) => setForm((p) => ({ ...p, confirm: e.target.value }))}
+          autoComplete="new-password"
+        />
+      </div>
+      {message && (
+        <p className={`text-sm ${pwStatus === "success" ? "text-green-600" : "text-red-600"}`}>{message}</p>
+      )}
+      <Button
+        type="submit"
+        className="w-full bg-red-600 hover:bg-red-700"
+        disabled={pwStatus === "submitting"}
+      >
+        {pwStatus === "submitting" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Change Password"}
+      </Button>
+    </form>
   );
 }
