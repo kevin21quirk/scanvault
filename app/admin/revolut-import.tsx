@@ -1,18 +1,24 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Upload, CheckCircle2, AlertTriangle, XCircle,
-  Loader2, CloudUpload, RefreshCcw, ChevronDown, ChevronUp,
+  Loader2, CloudUpload, ArrowLeft, Trash2, Paperclip,
+  Clock, Plus,
 } from "lucide-react";
 
+// ── Types ──────────────────────────────────────────────────────────────────
+
 interface MatchCandidate {
-  type: "invoice" | "receipt";
+  type: "invoice" | "receipt" | "expense";
   id: string;
   invoiceNumber?: string;
   receiptNumber?: string;
+  expenseNumber?: string;
   label: string;
   description: string;
   entityName: string;
@@ -20,7 +26,7 @@ interface MatchCandidate {
   confidence: number;
 }
 
-interface ImportedTransaction {
+interface StoredTransaction {
   id: string;
   date: string;
   description: string;
@@ -30,27 +36,35 @@ interface ImportedTransaction {
   matchStatus: "matched" | "partial" | "unmatched";
   confidence: number;
   matches: MatchCandidate[];
+  review?: "confirmed" | "rejected" | "skipped" | "receipt_uploaded";
+  attachedExpenseNumber?: string;
 }
 
-type ReviewState = "confirmed" | "rejected" | "skipped";
+interface ReconciliationSession {
+  id: string;
+  filename: string;
+  transactions: StoredTransaction[];
+  createdAt: string;
+  updatedAt: string;
+}
 
-// ── Upload screen ──────────────────────────────────────────────────────────
+const EXPENSE_CATEGORIES: Record<string, string> = {
+  OFFICE_SUPPLIES: "Office Supplies", EQUIPMENT: "Equipment", TRAVEL: "Travel",
+  UTILITIES: "Utilities", PROFESSIONAL_SERVICES: "Professional Services",
+  MARKETING: "Marketing", SOFTWARE: "Software", WAGES: "Wages", OTHER: "Other",
+};
 
-function UploadScreen({
-  onResults,
-}: {
-  onResults: (txns: ImportedTransaction[], filename: string) => void;
-}) {
-  const [file, setFile]       = useState<File | null>(null);
-  const [importing, setImp]   = useState(false);
-  const [error, setError]     = useState<string | null>(null);
-  const [dragging, setDrag]   = useState(false);
-  const inputRef              = useRef<HTMLInputElement>(null);
+// ── Upload Screen ──────────────────────────────────────────────────────────
+
+function UploadScreen({ onDone }: { onDone: () => void }) {
+  const [file, setFile]     = useState<File | null>(null);
+  const [importing, setImp] = useState(false);
+  const [error, setError]   = useState<string | null>(null);
+  const [dragging, setDrag] = useState(false);
+  const inputRef            = useRef<HTMLInputElement>(null);
 
   const pickFile = (f: File) => {
-    if (!f.name.toLowerCase().endsWith(".csv")) {
-      setError("Please select a CSV file (.csv)"); return;
-    }
+    if (!f.name.toLowerCase().endsWith(".csv")) { setError("Please select a CSV file (.csv)"); return; }
     setFile(f); setError(null);
   };
 
@@ -68,7 +82,14 @@ function UploadScreen({
       const res  = await fetch("/api/revolut/import", { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Import failed");
-      onResults(data.transactions, file.name);
+
+      const save = await fetch("/api/bank-reconciliations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: file.name, transactions: data.transactions }),
+      });
+      if (!save.ok) throw new Error("Failed to save reconciliation session");
+      onDone();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally { setImp(false); }
@@ -79,10 +100,9 @@ function UploadScreen({
       <div>
         <h2 className="text-xl sm:text-2xl font-bold">Import Bank Statement</h2>
         <p className="text-sm text-gray-500 mt-1">
-          Upload a Revolut CSV export — ScanVault automatically matches transactions against your invoices and receipts.
+          Upload a Revolut CSV — ScanVault matches transactions against invoices, receipts and expense receipts. Results are saved so you can return to reconcile later.
         </p>
       </div>
-
       <Card>
         <CardContent className="pt-6">
           <div
@@ -104,19 +124,13 @@ function UploadScreen({
               <>
                 <p className="font-semibold text-gray-700">Drop your Revolut CSV here</p>
                 <p className="text-sm text-gray-400 mt-1">or click to browse</p>
-                <p className="text-xs text-gray-300 mt-4">
-                  In Revolut Business: Accounts → select account → Download → CSV
-                </p>
+                <p className="text-xs text-gray-300 mt-4">Revolut Business: Accounts → account → Download → CSV</p>
               </>
             )}
-            <input
-              ref={inputRef} type="file" accept=".csv" className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) pickFile(f); }}
-            />
+            <input ref={inputRef} type="file" accept=".csv" className="hidden"
+              onChange={e => { const f = e.target.files?.[0]; if (f) pickFile(f); }} />
           </div>
-
           {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
-
           {file && (
             <div className="flex justify-end gap-2 mt-4">
               <Button variant="outline" onClick={() => { setFile(null); setError(null); }}>Clear</Button>
@@ -133,222 +147,505 @@ function UploadScreen({
   );
 }
 
-// ── Results screen ─────────────────────────────────────────────────────────
+// ── Quick Expense Upload Modal ──────────────────────────────────────────────
 
-function ResultsScreen({
-  transactions,
-  filename,
-  onReset,
+function QuickExpenseModal({
+  txn,
+  onSaved,
+  onClose,
 }: {
-  transactions: ImportedTransaction[];
-  filename: string;
-  onReset: () => void;
+  txn: StoredTransaction;
+  onSaved: (expenseNumber: string) => void;
+  onClose: () => void;
 }) {
-  const [reviewMap, setReviewMap] = useState<Record<string, ReviewState>>({});
-  const [expanded,  setExpanded]  = useState<Record<string, boolean>>({});
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [form, setForm] = useState({
+    vendor:      txn.description,
+    amount:      Math.abs(txn.amount).toFixed(2),
+    date:        txn.date,
+    category:    "OTHER",
+    description: "",
+  });
+  const [file, setFile]     = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  const setReview   = (id: string, s: ReviewState) => setReviewMap(m => ({ ...m, [id]: s }));
-  const clearReview = (id: string) => setReviewMap(m => { const n = { ...m }; delete n[id]; return n; });
-  const toggleExp   = (id: string) => setExpanded(m => ({ ...m, [id]: !m[id] }));
+  const set = (k: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setForm(p => ({ ...p, [k]: e.target.value }));
 
-  const matched   = transactions.filter(t => t.matchStatus === "matched").length;
-  const partial   = transactions.filter(t => t.matchStatus === "partial").length;
-  const unmatched = transactions.filter(t => t.matchStatus === "unmatched").length;
-  const reviewed  = Object.keys(reviewMap).length;
+  const toBase64 = (f: File): Promise<string> =>
+    new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result as string);
+      reader.onerror = rej;
+      reader.readAsDataURL(f);
+    });
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      let fileUrl: string | null = null;
+      let fileName: string | null = null;
+      let mimeType: string | null = null;
+      if (file) {
+        if (file.size > 5 * 1024 * 1024) { alert("File must be under 5 MB"); setSaving(false); return; }
+        fileUrl = await toBase64(file); fileName = file.name; mimeType = file.type;
+      }
+      const res = await fetch("/api/expense-receipts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, fileUrl, fileName, mimeType }),
+      });
+      if (res.ok) {
+        const saved = await res.json();
+        onSaved(saved.expenseNumber);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to save");
+      }
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-base">Upload Expense Receipt</CardTitle>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><XCircle className="w-4 h-4" /></button>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm">
+            <p className="font-medium text-gray-700">Bank transaction</p>
+            <p className="text-gray-500">{txn.description} · <span className="font-semibold text-gray-800">£{Math.abs(txn.amount).toFixed(2)}</span> · {txn.date}</p>
+          </div>
+          <form onSubmit={handleSave} className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Vendor / Supplier *</Label>
+                <Input value={form.vendor} onChange={set("vendor")} required className="mt-1 h-8 text-sm" />
+              </div>
+              <div>
+                <Label className="text-xs">Amount (£) *</Label>
+                <Input type="number" step="0.01" min="0" value={form.amount} onChange={set("amount")} required className="mt-1 h-8 text-sm" />
+              </div>
+              <div>
+                <Label className="text-xs">Date *</Label>
+                <Input type="date" value={form.date} onChange={set("date")} required className="mt-1 h-8 text-sm" />
+              </div>
+              <div>
+                <Label className="text-xs">Category</Label>
+                <select value={form.category} onChange={set("category")} className="mt-1 w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm">
+                  {Object.entries(EXPENSE_CATEGORIES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <Label className="text-xs">Description</Label>
+                <Input value={form.description} onChange={set("description")} className="mt-1 h-8 text-sm" placeholder="What was purchased" />
+              </div>
+              <div className="sm:col-span-2">
+                <Label className="text-xs">Attach File (optional, max 5 MB)</Label>
+                <div className="mt-1 border-2 border-dashed border-gray-200 rounded-lg p-3 text-center cursor-pointer hover:border-red-300 transition-colors"
+                  onClick={() => fileRef.current?.click()}>
+                  {file
+                    ? <p className="text-xs font-medium text-gray-700">{file.name}</p>
+                    : <p className="text-xs text-gray-400"><Paperclip className="w-3 h-3 inline mr-1" />Click to attach</p>}
+                  <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden"
+                    onChange={e => setFile(e.target.files?.[0] ?? null)} />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+              <Button type="button" variant="outline" size="sm" onClick={onClose}>Cancel</Button>
+              <Button type="submit" size="sm" disabled={saving} className="bg-scanvault-red hover:bg-red-700 text-white">
+                {saving ? <><Loader2 className="w-3 h-3 animate-spin mr-1" />Saving…</> : "Save & Link"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ── Transaction Card ────────────────────────────────────────────────────────
+
+function TxnCard({
+  txn,
+  onReview,
+  onExpenseUploaded,
+}: {
+  txn: StoredTransaction;
+  onReview: (id: string, r: StoredTransaction["review"]) => void;
+  onExpenseUploaded: (id: string, expNumber: string) => void;
+}) {
+  const [showUpload, setShowUpload] = useState(false);
+  const top    = txn.matches[0];
+  const isIn   = txn.amount > 0;
+  const review = txn.review;
+
+  return (
+    <>
+      {showUpload && (
+        <QuickExpenseModal
+          txn={txn}
+          onSaved={expNum => { setShowUpload(false); onExpenseUploaded(txn.id, expNum); }}
+          onClose={() => setShowUpload(false)}
+        />
+      )}
+      <div className="border rounded-lg p-3 bg-white space-y-2">
+        {/* Row 1: amount + description + date */}
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 justify-between">
+          <div className="flex flex-wrap items-baseline gap-x-2 min-w-0">
+            <span className={`font-bold shrink-0 ${isIn ? "text-green-700" : "text-gray-900"}`}>
+              {isIn ? "+" : "−"}£{Math.abs(txn.amount).toFixed(2)}
+            </span>
+            <span className="font-medium text-gray-900 text-sm truncate">{txn.description}</span>
+          </div>
+          <span className="text-xs text-gray-400 shrink-0">{txn.date}</span>
+        </div>
+
+        {/* Row 2: match info */}
+        {top && (
+          <p className="text-xs text-gray-500">
+            <span className="font-medium text-gray-700">{top.description}</span>
+            {top.entityName ? ` · ${top.entityName}` : ""}
+            <span className={`ml-2 font-semibold px-1.5 py-0.5 rounded-full text-xs ${
+              txn.confidence >= 85 ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+            }`}>{txn.confidence}%</span>
+          </p>
+        )}
+        {review === "receipt_uploaded" && txn.attachedExpenseNumber && (
+          <p className="text-xs text-blue-600 font-medium">📎 Expense {txn.attachedExpenseNumber} attached</p>
+        )}
+
+        {/* Row 3: actions */}
+        {!review && (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {txn.matchStatus !== "unmatched" && (
+              <>
+                <button
+                  onClick={() => onReview(txn.id, "confirmed")}
+                  className="text-xs px-2 py-1 rounded border border-green-300 text-green-700 hover:bg-green-50"
+                >
+                  <CheckCircle2 className="w-3 h-3 inline mr-0.5" />Confirm
+                </button>
+                <button
+                  onClick={() => onReview(txn.id, "rejected")}
+                  className="text-xs px-2 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50"
+                >
+                  <XCircle className="w-3 h-3 inline mr-0.5" />Reject
+                </button>
+              </>
+            )}
+            <button
+              onClick={() => setShowUpload(true)}
+              className="text-xs px-2 py-1 rounded border border-blue-200 text-blue-600 hover:bg-blue-50"
+            >
+              <Plus className="w-3 h-3 inline mr-0.5" />Upload Receipt
+            </button>
+            {txn.matchStatus === "unmatched" && (
+              <button
+                onClick={() => onReview(txn.id, "skipped")}
+                className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50"
+              >
+                Skip
+              </button>
+            )}
+          </div>
+        )}
+        {review && (
+          <div className="flex items-center gap-2 pt-1">
+            <span className={`text-xs font-medium ${
+              review === "confirmed" ? "text-green-600" :
+              review === "receipt_uploaded" ? "text-blue-600" : "text-gray-400"
+            }`}>
+              {review === "confirmed" ? "✓ Confirmed" :
+               review === "rejected"  ? "✗ Rejected"  :
+               review === "receipt_uploaded" ? "📎 Receipt uploaded" : "— Skipped"}
+            </span>
+            <button onClick={() => onReview(txn.id, undefined)}
+              className="text-xs text-gray-400 underline">Undo</button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ── Session Detail (two-column view) ───────────────────────────────────────
+
+function SessionDetail({
+  session,
+  onBack,
+  onDeleted,
+}: {
+  session: ReconciliationSession;
+  onBack: () => void;
+  onDeleted: () => void;
+}) {
+  const [txns, setTxns]       = useState<StoredTransaction[]>(session.transactions);
+  const [saving, setSaving]   = useState(false);
+  const [deleting, setDel]    = useState(false);
+
+  const persist = async (updated: StoredTransaction[]) => {
+    setSaving(true);
+    try {
+      await fetch(`/api/bank-reconciliations/${session.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transactions: updated }),
+      });
+    } finally { setSaving(false); }
+  };
+
+  const handleReview = (id: string, r: StoredTransaction["review"]) => {
+    const updated = txns.map(t => t.id === id ? { ...t, review: r } : t);
+    setTxns(updated);
+    persist(updated);
+  };
+
+  const handleExpenseUploaded = (id: string, expNumber: string) => {
+    const updated = txns.map(t =>
+      t.id === id ? { ...t, review: "receipt_uploaded" as const, attachedExpenseNumber: expNumber } : t,
+    );
+    setTxns(updated);
+    persist(updated);
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Delete this reconciliation session? This cannot be undone.")) return;
+    setDel(true);
+    await fetch(`/api/bank-reconciliations/${session.id}`, { method: "DELETE" });
+    onDeleted();
+  };
+
+  const resolved   = txns.filter(t => t.review);
+  const matched    = txns.filter(t => (t.matchStatus === "matched" && !t.review) || t.review === "confirmed" || t.review === "receipt_uploaded");
+  const needsWork  = txns.filter(t => !t.review && t.matchStatus !== "matched");
+  const dismissed  = txns.filter(t => t.review === "rejected" || t.review === "skipped");
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold">Import Results</h2>
-          <p className="text-sm text-gray-500">{filename} · {reviewed}/{transactions.length} reviewed</p>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-500">
+            <ArrowLeft className="w-4 h-4 mr-1" />Back
+          </Button>
+          <div>
+            <h2 className="text-lg font-bold leading-tight">{session.filename}</h2>
+            <p className="text-xs text-gray-400">
+              Imported {new Date(session.createdAt).toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" })}
+              {saving && <span className="ml-2 text-blue-500">Saving…</span>}
+            </p>
+          </div>
         </div>
-        <Button variant="outline" size="sm" onClick={onReset}>
-          <RefreshCcw className="h-4 w-4 mr-2" />Import New File
+        <Button variant="outline" size="sm" onClick={handleDelete} disabled={deleting}
+          className="text-red-600 border-red-200 hover:bg-red-50">
+          {deleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3 mr-1" />}
+          Delete
         </Button>
       </div>
 
-      {/* Summary stats */}
+      {/* Summary bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total",    value: transactions.length, colour: "bg-white border-gray-200",         text: "" },
-          { label: "Matched",  value: matched,             colour: "bg-green-50 border-green-100",     text: "text-green-700" },
-          { label: "Possible", value: partial,             colour: "bg-yellow-50 border-yellow-100",   text: "text-yellow-700" },
-          { label: "No Match", value: unmatched,           colour: "bg-red-50 border-red-100",         text: "text-red-700" },
+          { label: "Total",       value: txns.length,      bg: "bg-white",       text: "text-gray-800",  border: "border-gray-200"   },
+          { label: "Resolved",    value: resolved.length,  bg: "bg-green-50",    text: "text-green-700", border: "border-green-100"  },
+          { label: "Needs Work",  value: needsWork.length, bg: "bg-yellow-50",   text: "text-yellow-700",border: "border-yellow-100" },
+          { label: "Dismissed",   value: dismissed.length, bg: "bg-gray-50",     text: "text-gray-500",  border: "border-gray-200"   },
         ].map(s => (
-          <div key={s.label} className={`rounded-xl border p-4 ${s.colour}`}>
+          <div key={s.label} className={`rounded-xl border p-3 ${s.bg} ${s.border}`}>
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{s.label}</p>
-            <p className={`text-2xl font-bold mt-1 ${s.text}`}>{s.value}</p>
+            <p className={`text-2xl font-bold mt-0.5 ${s.text}`}>{s.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Transaction list */}
-      <div className="space-y-3">
-        {transactions.map(txn => {
-          const review = reviewMap[txn.id];
-          const isExp  = expanded[txn.id];
-          const top    = txn.matches[0];
-          const isIn   = txn.amount > 0;
+      {/* Two-column layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
 
-          const borderColour =
-            review === "confirmed"           ? "border-l-green-500" :
-            review === "rejected"            ? "border-l-gray-300"  :
-            txn.matchStatus === "matched"    ? "border-l-green-500" :
-            txn.matchStatus === "partial"    ? "border-l-yellow-400":
-                                               "border-l-red-400";
-
-          return (
-            <Card
-              key={txn.id}
-              className={`border-l-4 transition-opacity ${borderColour} ${
-                review === "rejected" || review === "skipped" ? "opacity-50" : ""
-              }`}
-            >
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-start gap-3">
-                  {/* Status icon */}
-                  <div className="mt-0.5 shrink-0">
-                    {review === "confirmed" || txn.matchStatus === "matched"
-                      ? <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      : txn.matchStatus === "partial"
-                      ? <AlertTriangle  className="h-5 w-5 text-yellow-500" />
-                      : <XCircle className="h-5 w-5 text-red-500" />}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    {/* Amount · description · date */}
-                    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                      <div className="flex flex-wrap items-baseline gap-x-2 min-w-0">
-                        <span className={`font-bold text-base shrink-0 ${isIn ? "text-green-700" : "text-gray-900"}`}>
-                          {isIn ? "+" : "−"}£{Math.abs(txn.amount).toFixed(2)}
-                        </span>
-                        <span className="font-medium text-gray-900 truncate">{txn.description}</span>
-                        {txn.date && <span className="text-xs text-gray-400 shrink-0">{txn.date}</span>}
-                      </div>
-                      {top && (
-                        <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                          txn.confidence >= 85
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}>
-                          {txn.confidence}% confidence
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Match summary (collapsed) */}
-                    {top && !isExp && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        <span className="text-gray-400">
-                          {txn.matchStatus === "matched" ? "Matched to " : "Possible match: "}
-                        </span>
-                        <span className="font-medium">{top.description}</span>
-                        {top.entityName && <span className="text-gray-400"> · {top.entityName}</span>}
-                        {top.label      && <span className="text-gray-400"> · {top.label}</span>}
-                      </p>
-                    )}
-                    {txn.matchStatus === "unmatched" && (
-                      <p className="text-sm text-gray-400 mt-1">No matching invoice or receipt found</p>
-                    )}
-
-                    {/* Expanded candidates */}
-                    {isExp && txn.matches.length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        {txn.matches.map((m, i) => (
-                          <div key={i} className="bg-gray-50 rounded-lg p-3 text-sm border">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-medium capitalize text-gray-700">{m.type}</span>
-                              <span className="font-mono text-xs text-gray-500">{m.invoiceNumber || m.receiptNumber}</span>
-                              <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${
-                                m.confidence >= 85 ? "bg-green-100 text-green-700" :
-                                m.confidence >= 50 ? "bg-yellow-100 text-yellow-700" :
-                                                     "bg-gray-100 text-gray-600"
-                              }`}>{m.confidence}%</span>
-                            </div>
-                            <p className="text-gray-600 mt-1">{m.description}{m.entityName ? ` · ${m.entityName}` : ""}</p>
-                            {m.label && <p className="text-gray-400 text-xs mt-0.5">{m.label}</p>}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Action buttons */}
-                    {!review ? (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {txn.matchStatus !== "unmatched" && (
-                          <>
-                            <Button size="sm" variant="outline"
-                              className="text-green-700 border-green-300 hover:bg-green-50"
-                              onClick={() => setReview(txn.id, "confirmed")}
-                            >
-                              <CheckCircle2 className="h-3.5 w-3.5 mr-1" />Confirm Match
-                            </Button>
-                            <Button size="sm" variant="outline"
-                              className="text-red-600 border-red-200 hover:bg-red-50"
-                              onClick={() => setReview(txn.id, "rejected")}
-                            >
-                              <XCircle className="h-3.5 w-3.5 mr-1" />Reject
-                            </Button>
-                          </>
-                        )}
-                        {txn.matchStatus === "unmatched" && (
-                          <Button size="sm" variant="outline" className="text-gray-500"
-                            onClick={() => setReview(txn.id, "skipped")}>
-                            Skip
-                          </Button>
-                        )}
-                        {txn.matches.length > 0 && (
-                          <Button size="sm" variant="ghost" className="text-gray-400"
-                            onClick={() => toggleExp(txn.id)}>
-                            {isExp
-                              ? <><ChevronUp   className="h-3.5 w-3.5 mr-1" />Hide</>
-                              : <><ChevronDown className="h-3.5 w-3.5 mr-1" />{txn.matches.length === 1 ? "Details" : `${txn.matches.length} candidates`}</>}
-                          </Button>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 mt-3">
-                        <span className={`text-sm font-medium ${review === "confirmed" ? "text-green-600" : "text-gray-400"}`}>
-                          {review === "confirmed" ? "✓ Confirmed" : review === "rejected" ? "✗ Rejected" : "— Skipped"}
-                        </span>
-                        <Button size="sm" variant="ghost" className="text-gray-400 text-xs"
-                          onClick={() => clearReview(txn.id)}>
-                          Undo
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+        {/* LEFT: Matched & Resolved */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 pb-1 border-b border-green-100">
+            <CheckCircle2 className="w-4 h-4 text-green-500" />
+            <h3 className="font-semibold text-green-700 text-sm">Matched &amp; Resolved ({matched.length})</h3>
+          </div>
+          {matched.length === 0 ? (
+            <p className="text-sm text-gray-400 py-4 text-center">No matched transactions yet</p>
+          ) : (
+            matched.map(txn => (
+              <TxnCard key={txn.id} txn={txn} onReview={handleReview} onExpenseUploaded={handleExpenseUploaded} />
+            ))
+          )}
+          {dismissed.length > 0 && (
+            <>
+              <div className="flex items-center gap-2 pb-1 border-b border-gray-100 mt-4">
+                <h3 className="font-semibold text-gray-400 text-sm">Dismissed ({dismissed.length})</h3>
+              </div>
+              {dismissed.map(txn => (
+                <div key={txn.id} className="opacity-40">
+                  <TxnCard txn={txn} onReview={handleReview} onExpenseUploaded={handleExpenseUploaded} />
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+              ))}
+            </>
+          )}
+        </div>
+
+        {/* RIGHT: Needs Review */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 pb-1 border-b border-yellow-100">
+            <AlertTriangle className="w-4 h-4 text-yellow-500" />
+            <h3 className="font-semibold text-yellow-700 text-sm">Needs Review ({needsWork.length})</h3>
+          </div>
+          {needsWork.length === 0 ? (
+            <p className="text-sm text-gray-400 py-4 text-center">All transactions reviewed ✓</p>
+          ) : (
+            needsWork.map(txn => (
+              <TxnCard key={txn.id} txn={txn} onReview={handleReview} onExpenseUploaded={handleExpenseUploaded} />
+            ))
+          )}
+        </div>
       </div>
+    </div>
+  );
+}
+
+// ── Sessions List ───────────────────────────────────────────────────────────
+
+function SessionsList({
+  sessions,
+  loading,
+  onOpen,
+  onImport,
+}: {
+  sessions: ReconciliationSession[];
+  loading: boolean;
+  onOpen: (s: ReconciliationSession) => void;
+  onImport: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold">Bank Reconciliation</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Each imported statement is saved as a session — click any to continue reconciling.
+          </p>
+        </div>
+        <Button onClick={onImport} className="bg-scanvault-red hover:bg-red-700 text-white shrink-0">
+          <Upload className="w-4 h-4 mr-2" />Import New Statement
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-scanvault-red" />
+        </div>
+      ) : sessions.length === 0 ? (
+        <Card className="border border-gray-100">
+          <CardContent className="py-16 text-center text-gray-400">
+            <CloudUpload className="w-10 h-10 mx-auto mb-3 opacity-30" />
+            <p className="font-medium">No reconciliation sessions yet</p>
+            <p className="text-sm mt-1">Import your first Revolut CSV to get started.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {sessions.map(s => {
+            const txns      = s.transactions;
+            const resolved  = txns.filter(t => t.review).length;
+            const matched   = txns.filter(t => t.matchStatus === "matched").length;
+            const unmatched = txns.filter(t => t.matchStatus === "unmatched").length;
+            const pct       = txns.length ? Math.round((resolved / txns.length) * 100) : 0;
+            return (
+              <Card key={s.id}
+                className="border border-gray-100 hover:border-red-200 cursor-pointer transition-colors"
+                onClick={() => onOpen(s)}>
+                <CardContent className="py-4 px-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-gray-900 truncate">{s.filename}</p>
+                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-gray-500">
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />
+                          {new Date(s.createdAt).toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" })}
+                        </span>
+                        <span>{txns.length} transactions</span>
+                        <span className="text-green-600">{matched} matched</span>
+                        {unmatched > 0 && <span className="text-red-500">{unmatched} unmatched</span>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-gray-700">{pct}%</p>
+                        <p className="text-xs text-gray-400">reviewed</p>
+                      </div>
+                      <div className="w-12 h-12 shrink-0">
+                        <svg viewBox="0 0 36 36" className="w-12 h-12 -rotate-90">
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" strokeWidth="3" />
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#16a34a" strokeWidth="3"
+                            strokeDasharray={`${pct} ${100 - pct}`} strokeLinecap="round" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Main export ────────────────────────────────────────────────────────────
 
-export default function RevolutImportTab() {
-  const [transactions, setTransactions] = useState<ImportedTransaction[] | null>(null);
-  const [filename, setFilename]         = useState("");
+type View = "list" | "import" | "session";
 
-  if (!transactions) {
+export default function RevolutImportTab() {
+  const [view, setView]         = useState<View>("list");
+  const [sessions, setSessions] = useState<ReconciliationSession[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [active, setActive]     = useState<ReconciliationSession | null>(null);
+
+  const loadSessions = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/bank-reconciliations");
+      if (res.ok) {
+        const data = await res.json();
+        setSessions(data.map((s: ReconciliationSession & { transactions: unknown }) => ({
+          ...s,
+          transactions: Array.isArray(s.transactions) ? s.transactions : [],
+        })));
+      }
+    } finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { loadSessions(); }, [loadSessions]);
+
+  if (view === "import") {
+    return <UploadScreen onDone={() => { loadSessions(); setView("list"); }} />;
+  }
+
+  if (view === "session" && active) {
     return (
-      <UploadScreen
-        onResults={(txns, name) => { setTransactions(txns); setFilename(name); }}
+      <SessionDetail
+        session={active}
+        onBack={() => { setActive(null); loadSessions(); setView("list"); }}
+        onDeleted={() => { setActive(null); loadSessions(); setView("list"); }}
       />
     );
   }
 
   return (
-    <ResultsScreen
-      transactions={transactions}
-      filename={filename}
-      onReset={() => { setTransactions(null); setFilename(""); }}
+    <SessionsList
+      sessions={sessions}
+      loading={loading}
+      onOpen={s => { setActive(s); setView("session"); }}
+      onImport={() => setView("import")}
     />
   );
 }

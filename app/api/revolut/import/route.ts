@@ -155,7 +155,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No transactions found in CSV. Check that the file is a valid Revolut export." }, { status: 400 });
   }
 
-  const [invoices, receipts] = await Promise.all([
+  const [invoices, receipts, expenseReceipts] = await Promise.all([
     prisma.invoice.findMany({
       include: {
         user: { select: { name: true, email: true, companyName: true } },
@@ -165,6 +165,7 @@ export async function POST(request: Request) {
     prisma.receipt.findMany({
       include: { user: { select: { name: true, email: true, companyName: true } } },
     }),
+    prisma.expenseReceipt.findMany(),
   ]);
 
   const transactions = rows
@@ -173,6 +174,7 @@ export async function POST(request: Request) {
 
   const results = transactions.map(txn => {
     const abs = Math.abs(txn.amount);
+    const isDebit = txn.amount < 0;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const candidates: any[] = [];
 
@@ -240,6 +242,27 @@ export async function POST(request: Request) {
           entityName: bestName || rec.user.companyName || rec.user.name || rec.user.email,
           amount: rec.amount, confidence: score,
         });
+      }
+    }
+
+    // ── Expense receipt matching (debit / outgoing transactions) ──
+    if (isDebit) {
+      for (const exp of expenseReceipts) {
+        if (Math.abs(exp.amount - abs) >= 0.02) continue;
+        let score = 50;
+        const ns = nameScore(txn.description, exp.vendor);
+        score += ns >= 0.75 ? 40 : ns >= 0.5 ? 20 : ns >= 0.25 ? 8 : 0;
+        score += datePoints(daysBetween(txn.date, exp.date));
+        score = Math.min(99, score);
+        if (score >= 30) {
+          candidates.push({
+            type: "expense", id: exp.id, expenseNumber: exp.expenseNumber,
+            label: exp.category,
+            description: `Expense ${exp.expenseNumber}`,
+            entityName: exp.vendor,
+            amount: exp.amount, confidence: score,
+          });
+        }
       }
     }
 
