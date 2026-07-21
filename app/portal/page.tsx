@@ -80,8 +80,10 @@ export default function Portal() {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
+    } else if (status === "authenticated" && session?.user?.role === "ACCOUNTANT") {
+      router.push("/accountant");
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   const fetchAll = useCallback(async () => {
     try {

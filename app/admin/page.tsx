@@ -12,6 +12,8 @@ export default function Admin() {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
+    } else if (session?.user?.role === "ACCOUNTANT") {
+      router.push("/accountant");
     } else if (session?.user?.role !== "ADMIN") {
       router.push("/portal");
     }
