@@ -13,6 +13,7 @@ import QuotationsTab from "@/components/quotations-tab";
 import RiskAssessmentsTab from "@/components/risk-assessments-tab";
 import ClientsTab from "@/components/clients-tab";
 import CompletionCertificatesTab from "@/components/completion-certificates-tab";
+import RevolutImportTab from "./revolut-import";
 
 interface User {
   id: string;
@@ -432,6 +433,7 @@ export default function AdminDashboard() {
             )}
           </TabsTrigger>
           <TabsTrigger value="receipts">Receipts</TabsTrigger>
+          <TabsTrigger value="bank-import">Bank Import</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="leads" className="relative">
             Leads &amp; Quotes
@@ -1121,6 +1123,10 @@ export default function AdminDashboard() {
             <h2 className="text-2xl font-bold">Leads &amp; Free Quotes</h2>
           </div>
           <LeadsTab />
+        </TabsContent>
+
+        <TabsContent value="bank-import" className="space-y-4">
+          <RevolutImportTab />
         </TabsContent>
       </Tabs>
     </div>
