@@ -246,13 +246,21 @@ export async function GET(
     const vatOnBalanceOnly = (invoice as any).vatOnBalanceOnly === true;
     if (invoice.vatRate > 0) {
       y += 6;
-      const deposit = invoice.depositPercent ?? 50;
-      const balanceBase = invoice.subtotal * (1 - deposit / 100);
-      const vatLabel = vatOnBalanceOnly
-        ? `VAT (${invoice.vatRate}% on balance of £${balanceBase.toFixed(2)})`
-        : `VAT (${invoice.vatRate}%)`;
-      doc.text(vatLabel, labelX, y);
-      doc.text(`£${invoice.vatAmount.toFixed(2)}`, valueX, y, { align: "right" });
+      if (vatOnBalanceOnly) {
+        const dep = invoice.depositPercent ?? 50;
+        const balanceBase = invoice.subtotal * (1 - dep / 100);
+        doc.text(`VAT (${invoice.vatRate}%)`, labelX, y);
+        doc.text(`£${invoice.vatAmount.toFixed(2)}`, valueX, y, { align: "right" });
+        y += 4;
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`on remaining balance of £${balanceBase.toFixed(2)}`, labelX, y);
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+      } else {
+        doc.text(`VAT (${invoice.vatRate}%)`, labelX, y);
+        doc.text(`£${invoice.vatAmount.toFixed(2)}`, valueX, y, { align: "right" });
+      }
     }
 
     y += 3;
@@ -280,10 +288,10 @@ export async function GET(
     const depositRowLabel = vatOnBalanceOnly
       ? `Deposit (${deposit}%) — already paid (no VAT applied)`
       : `Deposit (${deposit}%) due upon acceptance of this invoice`;
-    const balRowSuffix = vatOnBalanceOnly ? ` (inc. VAT)` : "";
+    const balRowSuffix = vatOnBalanceOnly ? ` + VAT` : "";
     const balText = doc.splitTextToSize(
-      `Remaining balance (${balancePct}%)${balRowSuffix} due no later than 30 days (net) following completion of the works`,
-      150
+      `Remaining balance (${balancePct}%)${balRowSuffix} due no later than 30 days (net) following completion of works`,
+      130
     );
 
     // Compute row baselines before drawing so the box height matches the content exactly
