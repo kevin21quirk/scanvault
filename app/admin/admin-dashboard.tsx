@@ -86,6 +86,7 @@ export default function AdminDashboard() {
 
   const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", vatOnBalanceOnly: false, description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
   const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([{ description: "", quantity: "1", rate: "" }]);
+  const [additionalInvoiceItems, setAdditionalInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([]);
   const [invoiceCareHomeOptions, setInvoiceCareHomeOptions] = useState<CareHomeOption[]>([]);
   const [markingDeposit, setMarkingDeposit] = useState<string | null>(null);
   const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
@@ -137,6 +138,7 @@ export default function AdminDashboard() {
     setEditingInvoiceId(null);
     setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", vatOnBalanceOnly: false, description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
     setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
+    setAdditionalInvoiceItems([]);
     setInvoiceCareHomeOptions([]);
     setShowInvoiceModal(true);
     fetchNextInvoiceNumber();
@@ -185,6 +187,11 @@ export default function AdminDashboard() {
         ? invoice.items.map((it) => ({ description: it.description, quantity: String(it.quantity), rate: String(it.rate) }))
         : [{ description: "", quantity: "1", rate: "" }]
     );
+    setAdditionalInvoiceItems(
+      (invoice as any).additionalItems && (invoice as any).additionalItems.length
+        ? (invoice as any).additionalItems.map((it: any) => ({ description: it.description, quantity: String(it.quantity), rate: String(it.rate) }))
+        : []
+    );
     setInvoiceCareHomeOptions([]);
     fetch(`/api/care-homes?userId=${invoice.user.id}`)
       .then((r) => (r.ok ? r.json() : []))
@@ -222,7 +229,7 @@ export default function AdminDashboard() {
         {
           method: editingInvoiceId ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...invoiceForm, items: invoiceItems }),
+          body: JSON.stringify({ ...invoiceForm, items: invoiceItems, additionalItems: additionalInvoiceItems }),
         }
       );
 
@@ -238,6 +245,7 @@ export default function AdminDashboard() {
         setEditingInvoiceId(null);
         setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", vatOnBalanceOnly: false, description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
         setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
+        setAdditionalInvoiceItems([]);
         setInvoiceCareHomeOptions([]);
         alert(wasEditing ? "Invoice updated successfully!" : "Invoice created successfully!");
       } else {
@@ -256,6 +264,11 @@ export default function AdminDashboard() {
   const removeInvoiceItem = (idx: number) => setInvoiceItems((p) => p.filter((_, i) => i !== idx));
   const updateInvoiceItem = (idx: number, key: "description" | "quantity" | "rate", value: string) =>
     setInvoiceItems((p) => p.map((it, i) => (i === idx ? { ...it, [key]: value } : it)));
+
+  const addAdditionalItem = () => setAdditionalInvoiceItems((p) => [...p, { description: "", quantity: "1", rate: "" }]);
+  const removeAdditionalItem = (idx: number) => setAdditionalInvoiceItems((p) => p.filter((_, i) => i !== idx));
+  const updateAdditionalItem = (idx: number, key: "description" | "quantity" | "rate", value: string) =>
+    setAdditionalInvoiceItems((p) => p.map((it, i) => (i === idx ? { ...it, [key]: value } : it)));
 
   const handleStatusChange = async (invoiceId: string, newStatus: string) => {
     setUpdatingStatus(invoiceId);
@@ -405,7 +418,9 @@ export default function AdminDashboard() {
   const clientUsers = users.filter(u => u.role === "CLIENT");
 
   // Live invoice totals (for the create-invoice modal preview)
-  const invSubtotal = invoiceItems.reduce((sum, it) => sum + (parseFloat(it.quantity) || 0) * (parseFloat(it.rate) || 0), 0);
+  const invOrigSubtotal = invoiceItems.reduce((sum, it) => sum + (parseFloat(it.quantity) || 0) * (parseFloat(it.rate) || 0), 0);
+  const invAddlSubtotal = additionalInvoiceItems.reduce((sum, it) => sum + (parseFloat(it.quantity) || 0) * (parseFloat(it.rate) || 0), 0);
+  const invSubtotal = invOrigSubtotal + invAddlSubtotal;
   const invVatRate = parseFloat(invoiceForm.vatRate) || 0;
   const invDepositPct = parseFloat(invoiceForm.depositPercent) || 0;
   const invVatBase = invoiceForm.vatOnBalanceOnly ? invSubtotal * (1 - invDepositPct / 100) : invSubtotal;
@@ -756,6 +771,49 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
+                    {/* Additional Works */}
+                    <div className="rounded-md border-2 border-dashed border-amber-300 bg-amber-50/40 p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <Label className="text-amber-800 font-semibold">Additional Works</Label>
+                          <p className="text-xs text-amber-600 mt-0.5">Extra items not in the original quote — shown as a separate section on the invoice.</p>
+                        </div>
+                        <Button type="button" variant="outline" size="sm" onClick={addAdditionalItem} className="h-7 text-xs border-amber-400 text-amber-800 hover:bg-amber-100">
+                          <Plus className="h-3 w-3 mr-1" /> Add item
+                        </Button>
+                      </div>
+                      {additionalInvoiceItems.length === 0 ? (
+                        <p className="text-xs text-amber-500 italic text-center py-2">No additional items — click "Add item" to add extra works.</p>
+                      ) : (
+                        <>
+                          <div className="hidden md:grid grid-cols-12 gap-2 text-xs text-gray-500 px-1 mb-1">
+                            <span className="col-span-6">Description</span>
+                            <span className="col-span-2 text-center">Qty</span>
+                            <span className="col-span-2 text-right">Unit Price (£)</span>
+                            <span className="col-span-2 text-right">Amount</span>
+                          </div>
+                          <div className="space-y-2">
+                            {additionalInvoiceItems.map((it, idx) => {
+                              const amt = (parseFloat(it.quantity) || 0) * (parseFloat(it.rate) || 0);
+                              return (
+                                <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                                  <Input className="col-span-6" placeholder="e.g. Additional 12 archive boxes discovered on site" value={it.description} onChange={(e) => updateAdditionalItem(idx, "description", e.target.value)} />
+                                  <Input className="col-span-2 text-center" type="number" min="0" step="1" value={it.quantity} onChange={(e) => updateAdditionalItem(idx, "quantity", e.target.value)} />
+                                  <Input className="col-span-2 text-right" type="number" min="0" step="0.01" placeholder="0.00" value={it.rate} onChange={(e) => updateAdditionalItem(idx, "rate", e.target.value)} />
+                                  <div className="col-span-2 flex items-center justify-end gap-2">
+                                    <span className="text-sm tabular-nums">£{amt.toFixed(2)}</span>
+                                    <button type="button" onClick={() => removeAdditionalItem(idx)} className="text-gray-400 hover:text-red-600">
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="vatRate">VAT Rate (%)</Label>
@@ -770,7 +828,15 @@ export default function AdminDashboard() {
 
                     {/* Totals preview */}
                     <div className="rounded-md border bg-gray-50 p-3 text-sm space-y-1">
-                      <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="tabular-nums">£{invSubtotal.toFixed(2)}</span></div>
+                      {invAddlSubtotal > 0 ? (
+                        <>
+                          <div className="flex justify-between text-gray-500"><span>Original works</span><span className="tabular-nums">£{invOrigSubtotal.toFixed(2)}</span></div>
+                          <div className="flex justify-between text-amber-700"><span>Additional works</span><span className="tabular-nums">£{invAddlSubtotal.toFixed(2)}</span></div>
+                          <div className="flex justify-between font-medium border-t border-gray-200 pt-1"><span className="text-gray-600">Subtotal</span><span className="tabular-nums">£{invSubtotal.toFixed(2)}</span></div>
+                        </>
+                      ) : (
+                        <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="tabular-nums">£{invSubtotal.toFixed(2)}</span></div>
+                      )}
                       {invVatRate > 0 && (
                         <div className="flex justify-between"><span className="text-gray-600">
                           {invoiceForm.vatOnBalanceOnly

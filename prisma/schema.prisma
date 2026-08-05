@@ -134,7 +134,8 @@ model Invoice {
   vatAmount     Float
   total         Float
   description   String
-  items         Json?
+  items            Json?
+  additionalItems  Json?
   depositPercent Float?   @default(50)
   careHomeId    String?
   careHome      CareHome? @relation(fields: [careHomeId], references: [id], onDelete: SetNull)

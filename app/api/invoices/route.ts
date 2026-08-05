@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { userId, invoiceNumber, subtotal, vatRate, description, items, depositPercent, issueDate, dueDate, notes, careHomeId, careHomeName, careHomeAddress, billTo, showCompanyAddress, vatOnBalanceOnly } = body;
+    const { userId, invoiceNumber, subtotal, vatRate, description, items, additionalItems, depositPercent, issueDate, dueDate, notes, careHomeId, careHomeName, careHomeAddress, billTo, showCompanyAddress, vatOnBalanceOnly } = body;
 
     if (!userId || !invoiceNumber || !issueDate || !dueDate) {
       return NextResponse.json(
@@ -65,15 +65,19 @@ export async function POST(request: Request) {
     }
 
     // Normalise line items
-    const lineItems = Array.isArray(items)
-      ? items
-          .map((i: { description?: string; quantity?: unknown; rate?: unknown }) => ({
-            description: String(i.description ?? "").trim(),
-            quantity: Number(i.quantity) || 0,
-            rate: Number(i.rate) || 0,
-          }))
-          .filter((i) => i.description.length > 0)
-      : [];
+    const normaliseItems = (raw: unknown) =>
+      Array.isArray(raw)
+        ? (raw as any[])
+            .map((i) => ({
+              description: String(i.description ?? "").trim(),
+              quantity: Number(i.quantity) || 0,
+              rate: Number(i.rate) || 0,
+            }))
+            .filter((i) => i.description.length > 0)
+        : [];
+
+    const lineItems = normaliseItems(items);
+    const addlItems = normaliseItems(additionalItems);
 
     if (lineItems.length === 0 && (subtotal === undefined || subtotal === "")) {
       return NextResponse.json(
@@ -96,9 +100,11 @@ export async function POST(request: Request) {
 
     // Subtotal is derived from the line items when present, otherwise fall back
     // to a manually-entered subtotal.
-    const subtotalAmount = lineItems.length
+    const baseAmount = lineItems.length
       ? lineItems.reduce((sum, i) => sum + i.quantity * i.rate, 0)
       : parseFloat(subtotal);
+    const addlAmount = addlItems.reduce((sum, i) => sum + i.quantity * i.rate, 0);
+    const subtotalAmount = baseAmount + addlAmount;
     const vat = parseFloat(vatRate || "20.0");
     const deposit = depositPercent !== undefined && depositPercent !== "" ? parseFloat(depositPercent) : 50;
     const vatBase = vatOnBalanceOnly
@@ -120,6 +126,7 @@ export async function POST(request: Request) {
         total,
         description: finalDescription,
         items: lineItems.length ? lineItems : undefined,
+        additionalItems: addlItems.length ? addlItems : undefined,
         depositPercent: deposit,
         careHomeId: careHomeId || null,
         careHomeName: careHomeName || null,

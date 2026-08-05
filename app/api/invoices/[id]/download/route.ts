@@ -231,7 +231,65 @@ export async function GET(
       },
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY || 120;
+    let finalY = (doc as any).lastAutoTable.finalY || 120;
+
+    // Additional Works table (if present)
+    const addlItems = (invoice as any).additionalItems as any[] | null;
+    let addlSubtotal = 0;
+    if (addlItems && addlItems.length > 0) {
+      addlSubtotal = addlItems.reduce((s: number, i: any) => s + (Number(i.quantity)||0) * (Number(i.rate)||0), 0);
+      const addlData = addlItems.map((item: any) => {
+        const qty = Number(item.quantity) || 1;
+        const rate = Number(item.rate) || 0;
+        return [
+          String(item.description || ""),
+          String(qty),
+          `£${rate.toFixed(2)}`,
+          `£${(qty * rate).toFixed(2)}`,
+        ];
+      });
+
+      autoTable(doc, {
+        startY: finalY + 8,
+        margin: { left: 20, right: 20 },
+        head: [[{ content: "ADDITIONAL WORKS", colSpan: 4, styles: { halign: "left" } }], ["Description", "Qty", "Unit Price", "Amount"]],
+        body: addlData,
+        theme: "plain",
+        headStyles: {
+          fillColor: [180, 83, 9],
+          textColor: 255,
+          fontSize: 10,
+          fontStyle: "bold",
+          cellPadding: 3,
+        },
+        bodyStyles: {
+          lineWidth: 0.1,
+          lineColor: [225, 225, 225],
+        },
+        alternateRowStyles: {
+          fillColor: [255, 251, 235],
+        },
+        styles: {
+          fontSize: 10,
+          cellPadding: 3,
+          overflow: "linebreak",
+        },
+        columnStyles: {
+          0: { cellWidth: 95, halign: "left" },
+          1: { cellWidth: 20, halign: "center" },
+          2: { cellWidth: 30, halign: "right" },
+          3: { cellWidth: 25, halign: "right" },
+        },
+        didParseCell: (data: any) => {
+          if (data.section === "head" && data.row.index === 1) {
+            if (data.column.index === 1) data.cell.styles.halign = "center";
+            else if (data.column.index >= 2) data.cell.styles.halign = "right";
+            else data.cell.styles.halign = "left";
+          }
+        },
+      });
+      finalY = (doc as any).lastAutoTable.finalY || finalY;
+    }
 
     // Totals
     const labelX = 140;
@@ -240,8 +298,27 @@ export async function GET(
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text("Subtotal", labelX, y);
-    doc.text(`£${invoice.subtotal.toFixed(2)}`, valueX, y, { align: "right" });
+
+    if (addlSubtotal > 0) {
+      const originalSubtotal = invoice.subtotal - addlSubtotal;
+      doc.text("Original works subtotal", labelX, y);
+      doc.text(`£${originalSubtotal.toFixed(2)}`, valueX, y, { align: "right" });
+      y += 6;
+      doc.text("Additional works subtotal", labelX, y);
+      doc.text(`£${addlSubtotal.toFixed(2)}`, valueX, y, { align: "right" });
+      y += 4;
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.2);
+      doc.line(labelX, y, valueX, y);
+      y += 5;
+      doc.setFont("helvetica", "bold");
+      doc.text("Subtotal", labelX, y);
+      doc.text(`£${invoice.subtotal.toFixed(2)}`, valueX, y, { align: "right" });
+      doc.setFont("helvetica", "normal");
+    } else {
+      doc.text("Subtotal", labelX, y);
+      doc.text(`£${invoice.subtotal.toFixed(2)}`, valueX, y, { align: "right" });
+    }
 
     const vatOnBalanceOnly = (invoice as any).vatOnBalanceOnly === true;
     if (invoice.vatRate > 0) {
