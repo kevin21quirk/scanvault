@@ -349,8 +349,34 @@ export async function GET(
     y += 6;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("Total Due", labelX, y);
+    doc.text(vatOnBalanceOnly ? "Invoice Total" : "Total Due", labelX, y);
     doc.text(`£${invoice.total.toFixed(2)}`, valueX, y, { align: "right" });
+
+    // When deposit already paid, show the net balance owed prominently
+    if (vatOnBalanceOnly) {
+      const dep = invoice.depositPercent ?? 50;
+      const paidDeposit = originalSubtotal * (dep / 100);
+      const nowDue = invoice.total - paidDeposit;
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(80, 80, 80);
+      doc.text(`Less deposit already paid (${dep}%)`, labelX, y);
+      doc.text(`(£${paidDeposit.toFixed(2)})`, valueX, y, { align: "right" });
+      doc.setTextColor(0, 0, 0);
+      y += 2;
+      doc.setDrawColor(220, 38, 38);
+      doc.setLineWidth(0.6);
+      doc.line(labelX, y, valueX, y);
+      y += 7;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.setTextColor(220, 38, 38);
+      doc.text("Balance Now Due", labelX, y);
+      doc.text(`£${nowDue.toFixed(2)}`, valueX, y, { align: "right" });
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10);
+    }
 
     // Payment schedule
     const deposit = invoice.depositPercent ?? 50;

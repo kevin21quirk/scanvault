@@ -423,10 +423,14 @@ export default function AdminDashboard() {
   const invSubtotal = invOrigSubtotal + invAddlSubtotal;
   const invVatRate = parseFloat(invoiceForm.vatRate) || 0;
   const invDepositPct = parseFloat(invoiceForm.depositPercent) || 0;
-  const invVatBase = invoiceForm.vatOnBalanceOnly ? invSubtotal * (1 - invDepositPct / 100) : invSubtotal;
+  const invVatBase = invoiceForm.vatOnBalanceOnly
+    ? (invOrigSubtotal * (1 - invDepositPct / 100)) + invAddlSubtotal
+    : invSubtotal;
   const invVat = invVatBase * invVatRate / 100;
   const invTotal = invSubtotal + invVat;
-  const invDeposit = invoiceForm.vatOnBalanceOnly ? invSubtotal * (invDepositPct / 100) : invTotal * (invDepositPct / 100);
+  const invDeposit = invoiceForm.vatOnBalanceOnly
+    ? invOrigSubtotal * (invDepositPct / 100)
+    : invTotal * (invDepositPct / 100);
   const invBalance = invTotal - invDeposit;
 
   // Calculate overdue invoices
@@ -840,7 +844,7 @@ export default function AdminDashboard() {
                       {invVatRate > 0 && (
                         <div className="flex justify-between"><span className="text-gray-600">
                           {invoiceForm.vatOnBalanceOnly
-                            ? `VAT (${invoiceForm.vatRate}% on balance of £${(invSubtotal * (1 - invDepositPct/100)).toFixed(2)})`
+                            ? `VAT (${invoiceForm.vatRate}% on balance of £${((invOrigSubtotal * (1 - invDepositPct/100)) + invAddlSubtotal).toFixed(2)})`
                             : `VAT (${invoiceForm.vatRate}%)`}
                         </span><span className="tabular-nums">£{invVat.toFixed(2)}</span></div>
                       )}
