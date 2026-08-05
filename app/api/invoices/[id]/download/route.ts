@@ -357,30 +357,41 @@ export async function GET(
       const dep = invoice.depositPercent ?? 50;
       const paidDeposit = originalSubtotal * (dep / 100);
       const nowDue = invoice.total - paidDeposit;
+
+      // Deposit paid line — start at x=110 with short label so it never reaches the amount column
       y += 6;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9.5);
       doc.setTextColor(80, 80, 80);
-      doc.text(`Less deposit already paid (${dep}%)`, labelX, y);
-      doc.text(`(£${paidDeposit.toFixed(2)})`, valueX, y, { align: "right" });
+      doc.text(`Deposit paid (${dep}%)`, 110, y);
+      doc.text(`(\u00a3${paidDeposit.toFixed(2)})`, valueX, y, { align: "right" });
       doc.setTextColor(0, 0, 0);
-      y += 2;
+      y += 3;
       doc.setDrawColor(220, 38, 38);
-      doc.setLineWidth(0.6);
-      doc.line(labelX, y, valueX, y);
-      y += 7;
+      doc.setLineWidth(0.4);
+      doc.line(110, y, valueX, y);
+      y += 3;
+
+      // Balance Now Due — full-width pink box so label starts at x=26 with no overlap risk
+      const bdBoxTop = y + 2;
+      const bdBoxH = 12;
+      doc.setFillColor(255, 235, 235);
+      doc.setDrawColor(220, 38, 38);
+      doc.setLineWidth(0.4);
+      doc.roundedRect(20, bdBoxTop, 170, bdBoxH, 2, 2, "FD");
+      const bdTextY = bdBoxTop + 8;
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(13);
+      doc.setFontSize(11);
       doc.setTextColor(220, 38, 38);
-      doc.text("Balance Now Due", labelX, y);
-      doc.text(`£${nowDue.toFixed(2)}`, valueX, y, { align: "right" });
+      doc.text("Balance Now Due", 26, bdTextY);
+      doc.text(`\u00a3${nowDue.toFixed(2)}`, 184, bdTextY, { align: "right" });
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(10);
+      y = bdBoxTop + bdBoxH;
     }
 
     // Payment schedule
     const deposit = invoice.depositPercent ?? 50;
-    // When vatOnBalanceOnly the deposit was paid pre-VAT on the ORIGINAL subtotal only
     const depositAmount = vatOnBalanceOnly
       ? originalSubtotal * (deposit / 100)
       : (invoice.total * deposit) / 100;
