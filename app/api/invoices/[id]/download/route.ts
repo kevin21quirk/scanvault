@@ -299,12 +299,12 @@ export async function GET(
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
 
+    const originalSubtotal = addlSubtotal > 0 ? invoice.subtotal - addlSubtotal : invoice.subtotal;
     if (addlSubtotal > 0) {
-      const originalSubtotal = invoice.subtotal - addlSubtotal;
-      doc.text("Original works subtotal", labelX, y);
+      doc.text("Original works", labelX, y);
       doc.text(`£${originalSubtotal.toFixed(2)}`, valueX, y, { align: "right" });
       y += 6;
-      doc.text("Additional works subtotal", labelX, y);
+      doc.text("Additional works", labelX, y);
       doc.text(`£${addlSubtotal.toFixed(2)}`, valueX, y, { align: "right" });
       y += 4;
       doc.setDrawColor(200, 200, 200);
@@ -325,13 +325,14 @@ export async function GET(
       y += 6;
       if (vatOnBalanceOnly) {
         const dep = invoice.depositPercent ?? 50;
-        const balanceBase = invoice.subtotal * (1 - dep / 100);
+        // VAT applies to: original balance + 100% of additional works
+        const vatBase = (originalSubtotal * (1 - dep / 100)) + addlSubtotal;
         doc.text(`VAT (${invoice.vatRate}%)`, labelX, y);
         doc.text(`£${invoice.vatAmount.toFixed(2)}`, valueX, y, { align: "right" });
         y += 4;
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
-        doc.text(`on remaining balance of £${balanceBase.toFixed(2)}`, labelX, y);
+        doc.text(`on remaining balance of £${vatBase.toFixed(2)}`, labelX, y);
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
       } else {
@@ -353,9 +354,9 @@ export async function GET(
 
     // Payment schedule
     const deposit = invoice.depositPercent ?? 50;
-    // When vatOnBalanceOnly the deposit was paid pre-VAT (on the subtotal)
+    // When vatOnBalanceOnly the deposit was paid pre-VAT on the ORIGINAL subtotal only
     const depositAmount = vatOnBalanceOnly
-      ? invoice.subtotal * (deposit / 100)
+      ? originalSubtotal * (deposit / 100)
       : (invoice.total * deposit) / 100;
     const balanceAmount = invoice.total - depositAmount;
     const balancePct = Math.round((100 - deposit) * 100) / 100;

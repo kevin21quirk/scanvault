@@ -68,7 +68,10 @@ export async function PATCH(
       ? parseFloat(depositPercent)
       : existing.depositPercent ?? 50;
     const useBalanceOnly = vatOnBalanceOnly !== undefined ? vatOnBalanceOnly === true : (existing as any).vatOnBalanceOnly === true;
-    const vatBase = useBalanceOnly ? subtotalAmount * (1 - deposit / 100) : subtotalAmount;
+    // When vatOnBalanceOnly: VAT on original balance + full additional works (deposit was pre-VAT)
+    const vatBase = useBalanceOnly
+      ? (baseAmount * (1 - deposit / 100)) + addlAmount
+      : subtotalAmount;
     const vatAmount = parseFloat(((vatBase * vat) / 100).toFixed(2));
     const total = parseFloat((subtotalAmount + vatAmount).toFixed(2));
     const finalDescription = lineItems.length > 0

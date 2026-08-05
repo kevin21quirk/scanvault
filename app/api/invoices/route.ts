@@ -107,8 +107,9 @@ export async function POST(request: Request) {
     const subtotalAmount = baseAmount + addlAmount;
     const vat = parseFloat(vatRate || "20.0");
     const deposit = depositPercent !== undefined && depositPercent !== "" ? parseFloat(depositPercent) : 50;
+    // When vatOnBalanceOnly: VAT on original balance + full additional works (deposit was pre-VAT)
     const vatBase = vatOnBalanceOnly
-      ? subtotalAmount * (1 - deposit / 100)
+      ? (baseAmount * (1 - deposit / 100)) + addlAmount
       : subtotalAmount;
     const vatAmount = parseFloat(((vatBase * vat) / 100).toFixed(2));
     const total = parseFloat((subtotalAmount + vatAmount).toFixed(2));
