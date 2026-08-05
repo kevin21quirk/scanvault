@@ -243,9 +243,15 @@ export async function GET(
     doc.text("Subtotal", labelX, y);
     doc.text(`£${invoice.subtotal.toFixed(2)}`, valueX, y, { align: "right" });
 
+    const vatOnBalanceOnly = (invoice as any).vatOnBalanceOnly === true;
     if (invoice.vatRate > 0) {
       y += 6;
-      doc.text(`VAT (${invoice.vatRate}%)`, labelX, y);
+      const deposit = invoice.depositPercent ?? 50;
+      const balanceBase = invoice.subtotal * (1 - deposit / 100);
+      const vatLabel = vatOnBalanceOnly
+        ? `VAT (${invoice.vatRate}% on balance of £${balanceBase.toFixed(2)})`
+        : `VAT (${invoice.vatRate}%)`;
+      doc.text(vatLabel, labelX, y);
       doc.text(`£${invoice.vatAmount.toFixed(2)}`, valueX, y, { align: "right" });
     }
 
@@ -262,14 +268,21 @@ export async function GET(
 
     // Payment schedule
     const deposit = invoice.depositPercent ?? 50;
-    const depositAmount = (invoice.total * deposit) / 100;
+    // When vatOnBalanceOnly the deposit was paid pre-VAT (on the subtotal)
+    const depositAmount = vatOnBalanceOnly
+      ? invoice.subtotal * (deposit / 100)
+      : (invoice.total * deposit) / 100;
     const balanceAmount = invoice.total - depositAmount;
     const balancePct = Math.round((100 - deposit) * 100) / 100;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
+    const depositRowLabel = vatOnBalanceOnly
+      ? `Deposit (${deposit}%) — already paid (no VAT applied)`
+      : `Deposit (${deposit}%) due upon acceptance of this invoice`;
+    const balRowSuffix = vatOnBalanceOnly ? ` (inc. VAT)` : "";
     const balText = doc.splitTextToSize(
-      `Remaining balance (${balancePct}%) due no later than 30 days (net) following completion of the works`,
+      `Remaining balance (${balancePct}%)${balRowSuffix} due no later than 30 days (net) following completion of the works`,
       150
     );
 
@@ -294,7 +307,7 @@ export async function GET(
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
-    doc.text(`Deposit (${deposit}%) due upon acceptance of this invoice`, 26, row1Y);
+    doc.text(depositRowLabel, 26, row1Y);
     doc.setFont("helvetica", "bold");
     doc.text(`£${depositAmount.toFixed(2)}`, 184, row1Y, { align: "right" });
 

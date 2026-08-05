@@ -142,6 +142,7 @@ model Invoice {
   careHomeAddress String?
   billTo             String    @default("CLIENT")
   showCompanyAddress Boolean   @default(true)
+  vatOnBalanceOnly   Boolean   @default(false)
   depositPaid        Boolean   @default(false)
   status             InvoiceStatus @default(PENDING)
   issueDate     DateTime

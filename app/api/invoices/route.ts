@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { userId, invoiceNumber, subtotal, vatRate, description, items, depositPercent, issueDate, dueDate, notes, careHomeId, careHomeName, careHomeAddress, billTo, showCompanyAddress } = body;
+    const { userId, invoiceNumber, subtotal, vatRate, description, items, depositPercent, issueDate, dueDate, notes, careHomeId, careHomeName, careHomeAddress, billTo, showCompanyAddress, vatOnBalanceOnly } = body;
 
     if (!userId || !invoiceNumber || !issueDate || !dueDate) {
       return NextResponse.json(
@@ -100,9 +100,12 @@ export async function POST(request: Request) {
       ? lineItems.reduce((sum, i) => sum + i.quantity * i.rate, 0)
       : parseFloat(subtotal);
     const vat = parseFloat(vatRate || "20.0");
-    const vatAmount = (subtotalAmount * vat) / 100;
-    const total = subtotalAmount + vatAmount;
     const deposit = depositPercent !== undefined && depositPercent !== "" ? parseFloat(depositPercent) : 50;
+    const vatBase = vatOnBalanceOnly
+      ? subtotalAmount * (1 - deposit / 100)
+      : subtotalAmount;
+    const vatAmount = parseFloat(((vatBase * vat) / 100).toFixed(2));
+    const total = parseFloat((subtotalAmount + vatAmount).toFixed(2));
     const finalDescription = (description && String(description).trim())
       || lineItems.map((i) => i.description).join(", ")
       || "Document scanning & archiving services";
@@ -123,6 +126,7 @@ export async function POST(request: Request) {
         careHomeAddress: careHomeAddress || null,
         billTo: billTo === "CARE_HOME" ? "CARE_HOME" : "CLIENT",
         showCompanyAddress: showCompanyAddress !== false,
+        vatOnBalanceOnly: vatOnBalanceOnly === true,
         issueDate: new Date(issueDate),
         dueDate: new Date(dueDate),
         notes: notes || null,

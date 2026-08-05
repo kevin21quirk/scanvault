@@ -46,6 +46,7 @@ interface Invoice {
   careHomeAddress: string | null;
   billTo: string;
   showCompanyAddress: boolean;
+  vatOnBalanceOnly: boolean;
   depositPaid: boolean;
   user: { id: string; email: string; name: string | null };
 }
@@ -83,7 +84,7 @@ export default function AdminDashboard() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
-  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
+  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", vatOnBalanceOnly: false, description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
   const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([{ description: "", quantity: "1", rate: "" }]);
   const [invoiceCareHomeOptions, setInvoiceCareHomeOptions] = useState<CareHomeOption[]>([]);
   const [markingDeposit, setMarkingDeposit] = useState<string | null>(null);
@@ -134,7 +135,7 @@ export default function AdminDashboard() {
 
   const handleOpenInvoiceModal = () => {
     setEditingInvoiceId(null);
-    setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
+    setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", vatOnBalanceOnly: false, description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
     setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
     setInvoiceCareHomeOptions([]);
     setShowInvoiceModal(true);
@@ -168,6 +169,7 @@ export default function AdminDashboard() {
       invoiceNumber: invoice.invoiceNumber,
       vatRate: String(invoice.vatRate),
       depositPercent: invoice.depositPercent != null ? String(invoice.depositPercent) : "50",
+      vatOnBalanceOnly: invoice.vatOnBalanceOnly === true,
       description: "",
       issueDate: invoice.issueDate.slice(0, 10),
       dueDate: invoice.dueDate.slice(0, 10),
@@ -234,7 +236,7 @@ export default function AdminDashboard() {
         );
         setShowInvoiceModal(false);
         setEditingInvoiceId(null);
-        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
+        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", vatOnBalanceOnly: false, description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
         setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
         setInvoiceCareHomeOptions([]);
         alert(wasEditing ? "Invoice updated successfully!" : "Invoice created successfully!");
@@ -404,9 +406,12 @@ export default function AdminDashboard() {
 
   // Live invoice totals (for the create-invoice modal preview)
   const invSubtotal = invoiceItems.reduce((sum, it) => sum + (parseFloat(it.quantity) || 0) * (parseFloat(it.rate) || 0), 0);
-  const invVat = invSubtotal * (parseFloat(invoiceForm.vatRate) || 0) / 100;
+  const invVatRate = parseFloat(invoiceForm.vatRate) || 0;
+  const invDepositPct = parseFloat(invoiceForm.depositPercent) || 0;
+  const invVatBase = invoiceForm.vatOnBalanceOnly ? invSubtotal * (1 - invDepositPct / 100) : invSubtotal;
+  const invVat = invVatBase * invVatRate / 100;
   const invTotal = invSubtotal + invVat;
-  const invDeposit = invTotal * (parseFloat(invoiceForm.depositPercent) || 0) / 100;
+  const invDeposit = invoiceForm.vatOnBalanceOnly ? invSubtotal * (invDepositPct / 100) : invTotal * (invDepositPct / 100);
   const invBalance = invTotal - invDeposit;
 
   // Calculate overdue invoices
@@ -766,19 +771,26 @@ export default function AdminDashboard() {
                     {/* Totals preview */}
                     <div className="rounded-md border bg-gray-50 p-3 text-sm space-y-1">
                       <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="tabular-nums">£{invSubtotal.toFixed(2)}</span></div>
-                      {(parseFloat(invoiceForm.vatRate) || 0) > 0 && (
-                        <div className="flex justify-between"><span className="text-gray-600">VAT ({invoiceForm.vatRate}%)</span><span className="tabular-nums">£{invVat.toFixed(2)}</span></div>
+                      {invVatRate > 0 && (
+                        <div className="flex justify-between"><span className="text-gray-600">
+                          {invoiceForm.vatOnBalanceOnly
+                            ? `VAT (${invoiceForm.vatRate}% on balance of £${(invSubtotal * (1 - invDepositPct/100)).toFixed(2)})`
+                            : `VAT (${invoiceForm.vatRate}%)`}
+                        </span><span className="tabular-nums">£{invVat.toFixed(2)}</span></div>
                       )}
                       <div className="flex justify-between font-semibold border-t pt-1"><span>Total Due</span><span className="tabular-nums">£{invTotal.toFixed(2)}</span></div>
-                      <div className="flex justify-between text-scanvault-red"><span>Deposit due upfront ({invoiceForm.depositPercent || 0}%)</span><span className="tabular-nums">£{invDeposit.toFixed(2)}</span></div>
-                      <div className="flex justify-between text-gray-600"><span>Balance (net 30 days after completion)</span><span className="tabular-nums">£{invBalance.toFixed(2)}</span></div>
+                      <div className="flex justify-between text-scanvault-red">
+                        <span>{invoiceForm.vatOnBalanceOnly ? `Deposit (${invoiceForm.depositPercent || 0}%) — already paid (no VAT)` : `Deposit due upfront (${invoiceForm.depositPercent || 0}%)`}</span>
+                        <span className="tabular-nums">£{invDeposit.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-gray-600"><span>{invoiceForm.vatOnBalanceOnly ? "Balance + VAT (net 30 days after completion)" : "Balance (net 30 days after completion)"}</span><span className="tabular-nums">£{invBalance.toFixed(2)}</span></div>
                     </div>
 
                     <div>
                       <Label htmlFor="notes">Notes (Optional)</Label>
                       <textarea id="notes" className="w-full px-3 py-2 border rounded-md" rows={2} value={invoiceForm.notes} onChange={(e) => setInvoiceForm({...invoiceForm, notes: e.target.value})} placeholder="Bank/payment details, PO number, or other notes shown on the invoice..."></textarea>
                     </div>
-                    <div className="rounded-md border border-gray-200 bg-gray-50 p-3">
+                    <div className="rounded-md border border-gray-200 bg-gray-50 p-3 space-y-3">
                       <label className="flex items-center gap-3 cursor-pointer">
                         <input
                           type="checkbox"
@@ -789,6 +801,18 @@ export default function AdminDashboard() {
                         <span className="text-sm">
                           <span className="font-medium">Include registered company address</span>
                           <span className="block text-xs text-gray-400">77 Church Street, Burton Latimer, Kettering, England, NN15 5LU</span>
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={invoiceForm.vatOnBalanceOnly}
+                          onChange={(e) => setInvoiceForm((p) => ({ ...p, vatOnBalanceOnly: e.target.checked }))}
+                          className="h-4 w-4 mt-0.5 accent-red-600"
+                        />
+                        <span className="text-sm">
+                          <span className="font-medium">Apply VAT to remaining balance only</span>
+                          <span className="block text-xs text-gray-400">Use when the deposit was already paid before VAT registration. VAT will be charged on the unpaid balance only, not the full invoice amount.</span>
                         </span>
                       </label>
                     </div>

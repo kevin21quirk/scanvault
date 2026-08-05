@@ -29,7 +29,7 @@ export async function PATCH(
     const body = await request.json();
     const {
       userId, invoiceNumber, vatRate, description, items, depositPercent,
-      issueDate, dueDate, notes, careHomeId, careHomeName, careHomeAddress, billTo, showCompanyAddress,
+      issueDate, dueDate, notes, careHomeId, careHomeName, careHomeAddress, billTo, showCompanyAddress, vatOnBalanceOnly,
     } = body;
 
     if (invoiceNumber && invoiceNumber !== existing.invoiceNumber) {
@@ -53,8 +53,13 @@ export async function PATCH(
       ? lineItems.reduce((sum, i) => sum + i.quantity * i.rate, 0)
       : existing.subtotal;
     const vat = vatRate !== undefined ? parseFloat(vatRate) : existing.vatRate;
-    const vatAmount = (subtotalAmount * vat) / 100;
-    const total = subtotalAmount + vatAmount;
+    const deposit = depositPercent !== undefined && depositPercent !== ""
+      ? parseFloat(depositPercent)
+      : existing.depositPercent ?? 50;
+    const useBalanceOnly = vatOnBalanceOnly !== undefined ? vatOnBalanceOnly === true : (existing as any).vatOnBalanceOnly === true;
+    const vatBase = useBalanceOnly ? subtotalAmount * (1 - deposit / 100) : subtotalAmount;
+    const vatAmount = parseFloat(((vatBase * vat) / 100).toFixed(2));
+    const total = parseFloat((subtotalAmount + vatAmount).toFixed(2));
     const finalDescription = lineItems.length > 0
       ? lineItems.map((i) => i.description).join(", ")
       : (description && String(description).trim()) || existing.description;
@@ -76,6 +81,7 @@ export async function PATCH(
         ...(careHomeAddress !== undefined && { careHomeAddress: careHomeAddress || null }),
         ...(billTo          !== undefined && { billTo: billTo === "CARE_HOME" ? "CARE_HOME" : "CLIENT" }),
         ...(showCompanyAddress !== undefined && { showCompanyAddress: showCompanyAddress !== false }),
+        ...(vatOnBalanceOnly   !== undefined && { vatOnBalanceOnly: vatOnBalanceOnly === true }),
         ...(issueDate       !== undefined && { issueDate: new Date(issueDate) }),
         ...(dueDate         !== undefined && { dueDate: new Date(dueDate) }),
         ...(notes           !== undefined && { notes: notes || null }),
