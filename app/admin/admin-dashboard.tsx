@@ -83,7 +83,7 @@ export default function AdminDashboard() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
-  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
+  const [invoiceForm, setInvoiceForm] = useState({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
   const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: string; rate: string }[]>([{ description: "", quantity: "1", rate: "" }]);
   const [invoiceCareHomeOptions, setInvoiceCareHomeOptions] = useState<CareHomeOption[]>([]);
   const [markingDeposit, setMarkingDeposit] = useState<string | null>(null);
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
 
   const handleOpenInvoiceModal = () => {
     setEditingInvoiceId(null);
-    setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
+    setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
     setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
     setInvoiceCareHomeOptions([]);
     setShowInvoiceModal(true);
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
         );
         setShowInvoiceModal(false);
         setEditingInvoiceId(null);
-        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "0", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
+        setInvoiceForm({ userId: "", invoiceNumber: "", vatRate: "20", depositPercent: "50", description: "", issueDate: "", dueDate: "", notes: "", careHomeId: "", careHomeName: "", careHomeAddress: "", billTo: "CLIENT", showCompanyAddress: true });
         setInvoiceItems([{ description: "", quantity: "1", rate: "" }]);
         setInvoiceCareHomeOptions([]);
         alert(wasEditing ? "Invoice updated successfully!" : "Invoice created successfully!");
@@ -755,7 +755,7 @@ export default function AdminDashboard() {
                       <div>
                         <Label htmlFor="vatRate">VAT Rate (%)</Label>
                         <Input id="vatRate" type="number" step="0.01" value={invoiceForm.vatRate} onChange={(e) => setInvoiceForm({...invoiceForm, vatRate: e.target.value})} placeholder="0" />
-                        <p className="text-xs text-gray-500 mt-1">Leave at 0 to invoice exclusive of VAT.</p>
+                        <p className="text-xs text-gray-500 mt-1">Standard UK rate 20%. Set to 0 to exclude VAT.</p>
                       </div>
                       <div>
                         <Label htmlFor="depositPercent">Deposit Payable Upfront (%) *</Label>

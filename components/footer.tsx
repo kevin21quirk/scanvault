@@ -71,7 +71,7 @@ export function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400 space-y-1">
           <p>&copy; {new Date().getFullYear()} ScanVault. All rights reserved.</p>
-          <p>Registered in England &amp; Wales &mdash; Company number 17229057</p>
+          <p>Registered in England &amp; Wales &mdash; Company number 17229057 &mdash; VAT No: 523 0764 13</p>
         </div>
       </div>
     </footer>

@@ -58,7 +58,7 @@ export async function GET(
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text("Document Management Solutions", 20, 27);
-    doc.text("Company Registration No: 17229057", 20, 32);
+    doc.text("Company Registration No: 17229057  |  VAT No: 523 0764 13", 20, 32);
     doc.text("kevin@scanvault.co.uk  |  scanvault.co.uk", 20, 37);
 
     // Quotation Title
@@ -253,6 +253,14 @@ export async function GET(
       doc.text(`-£${quotation.discountTotal.toFixed(2)}`, valueX, ty, { align: "right" });
     }
 
+    const qVatRate = (quotation as any).vatRate ?? 0;
+    const qVatAmount = (quotation as any).vatAmount ?? 0;
+    if (qVatRate > 0) {
+      ty += 6;
+      doc.text(`VAT (${qVatRate}%)`, labelX, ty);
+      doc.text(`£${qVatAmount.toFixed(2)}`, valueX, ty, { align: "right" });
+    }
+
     ty += 3;
     doc.setDrawColor(220, 38, 38);
     doc.setLineWidth(0.4);
@@ -261,7 +269,7 @@ export async function GET(
     ty += 6;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("Total (GBP)", labelX, ty);
+    doc.text(qVatRate > 0 ? "Total (inc. VAT)" : "Total (GBP)", labelX, ty);
     doc.text(`£${quotation.total.toFixed(2)}`, valueX, ty, { align: "right" });
 
     // Deposit & payment terms

@@ -53,7 +53,7 @@ export async function GET(
     doc.setFont("helvetica", "normal");
     doc.setTextColor(107, 114, 128);
     doc.text("Document Management Solutions", 20, 27);
-    doc.text("Company Registration No: 17229057", 20, 32);
+    doc.text("Company Registration No: 17229057  |  VAT No: 523 0764 13", 20, 32);
     doc.text("kevin@scanvault.co.uk  |  scanvault.co.uk", 20, 37);
 
     // ── "RECEIPT" title (top right) ──────────────────────────────────────────

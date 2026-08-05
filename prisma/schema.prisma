@@ -102,6 +102,8 @@ model Quotation {
   items            Json?
   subtotal         Float           @default(0)
   discountTotal    Float           @default(0)
+  vatRate          Float           @default(20.0)
+  vatAmount        Float           @default(0)
   total            Float           @default(0)
   depositPercent   Float?          @default(30)
   issueDate        DateTime        @default(now())

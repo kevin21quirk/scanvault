@@ -75,10 +75,10 @@ export async function GET(
     if (invoice.showCompanyAddress !== false) {
       doc.text("77 Church Street, Burton Latimer", 20, 32);
       doc.text("Kettering, England, NN15 5LU", 20, 37);
-      doc.text("Company Registration No: 17229057", 20, 42);
+      doc.text("Company Registration No: 17229057  |  VAT No: 523 0764 13", 20, 42);
       doc.text("kevin@scanvault.co.uk  |  scanvault.co.uk", 20, 47);
     } else {
-      doc.text("Company Registration No: 17229057", 20, 32);
+      doc.text("Company Registration No: 17229057  |  VAT No: 523 0764 13", 20, 32);
       doc.text("kevin@scanvault.co.uk  |  scanvault.co.uk", 20, 37);
     }
     

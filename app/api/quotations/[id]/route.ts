@@ -10,7 +10,7 @@ interface QuotationItemInput {
   discountPercent?: unknown;
 }
 
-function computeTotals(items: unknown) {
+function computeTotals(items: unknown, vatRateRaw?: unknown) {
   const lineItems = Array.isArray(items)
     ? (items as QuotationItemInput[])
         .map((i) => {
@@ -31,9 +31,12 @@ function computeTotals(items: unknown) {
 
   const subtotal = lineItems.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
   const discountTotal = lineItems.reduce((sum, i) => sum + i.quantity * i.unitPrice * (i.discountPercent / 100), 0);
-  const total = subtotal - discountTotal;
+  const netAfterDiscount = subtotal - discountTotal;
+  const vat = vatRateRaw !== undefined && vatRateRaw !== "" ? parseFloat(String(vatRateRaw)) : 20.0;
+  const vatAmount = parseFloat(((netAfterDiscount * vat) / 100).toFixed(2));
+  const total = parseFloat((netAfterDiscount + vatAmount).toFixed(2));
 
-  return { lineItems, subtotal, discountTotal, total };
+  return { lineItems, subtotal, discountTotal, vatRate: vat, vatAmount, total };
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -47,13 +50,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   let itemsUpdate = {};
   if (body.items !== undefined) {
-    const { lineItems, subtotal, discountTotal, total } = computeTotals(body.items);
+    const { lineItems, subtotal, discountTotal, vatRate, vatAmount, total } = computeTotals(body.items, body.vatRate);
     itemsUpdate = {
       items: lineItems.length ? lineItems : undefined,
       subtotal,
       discountTotal,
+      vatRate,
+      vatAmount,
       total,
     };
+  } else if (body.vatRate !== undefined) {
+    const existing = await prisma.quotation.findUnique({ where: { id } });
+    if (existing) {
+      const vat = parseFloat(String(body.vatRate)) || 0;
+      const netAfterDiscount = existing.subtotal - existing.discountTotal;
+      const vatAmount = parseFloat(((netAfterDiscount * vat) / 100).toFixed(2));
+      const total = parseFloat((netAfterDiscount + vatAmount).toFixed(2));
+      itemsUpdate = { vatRate: vat, vatAmount, total };
+    }
   }
 
   const quotation = await prisma.quotation.update({

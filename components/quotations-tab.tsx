@@ -38,6 +38,8 @@ interface Quotation {
   items:           QuotationItem[] | null;
   subtotal:        number;
   discountTotal:   number;
+  vatRate:         number;
+  vatAmount:       number;
   total:           number;
   depositPercent:  number | null;
   issueDate:       string;
@@ -84,6 +86,7 @@ const BLANK = {
   requirements: DEFAULT_REQUIREMENTS,
   projectDuration: "",
   depositPercent: "30",
+  vatRate: "20",
   validUntil: "",
   notes: "",
   userId: "",
@@ -172,6 +175,7 @@ export default function QuotationsTab() {
     requirements:    q.requirements    ?? DEFAULT_REQUIREMENTS,
     projectDuration: q.projectDuration ?? "",
     depositPercent:  q.depositPercent != null ? String(q.depositPercent) : "30",
+    vatRate:         q.vatRate != null ? String(q.vatRate) : "20",
     validUntil:      q.validUntil ? q.validUntil.slice(0, 10) : "",
     notes:           q.notes           ?? "",
     userId:          q.user?.id        ?? "",
@@ -280,7 +284,10 @@ export default function QuotationsTab() {
 
   const subtotal = items.reduce((sum, it) => sum + (parseFloat(it.quantity) || 0) * (parseFloat(it.unitPrice) || 0), 0);
   const discountTotal = items.reduce((sum, it) => sum + (parseFloat(it.quantity) || 0) * (parseFloat(it.unitPrice) || 0) * ((parseFloat(it.discountPercent) || 0) / 100), 0);
-  const total = subtotal - discountTotal;
+  const netAfterDiscount = subtotal - discountTotal;
+  const vatRate = parseFloat(form.vatRate) || 0;
+  const vatAmount = parseFloat(((netAfterDiscount * vatRate) / 100).toFixed(2));
+  const total = parseFloat((netAfterDiscount + vatAmount).toFixed(2));
   const depositAmount = total * (parseFloat(form.depositPercent) || 0) / 100;
   const balanceAmount = total - depositAmount;
 
@@ -581,15 +588,23 @@ export default function QuotationsTab() {
                 {discountTotal > 0 && (
                   <div className="flex justify-between text-gray-600"><span>Discount</span><span className="tabular-nums">-£{discountTotal.toFixed(2)}</span></div>
                 )}
-                <div className="flex justify-between font-semibold border-t pt-1"><span>Total (GBP)</span><span className="tabular-nums">£{total.toFixed(2)}</span></div>
+                {vatRate > 0 && (
+                  <div className="flex justify-between text-gray-600"><span>VAT ({form.vatRate}%)</span><span className="tabular-nums">£{vatAmount.toFixed(2)}</span></div>
+                )}
+                <div className="flex justify-between font-semibold border-t pt-1"><span>Total (inc. VAT)</span><span className="tabular-nums">£{total.toFixed(2)}</span></div>
                 <div className="flex justify-between text-scanvault-red"><span>Deposit ({form.depositPercent || 0}%)</span><span className="tabular-nums">£{depositAmount.toFixed(2)}</span></div>
                 <div className="flex justify-between text-gray-600"><span>Balance on completion</span><span className="tabular-nums">£{balanceAmount.toFixed(2)}</span></div>
               </div>
 
               {/* Pricing & Terms */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Deposit &amp; Validity</h3>
+                <h3 className="text-sm font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">VAT, Deposit &amp; Validity</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label>VAT Rate (%)</Label>
+                    <Input type="number" step="0.01" min="0" max="100" value={form.vatRate} onChange={set("vatRate")} className="mt-1" />
+                    <p className="text-xs text-gray-500 mt-1">Standard UK rate is 20%. Set to 0 to exclude VAT.</p>
+                  </div>
                   <div>
                     <Label>Deposit (%)</Label>
                     <Input type="number" step="1" min="0" max="100" value={form.depositPercent} onChange={set("depositPercent")} className="mt-1" />

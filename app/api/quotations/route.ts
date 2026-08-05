@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     quoteNumber, title, clientName, clientAddress, clientContact, clientEmail,
     careHomeName, careHomeAddress, careHomeId,
     scopeOfWorks, requirements, projectDuration,
-    items, depositPercent, validUntil, notes, userId, status,
+    items, depositPercent, validUntil, notes, userId, status, vatRate,
   } = body;
 
   if (!quoteNumber || !clientName) {
@@ -65,7 +65,10 @@ export async function POST(req: NextRequest) {
 
   const subtotal = lineItems.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
   const discountTotal = lineItems.reduce((sum, i) => sum + i.quantity * i.unitPrice * (i.discountPercent / 100), 0);
-  const total = subtotal - discountTotal;
+  const netAfterDiscount = subtotal - discountTotal;
+  const vat = vatRate !== undefined && vatRate !== "" ? parseFloat(vatRate) : 20.0;
+  const vatAmount = parseFloat(((netAfterDiscount * vat) / 100).toFixed(2));
+  const total = parseFloat((netAfterDiscount + vatAmount).toFixed(2));
 
   const existing = await prisma.quotation.findUnique({ where: { quoteNumber } });
   if (existing) {
@@ -89,6 +92,8 @@ export async function POST(req: NextRequest) {
       items: lineItems.length ? lineItems : undefined,
       subtotal,
       discountTotal,
+      vatRate: vat,
+      vatAmount,
       total,
       depositPercent: depositPercent !== undefined && depositPercent !== "" ? parseFloat(depositPercent) : 30,
       validUntil: validUntil ? new Date(validUntil) : null,
