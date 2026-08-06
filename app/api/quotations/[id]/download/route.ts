@@ -220,11 +220,11 @@ export async function GET(
         overflow: "linebreak",
       },
       columnStyles: {
-        0: { cellWidth: 80, halign: "left" },
-        1: { cellWidth: 22, halign: "center" },
+        0: { cellWidth: 78, halign: "left" },
+        1: { cellWidth: 20, halign: "center" },
         2: { cellWidth: 28, halign: "right" },
-        3: { cellWidth: 20, halign: "right" },
-        4: { cellWidth: 20, halign: "right" },
+        3: { cellWidth: 18, halign: "right" },
+        4: { cellWidth: 26, halign: "right" },
       },
       didParseCell: (data: any) => {
         if (data.section === "head") {
@@ -268,8 +268,8 @@ export async function GET(
 
     ty += 6;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text(qVatRate > 0 ? "Total (inc. VAT)" : "Total (GBP)", labelX, ty);
+    doc.setFontSize(11);
+    doc.text(qVatRate > 0 ? "Total (inc. VAT)" : "Total (GBP)", 125, ty);
     doc.text(`£${quotation.total.toFixed(2)}`, valueX, ty, { align: "right" });
 
     // Deposit & payment terms
@@ -298,13 +298,17 @@ export async function GET(
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
+    doc.setTextColor(0, 0, 0);
     doc.text(`Deposit (${deposit}%) required to secure the booking`, 26, row1Y);
     doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
     doc.text(`£${depositAmount.toFixed(2)}`, 184, row1Y, { align: "right" });
 
     doc.setFont("helvetica", "normal");
+    doc.setTextColor(0, 0, 0);
     doc.text(`Remaining balance (${balancePct}%) due upon completion of works`, 26, row2Y);
     doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
     doc.text(`£${balanceAmount.toFixed(2)}`, 184, row2Y, { align: "right" });
 
     // Notes

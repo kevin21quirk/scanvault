@@ -46,9 +46,13 @@ interface DocumentItem {
 
 const invoiceStatusStyle = (s: string) =>
   s === "PAID" ? "bg-green-100 text-green-700" :
+  s === "DEPOSIT_PAID" ? "bg-blue-100 text-blue-700" :
   s === "OVERDUE" ? "bg-red-100 text-red-700" :
   s === "CANCELLED" ? "bg-gray-100 text-gray-600" :
   "bg-yellow-100 text-yellow-700";
+
+const invoiceStatusLabel = (s: string) =>
+  s === "DEPOSIT_PAID" ? "Pending — Dep Paid" : s.charAt(0) + s.slice(1).toLowerCase();
 
 const quoteStatusStyle = (s: string) =>
   s === "ACCEPTED" ? "bg-green-100 text-green-700" :
@@ -326,7 +330,7 @@ export default function Portal() {
                         <div>
                           <p className="font-bold text-lg">{formatCurrency(invoice.total)}</p>
                           <span className={`text-xs px-2 py-1 rounded ${invoiceStatusStyle(invoice.status)}`}>
-                            {invoice.status}
+                            {invoiceStatusLabel(invoice.status)}
                           </span>
                         </div>
                         <button

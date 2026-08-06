@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   FileText, Receipt, Download, Loader2,
-  CheckCircle2, Clock, XCircle, AlertCircle, LogOut, KeyRound,
+  CheckCircle2, Clock, XCircle, AlertCircle, LogOut, KeyRound, FolderOpen,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -21,6 +21,15 @@ interface Invoice {
   careHomeName: string | null;
 }
 
+interface SvDocument {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  fileUrl: string;
+  uploadedAt: string;
+}
+
 interface ReceiptItem {
   id: string; receiptNumber: string; description: string;
   date: string; amount: number; paymentMethod: string;
@@ -29,17 +38,22 @@ interface ReceiptItem {
 
 
 const statusIcon = (s: string) => {
-  if (s === "PAID")      return <CheckCircle2 className="h-4 w-4 text-green-600" />;
-  if (s === "OVERDUE")   return <AlertCircle  className="h-4 w-4 text-red-600" />;
-  if (s === "CANCELLED") return <XCircle      className="h-4 w-4 text-gray-400" />;
+  if (s === "PAID")         return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+  if (s === "DEPOSIT_PAID") return <Clock        className="h-4 w-4 text-blue-500" />;
+  if (s === "OVERDUE")      return <AlertCircle  className="h-4 w-4 text-red-600" />;
+  if (s === "CANCELLED")    return <XCircle      className="h-4 w-4 text-gray-400" />;
   return <Clock className="h-4 w-4 text-yellow-500" />;
 };
 
 const statusBadge = (s: string) =>
-  s === "PAID"      ? "bg-green-100 text-green-700 border-green-200" :
-  s === "OVERDUE"   ? "bg-red-100 text-red-700 border-red-200" :
-  s === "CANCELLED" ? "bg-gray-100 text-gray-500 border-gray-200" :
-                      "bg-yellow-100 text-yellow-700 border-yellow-200";
+  s === "PAID"         ? "bg-green-100 text-green-700 border-green-200" :
+  s === "DEPOSIT_PAID" ? "bg-blue-100 text-blue-700 border-blue-200" :
+  s === "OVERDUE"      ? "bg-red-100 text-red-700 border-red-200" :
+  s === "CANCELLED"    ? "bg-gray-100 text-gray-500 border-gray-200" :
+                         "bg-yellow-100 text-yellow-700 border-yellow-200";
+
+const statusLabel = (s: string) =>
+  s === "DEPOSIT_PAID" ? "Pending — Dep Paid" : s.charAt(0) + s.slice(1).toLowerCase();
 
 function StatCard({ label, value, sub, colour }: { label: string; value: string; sub?: string; colour: string }) {
   return (
@@ -57,6 +71,7 @@ export default function AccountantDashboard() {
 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [receipts, setReceipts] = useState<ReceiptItem[]>([]);
+  const [svDocuments, setSvDocuments] = useState<SvDocument[]>([]);
   const [loading,  setLoading]  = useState(true);
 
   useEffect(() => {
@@ -65,7 +80,8 @@ export default function AccountantDashboard() {
     Promise.all([
       fetch("/api/invoices").then(r => r.ok ? r.json() : []),
       fetch("/api/receipts").then(r => r.ok ? r.json() : []),
-    ]).then(([inv, rec]) => { setInvoices(inv); setReceipts(rec); }).finally(() => setLoading(false));
+      fetch("/api/scanvault-documents").then(r => r.ok ? r.json() : []),
+    ]).then(([inv, rec, svd]) => { setInvoices(inv); setReceipts(rec); setSvDocuments(svd); }).finally(() => setLoading(false));
   }, [session, status, router]);
 
   if (status === "loading" || loading) {
@@ -105,6 +121,7 @@ export default function AccountantDashboard() {
           <TabsList>
             <TabsTrigger value="invoices"><FileText className="h-4 w-4 mr-2" />Invoices ({invoices.length})</TabsTrigger>
             <TabsTrigger value="receipts"><Receipt  className="h-4 w-4 mr-2" />Receipts ({receipts.length})</TabsTrigger>
+            <TabsTrigger value="scanvault-docs"><FolderOpen className="h-4 w-4 mr-2" />ScanVault Docs</TabsTrigger>
             <TabsTrigger value="account"><KeyRound className="h-4 w-4 mr-2" />Account</TabsTrigger>
           </TabsList>
 
@@ -147,7 +164,7 @@ export default function AccountantDashboard() {
                             <td className="px-4 py-3 text-right font-semibold">{formatCurrency(inv.total)}</td>
                             <td className="px-4 py-3 text-center">
                               <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${statusBadge(inv.status)}`}>
-                                {statusIcon(inv.status)}{inv.status}
+                                {statusIcon(inv.status)}{statusLabel(inv.status)}
                               </span>
                             </td>
                             <td className="px-4 py-3">
@@ -209,6 +226,39 @@ export default function AccountantDashboard() {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ── SCANVAULT DOCS ── */}
+          <TabsContent value="scanvault-docs">
+            <Card>
+              <CardHeader>
+                <CardTitle>ScanVault Documents</CardTitle>
+                <CardDescription>Internal company documents</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {svDocuments.length === 0 ? (
+                  <div className="text-center py-16 text-gray-400"><FolderOpen className="h-10 w-10 mx-auto mb-2" /><p>No documents found</p></div>
+                ) : (
+                  <div className="space-y-3">
+                    {svDocuments.map((doc) => (
+                      <div key={doc.id} className="border rounded-lg p-4 flex justify-between items-start gap-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold">{doc.title}</p>
+                          {doc.description && <p className="text-sm text-gray-500 mt-0.5">{doc.description}</p>}
+                          <span className="inline-block mt-1 text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{doc.category}</span>
+                        </div>
+                        <div className="text-right shrink-0 flex flex-col items-end gap-2">
+                          <p className="text-xs text-gray-400">{formatDate(doc.uploadedAt)}</p>
+                          <Button size="sm" variant="outline" onClick={() => window.open(doc.fileUrl, "_blank")}>
+                            <Download className="h-3.5 w-3.5 mr-1" />View
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </CardContent>

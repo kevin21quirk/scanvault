@@ -73,6 +73,17 @@ interface Document {
   user: { email: string; name: string | null };
 }
 
+interface SvDocument {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  fileUrl: string;
+  mimeType: string;
+  fileSize: number;
+  uploadedAt: string;
+}
+
 export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -117,6 +128,10 @@ export default function AdminDashboard() {
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [deletingInvoice, setDeletingInvoice] = useState<string | null>(null);
   const [deletingReceipt, setDeletingReceipt] = useState<string | null>(null);
+  const [svDocuments, setSvDocuments] = useState<SvDocument[]>([]);
+  const [showSvDocumentModal, setShowSvDocumentModal] = useState(false);
+  const [svDocumentForm, setSvDocumentForm] = useState({ title: "", description: "", category: "GENERAL", fileUrl: "" });
+  const [deletingSvDocument, setDeletingSvDocument] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -202,17 +217,19 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const [usersRes, invoicesRes, receiptsRes, documentsRes] = await Promise.all([
+      const [usersRes, invoicesRes, receiptsRes, documentsRes, svDocsRes] = await Promise.all([
         fetch("/api/users"),
         fetch("/api/invoices"),
         fetch("/api/receipts"),
         fetch("/api/documents"),
+        fetch("/api/scanvault-documents"),
       ]);
 
       if (usersRes.ok) setUsers(await usersRes.json());
       if (invoicesRes.ok) setInvoices(await invoicesRes.json());
       if (receiptsRes.ok) setReceipts(await receiptsRes.json());
       if (documentsRes.ok) setDocuments(await documentsRes.json());
+      if (svDocsRes.ok) setSvDocuments(await svDocsRes.json());
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -321,6 +338,50 @@ export default function AdminDashboard() {
       alert("Failed to delete invoice");
     } finally {
       setDeletingInvoice(null);
+    }
+  };
+
+  const handleUploadSvDocument = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/scanvault-documents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...svDocumentForm, fileSize: 0, mimeType: "application/pdf" }),
+      });
+      if (res.ok) {
+        const newDoc = await res.json();
+        setSvDocuments((prev) => [newDoc, ...prev]);
+        setShowSvDocumentModal(false);
+        setSvDocumentForm({ title: "", description: "", category: "GENERAL", fileUrl: "" });
+        alert("Document uploaded successfully!");
+      } else {
+        const error = await res.json();
+        alert(error.error || "Failed to upload document");
+      }
+    } catch {
+      alert("Failed to upload document");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteSvDocument = async (id: string) => {
+    if (!confirm("Delete this document? This cannot be undone.")) return;
+    setDeletingSvDocument(id);
+    try {
+      const res = await fetch(`/api/scanvault-documents/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setSvDocuments((prev) => prev.filter((d) => d.id !== id));
+      } else {
+        const error = await res.json();
+        alert(error.error || "Failed to delete document");
+      }
+    } catch {
+      alert("Failed to delete document");
+    } finally {
+      setDeletingSvDocument(null);
     }
   };
 
@@ -463,6 +524,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="expense-receipts">Expense Receipts</TabsTrigger>
           <TabsTrigger value="bank-import">Bank Import</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="scanvault-docs">ScanVault Docs</TabsTrigger>
           <TabsTrigger value="leads" className="relative">
             Leads &amp; Quotes
           </TabsTrigger>
@@ -589,11 +651,13 @@ export default function AdminDashboard() {
                               disabled={updatingStatus === invoice.id}
                               className={`text-sm px-2 py-1 border rounded w-full ${
                                 invoice.status === 'PAID' ? 'bg-green-50 text-green-700 border-green-300' :
+                                invoice.status === 'DEPOSIT_PAID' ? 'bg-blue-50 text-blue-700 border-blue-300' :
                                 invoice.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-300' :
                                 'bg-red-50 text-red-700 border-red-300'
                               }`}
                             >
                               <option value="PENDING">Pending</option>
+                              <option value="DEPOSIT_PAID">Pending - Dep Paid</option>
                               <option value="PAID">Paid</option>
                               <option value="OVERDUE">Overdue</option>
                               <option value="CANCELLED">Cancelled</option>
@@ -957,6 +1021,7 @@ export default function AdminDashboard() {
                                   className="text-sm px-2 py-1 border rounded bg-red-100 text-red-700 border-red-300"
                                 >
                                   <option value="PENDING">Pending</option>
+                                  <option value="DEPOSIT_PAID">Pending - Dep Paid</option>
                                   <option value="PAID">Paid</option>
                                   <option value="OVERDUE">Overdue</option>
                                   <option value="CANCELLED">Cancelled</option>
@@ -1180,6 +1245,114 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex gap-2 justify-end">
                       <Button type="button" variant="outline" onClick={() => setShowDocumentModal(false)}>Cancel</Button>
+                      <Button type="submit" className="bg-scanvault-red hover:bg-red-700" disabled={submitting}>
+                        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Upload Document"}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="scanvault-docs" className="space-y-4">
+          <div className="flex flex-wrap justify-between items-center gap-2">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold">ScanVault Documents</h2>
+              <p className="text-sm text-gray-500 mt-1">Internal company documents — visible to Admins and Accountant only.</p>
+            </div>
+            <Button onClick={() => setShowSvDocumentModal(true)} className="bg-scanvault-red hover:bg-red-700 shrink-0">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Document
+            </Button>
+          </div>
+          <Card>
+            <CardContent className="pt-6">
+              {svDocuments.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <FolderOpen className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <p>No ScanVault documents yet</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {svDocuments.map((doc) => (
+                    <div key={doc.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold">{doc.title}</p>
+                          {doc.description && <p className="text-sm text-gray-600 mt-0.5">{doc.description}</p>}
+                          <span className="inline-block mt-1 text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{doc.category}</span>
+                        </div>
+                        <div className="text-right shrink-0 flex flex-col items-end gap-2">
+                          <p className="text-sm text-gray-500">{new Date(doc.uploadedAt).toLocaleDateString("en-GB")}</p>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" onClick={() => window.open(doc.fileUrl, "_blank")}>
+                              <Download className="h-3.5 w-3.5 mr-1" />
+                              View
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:bg-red-50 border-red-200"
+                              onClick={() => handleDeleteSvDocument(doc.id)}
+                              disabled={deletingSvDocument === doc.id}
+                            >
+                              {deletingSvDocument === doc.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {showSvDocumentModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <Card className="w-full max-w-lg max-h-[92vh] overflow-y-auto">
+                <CardHeader className="flex flex-row items-start justify-between">
+                  <div>
+                    <CardTitle>Upload ScanVault Document</CardTitle>
+                    <CardDescription>Upload an internal company document</CardDescription>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowSvDocumentModal(false)}
+                    className="text-gray-400 hover:text-gray-700 ml-4 mt-1"
+                  >✕</button>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleUploadSvDocument} className="space-y-4">
+                    <div>
+                      <Label htmlFor="svDocTitle">Document Title *</Label>
+                      <Input id="svDocTitle" required value={svDocumentForm.title} onChange={(e) => setSvDocumentForm({ ...svDocumentForm, title: e.target.value })} placeholder="e.g. VAT Registration Certificate" />
+                    </div>
+                    <div>
+                      <Label htmlFor="svDocCategory">Category</Label>
+                      <select id="svDocCategory" className="w-full px-3 py-2 border rounded-md" value={svDocumentForm.category} onChange={(e) => setSvDocumentForm({ ...svDocumentForm, category: e.target.value })}>
+                        <option value="GENERAL">General</option>
+                        <option value="ACCOUNTS">Accounts</option>
+                        <option value="HR">HR</option>
+                        <option value="LEGAL">Legal</option>
+                        <option value="COMPLIANCE">Compliance</option>
+                        <option value="INSURANCE">Insurance</option>
+                        <option value="TAX">Tax</option>
+                        <option value="OTHER">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label htmlFor="svDocUrl">File URL *</Label>
+                      <Input id="svDocUrl" required value={svDocumentForm.fileUrl} onChange={(e) => setSvDocumentForm({ ...svDocumentForm, fileUrl: e.target.value })} placeholder="https://..." />
+                    </div>
+                    <div>
+                      <Label htmlFor="svDocNotes">Notes (Optional)</Label>
+                      <textarea id="svDocNotes" className="w-full px-3 py-2 border rounded-md" rows={2} value={svDocumentForm.description} onChange={(e) => setSvDocumentForm({ ...svDocumentForm, description: e.target.value })} placeholder="Additional notes..." />
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <Button type="button" variant="outline" onClick={() => setShowSvDocumentModal(false)}>Cancel</Button>
                       <Button type="submit" className="bg-scanvault-red hover:bg-red-700" disabled={submitting}>
                         {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Upload Document"}
                       </Button>

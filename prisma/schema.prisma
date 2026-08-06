@@ -201,9 +201,24 @@ enum UserRole {
 
 enum InvoiceStatus {
   PENDING
+  DEPOSIT_PAID
   PAID
   OVERDUE
   CANCELLED
+}
+
+model ScanVaultDocument {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String   @default("GENERAL")
+  fileUrl     String
+  fileSize    Int      @default(0)
+  mimeType    String   @default("application/pdf")
+  uploadedAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
 }
 
 model Lead {
