@@ -14,7 +14,7 @@ export async function GET() {
   const certs = await prisma.completionCertificate.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    include: { user: { select: { id: true, name: true, email: true } } },
+    include: { user: { select: { id: true, name: true, email: true } }, invoice: { select: { id: true, invoiceNumber: true } } },
   });
 
   return NextResponse.json(certs);
@@ -35,20 +35,33 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const {
-    certificateNumber, clientName, clientAddress, clientContact, clientEmail,
+    certificateNumber: bodyCertNumber, clientName, clientAddress, clientContact, clientEmail,
     careHomeName, careHomeAddress, careHomeId,
     worksDescription, workItems, completionDate, issuedDate,
-    assessorName, notes, userId,
+    assessorName, notes, userId, invoiceId,
   } = body;
 
-  if (!certificateNumber || !clientName || !completionDate) {
+  let finalCertificateNumber = bodyCertNumber;
+  let linkedInvoice = null;
+
+  if (invoiceId) {
+    linkedInvoice = await prisma.invoice.findUnique({ where: { id: invoiceId } });
+    if (!linkedInvoice) {
+      return NextResponse.json({ error: "Selected invoice not found" }, { status: 400 });
+    }
+    const match = linkedInvoice.invoiceNumber.match(/(\d+)$/);
+    const seq = match ? match[1] : "0000";
+    finalCertificateNumber = `CC-${seq}`;
+  }
+
+  if (!finalCertificateNumber || !clientName || !completionDate) {
     return NextResponse.json(
       { error: "Certificate number, client name, and completion date are required" },
       { status: 400 }
     );
   }
 
-  const existing = await prisma.completionCertificate.findUnique({ where: { certificateNumber } });
+  const existing = await prisma.completionCertificate.findUnique({ where: { certificateNumber: finalCertificateNumber } });
   if (existing) {
     return NextResponse.json({ error: "Certificate number already exists" }, { status: 400 });
   }
@@ -65,7 +78,8 @@ export async function POST(req: NextRequest) {
 
   const cert = await prisma.completionCertificate.create({
     data: {
-      certificateNumber,
+      certificateNumber: finalCertificateNumber,
+      invoiceId:         invoiceId      || null,
       clientName,
       clientAddress:   clientAddress   || null,
       clientContact:   clientContact   || null,
@@ -81,7 +95,7 @@ export async function POST(req: NextRequest) {
       notes:           notes           || null,
       userId:          userId          || null,
     },
-    include: { user: { select: { id: true, name: true, email: true } } },
+    include: { user: { select: { id: true, name: true, email: true } }, invoice: { select: { id: true, invoiceNumber: true } } },
   });
 
   return NextResponse.json(cert, { status: 201 });

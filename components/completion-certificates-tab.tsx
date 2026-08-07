@@ -17,6 +17,8 @@ interface CertUser { id: string; name: string | null; email: string; }
 interface Certificate {
   id:                string;
   certificateNumber: string;
+  invoiceId:         string | null;
+  invoiceNumber:     string | null;
   clientName:        string;
   clientAddress:     string | null;
   clientContact:     string | null;
@@ -41,9 +43,11 @@ interface UserOption {
   phone?: string | null; address?: string | null;
 }
 interface CareHomeOption { id: string; name: string; address: string | null; }
+interface InvoiceOption { id: string; invoiceNumber: string; }
 
 const BLANK_FORM = {
   certificateNumber: "",
+  invoiceId:         "",
   clientName:        "",
   clientAddress:     "",
   clientContact:     "",
@@ -88,33 +92,30 @@ export default function CompletionCertificatesTab() {
   const [downloading,     setDownloading]     = useState<string | null>(null);
   const [deleting,        setDeleting]        = useState<string | null>(null);
   const [careHomeOptions, setCareHomeOptions] = useState<CareHomeOption[]>([]);
+  const [invoices,        setInvoices]        = useState<InvoiceOption[]>([]);
+
+  const normalizeCert = (c: any): Certificate => ({
+    ...c,
+    invoiceId:     c.invoice?.id            ?? null,
+    invoiceNumber: c.invoice?.invoiceNumber ?? null,
+  });
 
   const fetchAll = useCallback(async () => {
     try {
-      const [cr, ur] = await Promise.all([
+      const [cr, ur, ir] = await Promise.all([
         fetch("/api/completion-certificates"),
         fetch("/api/users"),
+        fetch("/api/invoices"),
       ]);
-      if (cr.ok) setCerts(await cr.json());
+      if (cr.ok) { const data = await cr.json(); setCerts(data.map(normalizeCert)); }
       if (ur.ok) setUsers(await ur.json());
+      if (ir.ok) setInvoices(await ir.json());
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
-
-  const fetchNextNumber = async () => {
-    try {
-      const res = await fetch("/api/completion-certificates/next-number");
-      if (res.ok) {
-        const data = await res.json();
-        setForm((p) => ({ ...p, certificateNumber: data.certificateNumber }));
-      }
-    } catch (err) {
-      console.error("Error fetching next certificate number:", err);
-    }
-  };
 
   const clientUsers = users.filter((u) => u.role === "CLIENT" || u.role === undefined);
 
@@ -142,6 +143,22 @@ export default function CompletionCertificatesTab() {
       .catch(() => {});
   };
 
+  const handleSelectInvoice = (invoiceId: string) => {
+    if (!invoiceId) {
+      setForm((p) => ({ ...p, invoiceId: "", certificateNumber: "" }));
+      return;
+    }
+    const inv = invoices.find((i) => i.id === invoiceId);
+    if (!inv) return;
+    const match = inv.invoiceNumber.match(/(\d+)$/);
+    const seq = match ? match[1] : "";
+    setForm((p) => ({
+      ...p,
+      invoiceId,
+      certificateNumber: seq ? `CC-${seq}` : "",
+    }));
+  };
+
   const handleSelectCareHome = (careHomeId: string) => {
     if (!careHomeId) {
       setForm((p) => ({ ...p, careHomeId: "" }));
@@ -163,13 +180,13 @@ export default function CompletionCertificatesTab() {
     setWorkItems([{ ...BLANK_ITEM }]);
     setCareHomeOptions([]);
     setShowForm(true);
-    fetchNextNumber();
   };
 
   const openEdit = (cert: Certificate) => {
     setEditingId(cert.id);
     setForm({
       certificateNumber: cert.certificateNumber,
+      invoiceId:         cert.invoiceId       ?? "",
       clientName:        cert.clientName,
       clientAddress:     cert.clientAddress   ?? "",
       clientContact:     cert.clientContact   ?? "",
@@ -220,10 +237,11 @@ export default function CompletionCertificatesTab() {
       });
       if (res.ok) {
         const saved = await res.json();
+        const mapped = normalizeCert(saved);
         setCerts((p) =>
           editingId
-            ? p.map((c) => (c.id === editingId ? saved : c))
-            : [saved, ...p]
+            ? p.map((c) => (c.id === editingId ? mapped : c))
+            : [mapped, ...p]
         );
         setShowForm(false);
         setEditingId(null);
@@ -307,6 +325,7 @@ export default function CompletionCertificatesTab() {
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${meta.color}`}>
                             {meta.label}
                           </span>
+                          {cert.invoiceNumber && <span className="text-xs text-gray-500">Invoice {cert.invoiceNumber}</span>}
                         </div>
                         <p className="text-sm text-gray-700 mt-0.5">{cert.clientName}</p>
                         {cert.careHomeName && (
@@ -376,8 +395,8 @@ export default function CompletionCertificatesTab() {
             <CardContent>
               <form onSubmit={handleSave} className="space-y-5">
 
-                {/* Client + Certificate Number */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Client + Invoice + Certificate Number */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label>Client *</Label>
                     <select
@@ -393,8 +412,22 @@ export default function CompletionCertificatesTab() {
                     </select>
                   </div>
                   <div>
+                    <Label>Invoice</Label>
+                    <select
+                      className="w-full px-3 py-2 border rounded-md text-sm"
+                      value={form.invoiceId}
+                      onChange={(e) => handleSelectInvoice(e.target.value)}
+                    >
+                      <option value="">— Select an invoice —</option>
+                      {invoices.map((inv) => (
+                        <option key={inv.id} value={inv.id}>{inv.invoiceNumber}</option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">Certificate number is taken from the invoice.</p>
+                  </div>
+                  <div>
                     <Label>Certificate Number</Label>
-                    <Input value={form.certificateNumber} readOnly className="bg-gray-50" placeholder="Loading…" />
+                    <Input value={form.certificateNumber} readOnly className="bg-gray-50" placeholder="Select an invoice…" />
                   </div>
                 </div>
 

@@ -64,17 +64,20 @@ model CompletionCertificate {
   status             CertificateStatus @default(DRAFT)
   worksDescription   String?
   workItems          Json?
+  invoiceId          String?           @unique
+  invoice            Invoice?          @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
   completionDate     DateTime
   issuedDate         DateTime?
   boxesScanned       Int?
   filesScanned       Int?
   assessorName       String?           @default("Kevin Quirk")
   notes              String?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   @@index([userId])
   @@index([careHomeId])
+  @@index([invoiceId])
 }
 
 enum CertificateStatus {
@@ -154,6 +157,7 @@ model Invoice {
   notes         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  completionCertificate CompletionCertificate?
   
   @@index([userId])
   @@index([careHomeId])
