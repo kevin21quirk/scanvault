@@ -142,21 +142,12 @@ export function CompletionCertificatePDF(props: CompletionCertificatePDFProps) {
 
         {/* Parties */}
         <View style={s.partiesRow}>
-          <View style={s.partyBox}>
-            <Text style={s.partyLabel}>Client</Text>
-            <Text style={s.partyName}>{clientName}</Text>
-            {clientAddress ? <Text style={s.partyDetail}>{clientAddress}</Text> : null}
-            {clientContact ? <Text style={s.partyDetail}>{clientContact}</Text> : null}
-            {clientEmail   ? <Text style={s.partyDetail}>{clientEmail}</Text>   : null}
+          <View style={[s.partyBox, { flex: 1.3 }]}>
+            <Text style={s.partyLabel}>Site / Care Home</Text>
+            <Text style={s.partyName}>{careHomeName || clientName}</Text>
+            {careHomeAddress ? <Text style={s.partyDetail}>{careHomeAddress}</Text> : null}
           </View>
-          {careHomeName ? (
-            <View style={s.partyBox}>
-              <Text style={s.partyLabel}>Site / Care Home</Text>
-              <Text style={s.partyName}>{careHomeName}</Text>
-              {careHomeAddress ? <Text style={s.partyDetail}>{careHomeAddress}</Text> : null}
-            </View>
-          ) : null}
-          <View style={s.partyBox}>
+          <View style={[s.partyBox, { flex: 1 }]}>
             <Text style={s.partyLabel}>Service Provider</Text>
             <Text style={s.partyName}>Scan Vault Ltd</Text>
             <Text style={s.partyDetail}>info@scanvault.co.uk</Text>
