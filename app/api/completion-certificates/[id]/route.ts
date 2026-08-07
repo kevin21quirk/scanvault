@@ -42,6 +42,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.worksDescription  !== undefined && { worksDescription: body.worksDescription || null }),
       ...(normItems              !== undefined && { workItems: normItems }),
       ...(body.completionDate    !== undefined && { completionDate: new Date(body.completionDate) }),
+      ...(body.issuedDate        !== undefined && { issuedDate: body.issuedDate ? new Date(body.issuedDate) : null }),
       ...(body.assessorName      !== undefined && { assessorName: body.assessorName || "Kevin Quirk" }),
       ...(body.notes             !== undefined && { notes: body.notes || null }),
       ...(body.userId            !== undefined && { userId: body.userId || null }),

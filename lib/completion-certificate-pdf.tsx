@@ -19,59 +19,59 @@ const GREEN_BG  = "#f0fdf4";
 const GREEN_BOR = "#16a34a";
 
 const s = StyleSheet.create({
-  page:         { fontFamily: "Helvetica", fontSize: 9.5, color: MID, paddingTop: 50, paddingBottom: 60, paddingHorizontal: 50 },
-  header:       { marginBottom: 24, paddingBottom: 14, borderBottom: `2 solid ${BRAND_RED}`, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" },
-  brandScan:    { fontSize: 20, fontFamily: "Helvetica-Bold", color: DARK },
-  brandVault:   { fontSize: 20, fontFamily: "Helvetica-Bold", color: BRAND_RED },
+  page:         { fontFamily: "Helvetica", fontSize: 9, color: MID, paddingTop: 42, paddingBottom: 48, paddingHorizontal: 46 },
+  header:       { marginBottom: 18, paddingBottom: 10, borderBottom: `2 solid ${BRAND_RED}`, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" },
+  brandScan:    { fontSize: 18, fontFamily: "Helvetica-Bold", color: DARK },
+  brandVault:   { fontSize: 18, fontFamily: "Helvetica-Bold", color: BRAND_RED },
   headerSub:    { fontSize: 7.5, color: LIGHT },
   headerRight:  { textAlign: "right" },
 
-  certBadge:    { alignItems: "center", marginBottom: 20 },
-  certTitle:    { fontSize: 22, fontFamily: "Helvetica-Bold", color: DARK, textAlign: "center", letterSpacing: 1 },
-  certSub:      { fontSize: 10, color: LIGHT, textAlign: "center", marginTop: 3 },
-  certBorder:   { border: `2 solid ${GREEN_BOR}`, borderRadius: 6, padding: 16, marginVertical: 14, backgroundColor: GREEN_BG },
-  certStmt:     { fontSize: 11, fontFamily: "Helvetica-Bold", color: GREEN, textAlign: "center", lineHeight: 1.6 },
+  certBadge:    { alignItems: "center", marginBottom: 14 },
+  certTitle:    { fontSize: 20, fontFamily: "Helvetica-Bold", color: DARK, textAlign: "center", letterSpacing: 0.5 },
+  certSub:      { fontSize: 9, color: LIGHT, textAlign: "center", marginTop: 2 },
+  certBorder:   { border: `2 solid ${GREEN_BOR}`, borderRadius: 6, padding: 12, marginVertical: 10, backgroundColor: GREEN_BG },
+  certStmt:     { fontSize: 10, fontFamily: "Helvetica-Bold", color: GREEN, textAlign: "center", lineHeight: 1.45 },
 
-  partiesRow:   { flexDirection: "row", gap: 16, marginBottom: 16 },
-  partyBox:     { flex: 1, backgroundColor: "#f9fafb", padding: 10, borderRadius: 4, border: `1 solid ${RULE}` },
-  partyLabel:   { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: BRAND_RED, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 },
-  partyName:    { fontSize: 10, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 2 },
-  partyDetail:  { fontSize: 8.5, color: MID, lineHeight: 1.5 },
+  partiesRow:   { flexDirection: "row", gap: 12, marginBottom: 12 },
+  partyBox:     { flex: 1, backgroundColor: "#f9fafb", padding: 8, borderRadius: 4, border: `1 solid ${RULE}` },
+  partyLabel:   { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: BRAND_RED, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 3 },
+  partyName:    { fontSize: 10, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 1 },
+  partyDetail:  { fontSize: 8.5, color: MID, lineHeight: 1.4 },
 
-  sectionTitle: { fontSize: 10, fontFamily: "Helvetica-Bold", color: BRAND_RED, marginTop: 14, marginBottom: 6 },
-  body:         { lineHeight: 1.65, marginBottom: 4 },
+  sectionTitle: { fontSize: 10, fontFamily: "Helvetica-Bold", color: BRAND_RED, marginTop: 10, marginBottom: 4 },
+  body:         { lineHeight: 1.5, marginBottom: 2 },
   bold:         { fontFamily: "Helvetica-Bold", color: DARK },
-  rule:         { borderBottom: `1 solid ${RULE}`, marginVertical: 10 },
+  rule:         { borderBottom: `1 solid ${RULE}`, marginVertical: 8 },
 
-  infoBox:      { border: `1 solid ${RULE}`, borderRadius: 4, marginBottom: 12 },
+  infoBox:      { border: `1 solid ${RULE}`, borderRadius: 4, marginBottom: 10 },
   infoRow:      { flexDirection: "row", borderBottom: `1 solid ${RULE}` },
   infoRowLast:  { flexDirection: "row" },
-  infoLabel:    { width: "32%", backgroundColor: "#f9fafb", padding: 6, fontFamily: "Helvetica-Bold", color: DARK, fontSize: 8.5 },
-  infoVal:      { width: "68%", padding: 6, fontSize: 8.5, color: MID },
+  infoLabel:    { width: "32%", backgroundColor: "#f9fafb", padding: 5, fontFamily: "Helvetica-Bold", color: DARK, fontSize: 8.5 },
+  infoVal:      { width: "68%", padding: 5, fontSize: 8.5, color: MID },
 
-  worksBox:     { backgroundColor: "#f9fafb", padding: 10, borderRadius: 4, border: `1 solid ${RULE}`, marginBottom: 10 },
-  worksTitle:   { fontSize: 9, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 4 },
-  worksText:    { fontSize: 8.5, color: MID, lineHeight: 1.65 },
+  worksBox:     { backgroundColor: "#f9fafb", padding: 8, borderRadius: 4, border: `1 solid ${RULE}`, marginBottom: 8 },
+  worksTitle:   { fontSize: 9, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 3 },
+  worksText:    { fontSize: 8.5, color: MID, lineHeight: 1.5 },
 
   tHead:        { flexDirection: "row", backgroundColor: BRAND_RED, borderTopLeftRadius: 3, borderTopRightRadius: 3 },
-  tHeadCell:    { color: "#ffffff", fontFamily: "Helvetica-Bold", fontSize: 8, padding: 5 },
+  tHeadCell:    { color: "#ffffff", fontFamily: "Helvetica-Bold", fontSize: 8, padding: 4 },
   tRow:         { flexDirection: "row", borderBottom: `1 solid ${RULE}` },
   tRowAlt:      { flexDirection: "row", borderBottom: `1 solid ${RULE}`, backgroundColor: "#f9fafb" },
-  tCell:        { fontSize: 8.5, padding: 5, color: MID },
-  tCellBold:    { fontSize: 8.5, padding: 5, color: DARK, fontFamily: "Helvetica-Bold" },
+  tCell:        { fontSize: 8.5, padding: 4, color: MID },
+  tCellBold:    { fontSize: 8.5, padding: 4, color: DARK, fontFamily: "Helvetica-Bold" },
   tFoot:        { flexDirection: "row", backgroundColor: "#fef2f2", borderTop: `2 solid ${BRAND_RED}` },
-  tFootCell:    { fontSize: 8.5, padding: 5, fontFamily: "Helvetica-Bold", color: DARK },
+  tFootCell:    { fontSize: 8.5, padding: 4, fontFamily: "Helvetica-Bold", color: DARK },
   cDesc:        { width: "60%" },
   cQty:         { width: "20%", textAlign: "center" },
   cUnit:        { width: "20%", textAlign: "center" },
 
-  sigRow:       { flexDirection: "row", gap: 30, marginTop: 30 },
+  sigRow:       { flexDirection: "row", gap: 30, marginTop: 18 },
   sigBox:       { flex: 1 },
   sigLabel:     { fontSize: 8.5, fontFamily: "Helvetica-Bold", color: DARK, marginBottom: 2 },
-  sigLine:      { borderBottom: `1 solid ${DARK}`, marginBottom: 4, paddingBottom: 14 },
+  sigLine:      { borderBottom: `1 solid ${DARK}`, marginBottom: 3, paddingBottom: 10 },
   sigSub:       { fontSize: 7.5, color: LIGHT },
 
-  footer:       { position: "absolute", bottom: 28, left: 50, right: 50, flexDirection: "row", justifyContent: "space-between", borderTop: `1 solid ${RULE}`, paddingTop: 6 },
+  footer:       { position: "absolute", bottom: 24, left: 46, right: 46, flexDirection: "row", justifyContent: "space-between", borderTop: `1 solid ${RULE}`, paddingTop: 4 },
   footerText:   { fontSize: 7.5, color: LIGHT },
 });
 
@@ -86,6 +86,7 @@ export interface CompletionCertificatePDFProps {
   worksDescription:  string;
   workItems:         WorkItem[];
   completionDate:    string;
+  issuedDate:        string;
   assessorName:      string;
   notes:             string;
   createdAt:         string;
@@ -100,8 +101,10 @@ export function CompletionCertificatePDF(props: CompletionCertificatePDFProps) {
   const {
     certificateNumber, clientName, clientAddress, clientContact, clientEmail,
     careHomeName, careHomeAddress, worksDescription, workItems,
-    completionDate, assessorName, notes, createdAt,
+    completionDate, issuedDate, assessorName, notes, createdAt,
   } = props;
+
+  const displayIssuedDate = issuedDate || createdAt;
 
   const siteName = careHomeName || clientName;
 
@@ -116,13 +119,13 @@ export function CompletionCertificatePDF(props: CompletionCertificatePDFProps) {
           <View>
             <Text><Text style={s.brandScan}>Scan</Text><Text style={s.brandVault}>Vault</Text></Text>
             <Text style={s.headerSub}>Archiving & Digitisation Services</Text>
-            <Text style={s.headerSub}>info@scanvaultltd.co.uk  |  www.scanvaultltd.co.uk</Text>
+            <Text style={s.headerSub}>info@scanvault.co.uk  |  www.scanvault.co.uk</Text>
             <Text style={s.headerSub}>Company Reg: 17229057</Text>
           </View>
           <View style={s.headerRight}>
             <Text style={[s.headerSub, { fontFamily: "Helvetica-Bold", color: DARK }]}>Certificate No.</Text>
             <Text style={{ fontSize: 11, fontFamily: "Helvetica-Bold", color: BRAND_RED }}>{certificateNumber}</Text>
-            <Text style={s.headerSub}>Issued: {fmt(createdAt)}</Text>
+            <Text style={s.headerSub}>Issued: {fmt(displayIssuedDate)}</Text>
           </View>
         </View>
 
@@ -156,8 +159,8 @@ export function CompletionCertificatePDF(props: CompletionCertificatePDFProps) {
           <View style={s.partyBox}>
             <Text style={s.partyLabel}>Service Provider</Text>
             <Text style={s.partyName}>Scan Vault Ltd</Text>
-            <Text style={s.partyDetail}>info@scanvaultltd.co.uk</Text>
-            <Text style={s.partyDetail}>www.scanvaultltd.co.uk</Text>
+            <Text style={s.partyDetail}>info@scanvault.co.uk</Text>
+            <Text style={s.partyDetail}>www.scanvault.co.uk</Text>
             <Text style={s.partyDetail}>Company Reg: 17229057</Text>
           </View>
         </View>
@@ -241,7 +244,7 @@ export function CompletionCertificatePDF(props: CompletionCertificatePDFProps) {
 
         {/* Footer */}
         <View style={s.footer} fixed>
-          <Text style={s.footerText}>Scan Vault Ltd  ·  Company Reg: 17229057  ·  info@scanvaultltd.co.uk</Text>
+          <Text style={s.footerText}>Scan Vault Ltd  ·  Company Reg: 17229057  ·  info@scanvault.co.uk</Text>
           <Text style={s.footerText}>Certificate {certificateNumber}</Text>
         </View>
 

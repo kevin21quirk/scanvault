@@ -65,6 +65,7 @@ model CompletionCertificate {
   worksDescription   String?
   workItems          Json?
   completionDate     DateTime
+  issuedDate         DateTime?
   boxesScanned       Int?
   filesScanned       Int?
   assessorName       String?           @default("Kevin Quirk")

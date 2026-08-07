@@ -27,6 +27,7 @@ interface Certificate {
   worksDescription:  string | null;
   workItems:         { description: string; quantity: number; unit: string }[] | null;
   completionDate:    string;
+  issuedDate:        string | null;
   assessorName:      string | null;
   notes:             string | null;
   status:            CertStatus;
@@ -52,6 +53,7 @@ const BLANK_FORM = {
   careHomeId:        "",
   worksDescription:  "",
   completionDate:    "",
+  issuedDate:        "",
   assessorName:      "Kevin Quirk",
   notes:             "",
   userId:            "",
@@ -177,6 +179,7 @@ export default function CompletionCertificatesTab() {
       careHomeId:        cert.careHomeId      ?? "",
       worksDescription:  cert.worksDescription ?? "",
       completionDate:    cert.completionDate.slice(0, 10),
+      issuedDate:        cert.issuedDate?.slice(0, 10) ?? "",
       assessorName:      cert.assessorName    ?? "Kevin Quirk",
       notes:             cert.notes           ?? "",
       userId:            cert.user?.id        ?? "",
@@ -486,6 +489,17 @@ export default function CompletionCertificatesTab() {
                       onChange={(e) => setForm((p) => ({ ...p, completionDate: e.target.value }))}
                     />
                   </div>
+                  <div>
+                    <Label>Issued Date</Label>
+                    <Input
+                      type="date"
+                      value={form.issuedDate}
+                      onChange={(e) => setForm((p) => ({ ...p, issuedDate: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Assessor / Supervisor</Label>
                     <Input

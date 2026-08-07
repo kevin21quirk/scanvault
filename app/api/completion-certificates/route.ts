@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const {
     certificateNumber, clientName, clientAddress, clientContact, clientEmail,
     careHomeName, careHomeAddress, careHomeId,
-    worksDescription, workItems, completionDate,
+    worksDescription, workItems, completionDate, issuedDate,
     assessorName, notes, userId,
   } = body;
 
@@ -76,6 +76,7 @@ export async function POST(req: NextRequest) {
       worksDescription: worksDescription || null,
       workItems:       normItems.length ? normItems : undefined,
       completionDate:  new Date(completionDate),
+      issuedDate:      issuedDate ? new Date(issuedDate) : null,
       assessorName:    assessorName    || "Kevin Quirk",
       notes:           notes           || null,
       userId:          userId          || null,

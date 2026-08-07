@@ -39,6 +39,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     worksDescription:  cert.worksDescription ?? "",
     workItems,
     completionDate:    cert.completionDate.toISOString(),
+    issuedDate:        cert.issuedDate?.toISOString() ?? cert.createdAt.toISOString(),
     assessorName:      cert.assessorName     ?? "Kevin Quirk",
     notes:             cert.notes            ?? "",
     createdAt:         cert.createdAt.toISOString(),
