@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2, X, Info, Linkedin, Twitter, Facebook, Instagram, Mail, Phone } from "lucide-react";
+import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2, X, Info, Mail, Phone } from "lucide-react";
 import { useState, useEffect } from "react";
 import MuxPlayer from "@mux/mux-player-react";
 
@@ -1011,7 +1011,7 @@ export default function Home() {
           },
         };
         const t = themes[sidebarTheme] ?? themes.hero;
-        const { panel: panelStyle, icon: iconStyle, contactIcon: contactIconStyle, label: labelStyle, text: contactTextStyle, iconCls, contactIconCls } = t;
+        const { panel: panelStyle, contactIcon: contactIconStyle, label: labelStyle, text: contactTextStyle, contactIconCls } = t;
         const labelClass = 'text-[10px] font-semibold tracking-[0.2em] uppercase text-center mb-3';
         const isCarousel = sidebarTheme === 'image';
 
@@ -1023,27 +1023,6 @@ export default function Home() {
               : { right: '20px', top: '50%', transform: 'translateY(-50%)', flexDirection: 'column', width: '144px' }
             }
           >
-
-            {/* — Social Media panel — */}
-            <div className="rounded-2xl p-4" style={panelStyle}>
-              <p className={labelClass} style={labelStyle}>Social Media</p>
-              {/* Icons: 2×2 grid normally, single row when in carousel */}
-              <div className={isCarousel ? 'flex flex-row gap-2' : 'grid grid-cols-2 gap-2'}>
-                {[
-                  { icon: <Linkedin className={iconCls} />, href: 'https://linkedin.com/company/scanvault', label: 'LinkedIn' },
-                  { icon: <Twitter className={iconCls} />, href: 'https://twitter.com/scanvault', label: 'Twitter' },
-                  { icon: <Facebook className={iconCls} />, href: 'https://facebook.com/scanvault', label: 'Facebook' },
-                  { icon: <Instagram className={iconCls} />, href: 'https://instagram.com/scanvault', label: 'Instagram' },
-                ].map((item, i) => (
-                  <a key={i} href={item.href} target="_blank" rel="noopener noreferrer" title={item.label}
-                    className="flex items-center justify-center rounded-xl transition-all duration-300 hover:scale-110 hover:brightness-125"
-                    style={{ ...iconStyle, boxShadow: 'none', width: '36px', height: '36px', flexShrink: 0 }}
-                    onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 0 18px rgba(255,255,255,0.25), inset 0 1px 0 rgba(255,255,255,0.3)') }
-                    onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
-                  >{item.icon}</a>
-                ))}
-              </div>
-            </div>
 
             {/* — Email panel — */}
             <a href="mailto:info@scanvault.co.uk" className="block rounded-2xl p-4 transition-all duration-300 hover:scale-[1.04] hover:brightness-110"
