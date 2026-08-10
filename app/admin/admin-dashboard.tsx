@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award } from "lucide-react";
+import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList } from "lucide-react";
 import LeadsTab from "@/components/leads-tab";
 import ContractsTab from "@/components/contracts-tab";
 import QuotationsTab from "@/components/quotations-tab";
@@ -507,32 +507,78 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="overview">
-        <TabsList className="w-full flex-wrap md:flex-nowrap overflow-x-auto">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="clients">Clients</TabsTrigger>
-          <TabsTrigger value="system-users">Users</TabsTrigger>
-          <TabsTrigger value="invoices">Invoices</TabsTrigger>
-          <TabsTrigger value="overdue" className="relative">
-            Overdue
-            {overdueInvoices.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {overdueInvoices.length}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="receipts">Receipts</TabsTrigger>
-          <TabsTrigger value="expense-receipts">Expense Receipts</TabsTrigger>
-          <TabsTrigger value="bank-import">Bank Import</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="scanvault-docs">ScanVault Docs</TabsTrigger>
-          <TabsTrigger value="leads" className="relative">
-            Leads &amp; Quotes
-          </TabsTrigger>
-          <TabsTrigger value="quotations">Quotations</TabsTrigger>
-          <TabsTrigger value="contracts">Contracts</TabsTrigger>
-          <TabsTrigger value="risk-assessments">Risk Assessments</TabsTrigger>
-          <TabsTrigger value="completion-certificates">Completion Certs</TabsTrigger>
-        </TabsList>
+        <div className="flex gap-6 items-start">
+          {/* ── Sidebar navigation ── */}
+          <aside className="w-52 shrink-0 rounded-xl border bg-gray-50 p-2">
+            <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 gap-0.5">
+
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-2 pb-1">Main</span>
+              <TabsTrigger value="overview" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <LayoutDashboard className="h-4 w-4 shrink-0" /> Overview
+              </TabsTrigger>
+
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-3 pb-1">People</span>
+              <TabsTrigger value="clients" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <Building2 className="h-4 w-4 shrink-0" /> Clients
+              </TabsTrigger>
+              <TabsTrigger value="system-users" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <Users className="h-4 w-4 shrink-0" /> Users
+              </TabsTrigger>
+
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-3 pb-1">Finance</span>
+              <TabsTrigger value="invoices" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <FileText className="h-4 w-4 shrink-0" /> Invoices
+              </TabsTrigger>
+              <TabsTrigger value="overdue" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none relative">
+                <AlertCircle className="h-4 w-4 shrink-0" /> Overdue
+                {overdueInvoices.length > 0 && (
+                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shrink-0">
+                    {overdueInvoices.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="receipts" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <Receipt className="h-4 w-4 shrink-0" /> Receipts
+              </TabsTrigger>
+              <TabsTrigger value="expense-receipts" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <CreditCard className="h-4 w-4 shrink-0" /> Expenses
+              </TabsTrigger>
+              <TabsTrigger value="bank-import" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <Landmark className="h-4 w-4 shrink-0" /> Bank Import
+              </TabsTrigger>
+
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-3 pb-1">Documents</span>
+              <TabsTrigger value="documents" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <FolderOpen className="h-4 w-4 shrink-0" /> Client Docs
+              </TabsTrigger>
+              <TabsTrigger value="scanvault-docs" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <FolderOpen className="h-4 w-4 shrink-0" /> ScanVault Docs
+              </TabsTrigger>
+
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-3 pb-1">Sales</span>
+              <TabsTrigger value="leads" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <TrendingUp className="h-4 w-4 shrink-0" /> Leads &amp; Quotes
+              </TabsTrigger>
+              <TabsTrigger value="quotations" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <ClipboardList className="h-4 w-4 shrink-0" /> Quotations
+              </TabsTrigger>
+              <TabsTrigger value="contracts" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <FileText className="h-4 w-4 shrink-0" /> Contracts
+              </TabsTrigger>
+
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-3 pb-1">Compliance</span>
+              <TabsTrigger value="risk-assessments" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <ShieldCheck className="h-4 w-4 shrink-0" /> Risk Assessments
+              </TabsTrigger>
+              <TabsTrigger value="completion-certificates" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <Award className="h-4 w-4 shrink-0" /> Completion Certs
+              </TabsTrigger>
+
+            </TabsList>
+          </aside>
+
+          {/* ── Main content ── */}
+          <div className="flex-1 min-w-0">
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1414,6 +1460,9 @@ export default function AdminDashboard() {
         <TabsContent value="bank-import" className="space-y-4">
           <RevolutImportTab />
         </TabsContent>
+
+          </div>{/* end content area */}
+        </div>{/* end flex wrapper */}
       </Tabs>
     </div>
   );
