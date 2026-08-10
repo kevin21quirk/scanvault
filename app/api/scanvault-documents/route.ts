@@ -34,35 +34,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { title, description, category, fileUrl, fileData, fileSize, mimeType } = body;
+    const formData = await request.formData();
+    const title = String(formData.get("title") || "");
+    const description = String(formData.get("description") || "");
+    const category = String(formData.get("category") || "GENERAL");
+    const fileUrl = String(formData.get("fileUrl") || "");
+    const file = formData.get("file") as File | null;
 
     if (!title) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
-    if (!fileUrl && !fileData) {
+    if (!file && !fileUrl) {
       return NextResponse.json({ error: "A file or file URL is required" }, { status: 400 });
     }
 
-    let finalFileUrl = fileUrl;
-    let finalFileSize = fileSize ? parseInt(fileSize) : 0;
-    let finalMimeType = mimeType || "application/pdf";
+    let finalFileUrl = fileUrl || "";
+    let finalFileSize = 0;
+    let finalMimeType = "application/pdf";
 
-    if (fileData) {
-      const match = fileData.match(/^data:([^;]+);base64,(.+)$/);
-      if (!match) {
-        return NextResponse.json({ error: "Invalid file data" }, { status: 400 });
-      }
-      finalMimeType = match[1] || finalMimeType;
-      const buffer = Buffer.from(match[2], "base64");
-      finalFileSize = buffer.length;
+    if (file && file.size > 0) {
+      const bytes = Buffer.from(await file.arrayBuffer());
+      finalFileSize = bytes.length;
+      finalMimeType = file.type || finalMimeType;
 
       const ext = finalMimeType.split("/").pop() || "bin";
       const filename = `${randomUUID()}.${ext}`;
       const uploadDir = path.join(process.cwd(), "public", "uploads", "scanvault");
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true });
 
-      await writeFile(path.join(uploadDir, filename), buffer);
+      await writeFile(path.join(uploadDir, filename), bytes);
       finalFileUrl = `/uploads/scanvault/${filename}`;
     }
 

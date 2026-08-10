@@ -132,8 +132,9 @@ export default function AdminDashboard() {
   const [svDocuments, setSvDocuments] = useState<SvDocument[]>([]);
   const [showSvDocumentModal, setShowSvDocumentModal] = useState(false);
   const [svDocumentForm, setSvDocumentForm] = useState({
-    title: "", description: "", category: "GENERAL", fileUrl: "", fileData: "", mimeType: "application/pdf", fileSize: 0,
+    title: "", description: "", category: "GENERAL", fileUrl: "",
   });
+  const [svDocFile, setSvDocFile] = useState<File | null>(null);
   const [deletingSvDocument, setDeletingSvDocument] = useState<string | null>(null);
 
   useEffect(() => {
@@ -348,16 +349,26 @@ export default function AdminDashboard() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const formData = new FormData();
+      formData.append("title", svDocumentForm.title);
+      formData.append("description", svDocumentForm.description);
+      formData.append("category", svDocumentForm.category);
+      if (svDocFile) {
+        formData.append("file", svDocFile);
+      } else if (svDocumentForm.fileUrl) {
+        formData.append("fileUrl", svDocumentForm.fileUrl);
+      }
+
       const res = await fetch("/api/scanvault-documents", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(svDocumentForm),
+        body: formData,
       });
       if (res.ok) {
         const newDoc = await res.json();
         setSvDocuments((prev) => [newDoc, ...prev]);
         setShowSvDocumentModal(false);
-        setSvDocumentForm({ title: "", description: "", category: "GENERAL", fileUrl: "", fileData: "", mimeType: "application/pdf", fileSize: 0 });
+        setSvDocumentForm({ title: "", description: "", category: "GENERAL", fileUrl: "" });
+        setSvDocFile(null);
         alert("Document uploaded successfully!");
       } else {
         const error = await res.json();
@@ -1487,26 +1498,17 @@ export default function AdminDashboard() {
                         type="file"
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
                         onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const reader = new FileReader();
-                          reader.onload = (ev) => {
-                            setSvDocumentForm({
-                              ...svDocumentForm,
-                              fileUrl: "",
-                              fileData: String(ev.target?.result || ""),
-                              mimeType: file.type,
-                              fileSize: file.size,
-                            });
-                          };
-                          reader.readAsDataURL(file);
+                          const file = e.target.files?.[0] || null;
+                          setSvDocFile(file);
+                          if (file) setSvDocumentForm({ ...svDocumentForm, fileUrl: "" });
                         }}
                       />
+                      {svDocFile && <p className="text-xs text-gray-600 mt-1">Selected: {svDocFile.name}</p>}
                       <p className="text-xs text-gray-500 mt-1">Accepted: PDF, Word, Excel, images</p>
                     </div>
                     <div>
                       <Label htmlFor="svDocUrl">Or File URL</Label>
-                      <Input id="svDocUrl" value={svDocumentForm.fileUrl} onChange={(e) => setSvDocumentForm({ ...svDocumentForm, fileUrl: e.target.value, fileData: "" })} placeholder="https://..." />
+                      <Input id="svDocUrl" value={svDocumentForm.fileUrl} onChange={(e) => { setSvDocumentForm({ ...svDocumentForm, fileUrl: e.target.value }); if (e.target.value) setSvDocFile(null); }} placeholder="https://..." />
                     </div>
                     <div>
                       <Label htmlFor="svDocNotes">Notes (Optional)</Label>
