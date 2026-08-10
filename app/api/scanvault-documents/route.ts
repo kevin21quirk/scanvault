@@ -80,6 +80,7 @@ export async function POST(request: Request) {
     return NextResponse.json(document, { status: 201 });
   } catch (error) {
     console.error("Error creating ScanVault document:", error);
-    return NextResponse.json({ error: "Failed to create document" }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: "Failed to create document", details: message }, { status: 500 });
   }
 }
