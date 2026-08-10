@@ -371,11 +371,13 @@ export default function AdminDashboard() {
         setSvDocFile(null);
         alert("Document uploaded successfully!");
       } else {
-        const error = await res.json();
-        alert(`${error.error}${error.details ? "\n" + error.details : ""}` || "Failed to upload document");
+        const text = await res.text();
+        let parsed: any;
+        try { parsed = JSON.parse(text); } catch { /* ignore */ }
+        alert(parsed?.error && parsed?.details ? `${parsed.error}\n${parsed.details}` : parsed?.error || text.slice(0, 300));
       }
-    } catch {
-      alert("Failed to upload document");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to upload document");
     } finally {
       setSubmitting(false);
     }
