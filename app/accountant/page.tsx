@@ -16,7 +16,9 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 
 interface Invoice {
   id: string; invoiceNumber: string; description: string;
-  issueDate: string; dueDate: string; total: number; status: string;
+  issueDate: string; dueDate: string; subtotal: number; vatRate: number; vatAmount: number; total: number; status: string;
+  depositPercent: number | null; depositPaid: boolean; vatOnBalanceOnly: boolean;
+  additionalItems: { description: string; quantity: number; rate: number }[] | null;
   user: { email: string; name: string | null };
   careHomeName: string | null;
 }
@@ -89,9 +91,21 @@ export default function AccountantDashboard() {
   }
 
   // ── Summaries ───────────────────────────────────────────────
+  const getDeposit = (inv: Invoice): number => {
+    const pct = inv.depositPercent ?? 50;
+    const addl = inv.additionalItems || [];
+    const addlSubtotal = addl.reduce((sum, it) => sum + (it.quantity || 0) * (it.rate || 0), 0);
+    const originalSubtotal = addlSubtotal > 0 ? inv.subtotal - addlSubtotal : inv.subtotal;
+    return inv.vatOnBalanceOnly
+      ? originalSubtotal * (pct / 100)
+      : inv.total * (pct / 100);
+  };
+
   const totalInvoiced    = invoices.reduce((s, i) => s + i.total, 0);
-  const totalReceipts    = receipts.reduce((s, r) => s + r.amount, 0);
-  const totalOutstanding = Math.max(0, totalInvoiced - totalReceipts);
+  const paidInvoices     = invoices.filter(i => i.status === "PAID");
+  const pendingInvoices  = invoices.filter(i => i.status !== "PAID" && i.status !== "CANCELLED");
+  const totalReceived    = paidInvoices.reduce((s, i) => s + i.total, 0) + pendingInvoices.filter(i => i.depositPaid).reduce((s, i) => s + getDeposit(i), 0);
+  const totalOutstanding = pendingInvoices.reduce((s, i) => s + i.total, 0) - pendingInvoices.filter(i => i.depositPaid).reduce((s, i) => s + getDeposit(i), 0);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -112,9 +126,9 @@ export default function AccountantDashboard() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard label="Total Invoiced"  value={formatCurrency(totalInvoiced)}    colour="bg-white border-gray-200" />
-          <StatCard label="Total Received"   value={formatCurrency(totalReceipts)}    sub={`${receipts.length} receipt${receipts.length !== 1 ? "s" : ""}`} colour="bg-green-50 border-green-100" />
+          <StatCard label="Total Received"   value={formatCurrency(totalReceived)}    sub="invoices + deposits" colour="bg-green-50 border-green-100" />
           <StatCard label="Outstanding"      value={formatCurrency(totalOutstanding)} sub="invoiced minus received" colour="bg-yellow-50 border-yellow-100" />
-          <StatCard label="Paid Invoices"    value={String(invoices.filter(i => i.status === "PAID").length)} sub={`of ${invoices.length} total`} colour="bg-blue-50 border-blue-100" />
+          <StatCard label="Paid Invoices"    value={String(paidInvoices.length)}      sub={`of ${invoices.length} total`} colour="bg-blue-50 border-blue-100" />
         </div>
 
         <Tabs defaultValue="invoices" className="space-y-4">
