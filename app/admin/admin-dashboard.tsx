@@ -48,6 +48,7 @@ interface Invoice {
   showCompanyAddress: boolean;
   vatOnBalanceOnly: boolean;
   depositPaid: boolean;
+  additionalItems: InvoiceLineItem[] | null;
   user: { id: string; email: string; name: string | null };
 }
 
@@ -494,6 +495,24 @@ export default function AdminDashboard() {
     : invTotal * (invDepositPct / 100);
   const invBalance = invTotal - invDeposit;
 
+  // Deposit amount per invoice (matches invoice PDF)
+  const getDeposit = (invoice: Invoice): number => {
+    const pct = invoice.depositPercent ?? 50;
+    const addl = (invoice.additionalItems || []) as InvoiceLineItem[];
+    const addlSubtotal = addl.reduce((sum, it) => sum + (it.quantity || 0) * (it.rate || 0), 0);
+    const originalSubtotal = addlSubtotal > 0 ? invoice.subtotal - addlSubtotal : invoice.subtotal;
+    return invoice.vatOnBalanceOnly
+      ? originalSubtotal * (pct / 100)
+      : invoice.total * (pct / 100);
+  };
+
+  // Revenue totals — paid invoices + paid deposits on unpaid invoices
+  const paidInvoices = invoices.filter(i => i.status === "PAID");
+  const pendingInvoices = invoices.filter(i => i.status !== "PAID" && i.status !== "CANCELLED");
+  const totalReceived = paidInvoices.reduce((a, i) => a + i.total, 0) + pendingInvoices.filter(i => i.depositPaid).reduce((a, i) => a + getDeposit(i), 0);
+  const totalOutstanding = pendingInvoices.reduce((a, i) => a + i.total, 0) - pendingInvoices.filter(i => i.depositPaid).reduce((a, i) => a + getDeposit(i), 0);
+  const totalInvoiced = invoices.reduce((a, i) => a + i.total, 0);
+
   // Calculate overdue invoices
   const overdueInvoices = invoices.filter(invoice => {
     if (invoice.status === 'PAID' || invoice.status === 'CANCELLED') return false;
@@ -656,7 +675,7 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-3 divide-x divide-gray-100">
                   <div className="pr-6">
                     <p className="text-2xl font-black text-gray-900 tracking-tight">
-                      £{invoices.filter(i => i.status === "PAID").reduce((a, i) => a + i.total, 0).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      £{totalReceived.toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
                     <p className="text-xs font-semibold text-emerald-500 mt-1.5 flex items-center gap-1">
                       <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" /> Total Received
@@ -664,7 +683,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="px-6">
                     <p className="text-2xl font-black text-gray-900 tracking-tight">
-                      £{invoices.filter(i => i.status !== "PAID" && i.status !== "CANCELLED").reduce((a, i) => a + i.total, 0).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      £{totalOutstanding.toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
                     <p className="text-xs font-semibold text-amber-500 mt-1.5 flex items-center gap-1">
                       <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" /> Outstanding
@@ -672,7 +691,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="pl-6">
                     <p className="text-2xl font-black text-gray-900 tracking-tight">
-                      £{invoices.reduce((a, i) => a + i.total, 0).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      £{totalInvoiced.toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
                     <p className="text-xs font-semibold text-gray-400 mt-1.5 flex items-center gap-1">
                       <span className="inline-block h-1.5 w-1.5 rounded-full bg-gray-300" /> Total Invoiced
