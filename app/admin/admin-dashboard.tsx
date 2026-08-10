@@ -509,68 +509,68 @@ export default function AdminDashboard() {
       <Tabs defaultValue="overview">
         <div className="flex gap-6 items-start">
           {/* ── Sidebar navigation ── */}
-          <aside className="w-52 shrink-0 rounded-xl border bg-gray-50 p-2">
+          <aside className="w-56 shrink-0 rounded-2xl bg-slate-900 p-3">
             <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 gap-0.5">
 
-              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-2 pb-1">Main</span>
-              <TabsTrigger value="overview" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] px-2 pt-3 pb-1">Main</span>
+              <TabsTrigger value="overview" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <LayoutDashboard className="h-4 w-4 shrink-0" /> Overview
               </TabsTrigger>
 
-              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-3 pb-1">People</span>
-              <TabsTrigger value="clients" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] px-2 pt-3 pb-1">People</span>
+              <TabsTrigger value="clients" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <Building2 className="h-4 w-4 shrink-0" /> Clients
               </TabsTrigger>
-              <TabsTrigger value="system-users" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger value="system-users" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <Users className="h-4 w-4 shrink-0" /> Users
               </TabsTrigger>
 
-              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-3 pb-1">Finance</span>
-              <TabsTrigger value="invoices" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] px-2 pt-3 pb-1">Finance</span>
+              <TabsTrigger value="invoices" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <FileText className="h-4 w-4 shrink-0" /> Invoices
               </TabsTrigger>
-              <TabsTrigger value="overdue" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none relative">
-                <AlertCircle className="h-4 w-4 shrink-0" /> Overdue
+              <TabsTrigger value="overdue" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <AlertCircle className="h-4 w-4 shrink-0" /> <span className="flex-1 text-left">Overdue</span>
                 {overdueInvoices.length > 0 && (
-                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shrink-0">
+                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shrink-0 font-bold">
                     {overdueInvoices.length}
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="receipts" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger value="receipts" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <Receipt className="h-4 w-4 shrink-0" /> Receipts
               </TabsTrigger>
-              <TabsTrigger value="expense-receipts" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger value="expense-receipts" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <CreditCard className="h-4 w-4 shrink-0" /> Expenses
               </TabsTrigger>
-              <TabsTrigger value="bank-import" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger value="bank-import" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <Landmark className="h-4 w-4 shrink-0" /> Bank Import
               </TabsTrigger>
 
-              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-3 pb-1">Documents</span>
-              <TabsTrigger value="documents" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] px-2 pt-3 pb-1">Documents</span>
+              <TabsTrigger value="documents" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <FolderOpen className="h-4 w-4 shrink-0" /> Client Docs
               </TabsTrigger>
-              <TabsTrigger value="scanvault-docs" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger value="scanvault-docs" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <FolderOpen className="h-4 w-4 shrink-0" /> ScanVault Docs
               </TabsTrigger>
 
-              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-3 pb-1">Sales</span>
-              <TabsTrigger value="leads" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] px-2 pt-3 pb-1">Sales</span>
+              <TabsTrigger value="leads" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <TrendingUp className="h-4 w-4 shrink-0" /> Leads &amp; Quotes
               </TabsTrigger>
-              <TabsTrigger value="quotations" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger value="quotations" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <ClipboardList className="h-4 w-4 shrink-0" /> Quotations
               </TabsTrigger>
-              <TabsTrigger value="contracts" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger value="contracts" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <FileText className="h-4 w-4 shrink-0" /> Contracts
               </TabsTrigger>
 
-              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-2 pt-3 pb-1">Compliance</span>
-              <TabsTrigger value="risk-assessments" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] px-2 pt-3 pb-1">Compliance</span>
+              <TabsTrigger value="risk-assessments" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <ShieldCheck className="h-4 w-4 shrink-0" /> Risk Assessments
               </TabsTrigger>
-              <TabsTrigger value="completion-certificates" className="w-full justify-start gap-2 rounded-lg px-3 py-2 text-sm data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger value="completion-certificates" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <Award className="h-4 w-4 shrink-0" /> Completion Certs
               </TabsTrigger>
 
@@ -580,55 +580,125 @@ export default function AdminDashboard() {
           {/* ── Main content ── */}
           <div className="flex-1 min-w-0">
 
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{users.length}</div>
-                <p className="text-xs text-muted-foreground">{clientUsers.length} clients</p>
+        <TabsContent value="overview" className="space-y-5">
+
+          {/* KPI stat cards */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <Card className="border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 bg-white">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="rounded-2xl bg-blue-50 border border-blue-100 p-2.5">
+                    <Building2 className="h-5 w-5 text-blue-500" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">Clients</span>
+                </div>
+                <p className="text-4xl font-black text-gray-900 tracking-tight">{clientUsers.length}</p>
+                <p className="text-sm font-medium text-gray-400 mt-1.5">Registered clients</p>
+                <p className="text-xs text-gray-300 mt-0.5">{users.length} total system users</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Invoices</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{invoices.length}</div>
-                <p className="text-xs text-muted-foreground">
+
+            <Card className="border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 bg-white">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="rounded-2xl bg-amber-50 border border-amber-100 p-2.5">
+                    <FileText className="h-5 w-5 text-amber-500" />
+                  </div>
                   {overdueInvoices.length > 0 ? (
-                    <span className="text-red-600 font-semibold">{overdueInvoices.length} overdue</span>
+                    <span className="text-[11px] font-semibold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">{overdueInvoices.length} overdue</span>
                   ) : (
-                    "All up to date"
+                    <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">All clear</span>
                   )}
-                </p>
+                </div>
+                <p className="text-4xl font-black text-gray-900 tracking-tight">{invoices.length}</p>
+                <p className="text-sm font-medium text-gray-400 mt-1.5">Total invoices</p>
+                <p className="text-xs text-gray-300 mt-0.5">{invoices.filter(i => i.status === "PAID").length} paid to date</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Receipts</CardTitle>
-                <Receipt className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{receipts.length}</div>
-                <p className="text-xs text-muted-foreground">Payment receipts</p>
+
+            <Card className="border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 bg-white">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-2.5">
+                    <Receipt className="h-5 w-5 text-emerald-500" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">Issued</span>
+                </div>
+                <p className="text-4xl font-black text-gray-900 tracking-tight">{receipts.length}</p>
+                <p className="text-sm font-medium text-gray-400 mt-1.5">Payment receipts</p>
+                <p className="text-xs text-gray-300 mt-0.5">Issued to clients</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Documents</CardTitle>
-                <FolderOpen className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{documents.length}</div>
-                <p className="text-xs text-muted-foreground">Archived documents</p>
+
+            <Card className="border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 bg-white">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="rounded-2xl bg-violet-50 border border-violet-100 p-2.5">
+                    <FolderOpen className="h-5 w-5 text-violet-500" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-violet-600 bg-violet-50 border border-violet-100 px-2 py-0.5 rounded-full">Archived</span>
+                </div>
+                <p className="text-4xl font-black text-gray-900 tracking-tight">{documents.length}</p>
+                <p className="text-sm font-medium text-gray-400 mt-1.5">Client documents</p>
+                <p className="text-xs text-gray-300 mt-0.5">Secure archive</p>
               </CardContent>
             </Card>
+
           </div>
+
+          {/* Revenue summary */}
+          <div className="grid sm:grid-cols-3 gap-4">
+
+            <Card className="sm:col-span-2 border border-gray-100 shadow-sm bg-white">
+              <CardContent className="p-6">
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.12em] mb-5">Revenue Overview</p>
+                <div className="grid grid-cols-3 divide-x divide-gray-100">
+                  <div className="pr-6">
+                    <p className="text-2xl font-black text-gray-900 tracking-tight">
+                      £{invoices.filter(i => i.status === "PAID").reduce((a, i) => a + i.total, 0).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </p>
+                    <p className="text-xs font-semibold text-emerald-500 mt-1.5 flex items-center gap-1">
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" /> Total Received
+                    </p>
+                  </div>
+                  <div className="px-6">
+                    <p className="text-2xl font-black text-gray-900 tracking-tight">
+                      £{invoices.filter(i => i.status !== "PAID" && i.status !== "CANCELLED").reduce((a, i) => a + i.total, 0).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </p>
+                    <p className="text-xs font-semibold text-amber-500 mt-1.5 flex items-center gap-1">
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" /> Outstanding
+                    </p>
+                  </div>
+                  <div className="pl-6">
+                    <p className="text-2xl font-black text-gray-900 tracking-tight">
+                      £{invoices.reduce((a, i) => a + i.total, 0).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </p>
+                    <p className="text-xs font-semibold text-gray-400 mt-1.5 flex items-center gap-1">
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-gray-300" /> Total Invoiced
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm bg-slate-900 text-white">
+              <CardContent className="p-6 flex flex-col h-full">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.12em] mb-3">Overdue Balance</p>
+                <p className="text-3xl font-black text-white tracking-tight mt-1">
+                  £{overdueInvoices.reduce((a, i) => a + i.total, 0).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </p>
+                <p className="text-slate-400 text-xs mt-2">
+                  {overdueInvoices.length === 0 ? "No overdue invoices — great work!" : `${overdueInvoices.length} invoice${overdueInvoices.length > 1 ? "s" : ""} past due date`}
+                </p>
+                <div className="mt-auto pt-4 border-t border-slate-800">
+                  <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-widest">Requires attention</p>
+                </div>
+              </CardContent>
+            </Card>
+
+          </div>
+
         </TabsContent>
 
         <TabsContent value="clients" className="space-y-4">

@@ -35,16 +35,26 @@ export default function Admin() {
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-      <div className="mb-4 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-scanvault-black mb-1 sm:mb-2">
-          Admin Dashboard
-        </h1>
-        <p className="text-sm sm:text-base text-gray-600">
-          Manage clients, documents, and system settings
-        </p>
+    <div className="min-h-screen bg-slate-50">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="h-5 w-1 bg-scanvault-red rounded-full" />
+              <span className="text-[11px] font-bold text-scanvault-red uppercase tracking-[0.15em]">Admin Console</span>
+            </div>
+            <h1 className="text-4xl font-black tracking-tight text-gray-900">Dashboard</h1>
+            <p className="text-gray-400 mt-1.5 text-sm">Full system management &amp; reporting</p>
+          </div>
+          <div className="hidden sm:flex flex-col items-end gap-0.5 mt-1">
+            <p className="text-sm font-semibold text-gray-700">
+              {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">{new Date().getFullYear()} &middot; ScanVault</p>
+          </div>
+        </div>
+        <AdminDashboard />
       </div>
-      <AdminDashboard />
     </div>
   );
 }

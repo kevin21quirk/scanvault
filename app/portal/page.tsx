@@ -153,55 +153,71 @@ export default function Portal() {
     return null;
   }
 
+  const pendingInvoices = invoices.filter(i => i.status !== "PAID" && i.status !== "CANCELLED");
+
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-slate-50">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-10">
+
+        {/* Welcome header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-scanvault-black mb-2">
-          Welcome back, {session.user?.name || session.user?.email}
-        </h1>
-        <p className="text-gray-600">
-          Access your quotations, contracts, invoices, receipts, and archived documents
-        </p>
+        <div className="rounded-2xl bg-slate-900 text-white px-7 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-1">Client Portal</p>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+              Welcome back, {session.user?.name?.split(" ")[0] || "there"}
+            </h1>
+            <p className="text-slate-400 text-sm mt-1">Your ScanVault account overview</p>
+          </div>
+          <div className="flex gap-4 sm:gap-6">
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">{invoices.length}</p>
+              <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-widest mt-0.5">Invoices</p>
+            </div>
+            <div className="w-px bg-slate-800" />
+            <div className="text-center">
+              <p className={`text-2xl font-black ${pendingInvoices.length > 0 ? 'text-amber-400' : 'text-white'}`}>{pendingInvoices.length}</p>
+              <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-widest mt-0.5">Pending</p>
+            </div>
+            <div className="w-px bg-slate-800" />
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">{documents.length}</p>
+              <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-widest mt-0.5">Docs</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-scanvault-red" />
-        </div>
-      ) : (
-      <Tabs defaultValue="invoices" className="space-y-6">
-        <TabsList className="w-full flex-wrap md:flex-nowrap overflow-x-auto">
-          <TabsTrigger value="quotations">
-            <ClipboardList className="h-4 w-4 mr-2" />
-            Quotations
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-scanvault-red" />
+          </div>
+        ) : (
+        <Tabs defaultValue="invoices" className="space-y-6">
+        <TabsList className="h-auto flex-wrap gap-1.5 bg-white border border-gray-200 rounded-2xl p-1.5 shadow-sm">
+          <TabsTrigger value="invoices" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <FileText className="h-3.5 w-3.5" /> Invoices
           </TabsTrigger>
-          <TabsTrigger value="contracts">
-            <FileText className="h-4 w-4 mr-2" />
-            Contracts
+          <TabsTrigger value="quotations" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <ClipboardList className="h-3.5 w-3.5" /> Quotations
           </TabsTrigger>
-          <TabsTrigger value="invoices">
-            <FileText className="h-4 w-4 mr-2" />
-            Invoices
+          <TabsTrigger value="contracts" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <FileText className="h-3.5 w-3.5" /> Contracts
           </TabsTrigger>
-          <TabsTrigger value="risk-assessments">
-            <ShieldCheck className="h-4 w-4 mr-2" />
-            Risk Assessments
+          <TabsTrigger value="receipts" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <Receipt className="h-3.5 w-3.5" /> Receipts
           </TabsTrigger>
-          <TabsTrigger value="completion-certificates">
-            <Award className="h-4 w-4 mr-2" />
-            Certificates
+          <TabsTrigger value="documents" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <FolderOpen className="h-3.5 w-3.5" /> Documents
           </TabsTrigger>
-          <TabsTrigger value="receipts">
-            <Receipt className="h-4 w-4 mr-2" />
-            Receipts
+          <TabsTrigger value="risk-assessments" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <ShieldCheck className="h-3.5 w-3.5" /> Risk Assessments
           </TabsTrigger>
-          <TabsTrigger value="documents">
-            <FolderOpen className="h-4 w-4 mr-2" />
-            Documents
+          <TabsTrigger value="completion-certificates" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <Award className="h-3.5 w-3.5" /> Certificates
           </TabsTrigger>
-          <TabsTrigger value="account">
-            <KeyRound className="h-4 w-4 mr-2" />
-            Account
+          <TabsTrigger value="account" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <KeyRound className="h-3.5 w-3.5" /> Account
           </TabsTrigger>
         </TabsList>
 
@@ -546,8 +562,9 @@ export default function Portal() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
-      )}
+        </Tabs>
+        )}
+      </div>
     </div>
   );
 }
