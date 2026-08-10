@@ -372,7 +372,7 @@ export default function AdminDashboard() {
         alert("Document uploaded successfully!");
       } else {
         const error = await res.json();
-        alert(error.error || "Failed to upload document");
+        alert(`${error.error}${error.details ? "\n" + error.details : ""}` || "Failed to upload document");
       }
     } catch {
       alert("Failed to upload document");
