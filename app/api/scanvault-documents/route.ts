@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import { writeFile, mkdir } from "fs/promises";
+import { existsSync } from "fs";
+import path from "path";
+import { randomUUID } from "crypto";
 
 export async function GET() {
   try {
@@ -31,10 +35,35 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, description, category, fileUrl, fileSize, mimeType } = body;
+    const { title, description, category, fileUrl, fileData, fileSize, mimeType } = body;
 
-    if (!title || !fileUrl) {
-      return NextResponse.json({ error: "Title and file URL are required" }, { status: 400 });
+    if (!title) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 });
+    }
+    if (!fileUrl && !fileData) {
+      return NextResponse.json({ error: "A file or file URL is required" }, { status: 400 });
+    }
+
+    let finalFileUrl = fileUrl;
+    let finalFileSize = fileSize ? parseInt(fileSize) : 0;
+    let finalMimeType = mimeType || "application/pdf";
+
+    if (fileData) {
+      const match = fileData.match(/^data:([^;]+);base64,(.+)$/);
+      if (!match) {
+        return NextResponse.json({ error: "Invalid file data" }, { status: 400 });
+      }
+      finalMimeType = match[1] || finalMimeType;
+      const buffer = Buffer.from(match[2], "base64");
+      finalFileSize = buffer.length;
+
+      const ext = finalMimeType.split("/").pop() || "bin";
+      const filename = `${randomUUID()}.${ext}`;
+      const uploadDir = path.join(process.cwd(), "public", "uploads", "scanvault");
+      if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true });
+
+      await writeFile(path.join(uploadDir, filename), buffer);
+      finalFileUrl = `/uploads/scanvault/${filename}`;
     }
 
     const document = await (prisma as any).scanVaultDocument.create({
@@ -42,9 +71,9 @@ export async function POST(request: Request) {
         title,
         description: description || null,
         category: category || "GENERAL",
-        fileUrl,
-        fileSize: fileSize ? parseInt(fileSize) : 0,
-        mimeType: mimeType || "application/pdf",
+        fileUrl: finalFileUrl,
+        fileSize: finalFileSize,
+        mimeType: finalMimeType,
       },
     });
 

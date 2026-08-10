@@ -131,7 +131,9 @@ export default function AdminDashboard() {
   const [deletingReceipt, setDeletingReceipt] = useState<string | null>(null);
   const [svDocuments, setSvDocuments] = useState<SvDocument[]>([]);
   const [showSvDocumentModal, setShowSvDocumentModal] = useState(false);
-  const [svDocumentForm, setSvDocumentForm] = useState({ title: "", description: "", category: "GENERAL", fileUrl: "" });
+  const [svDocumentForm, setSvDocumentForm] = useState({
+    title: "", description: "", category: "GENERAL", fileUrl: "", fileData: "", mimeType: "application/pdf", fileSize: 0,
+  });
   const [deletingSvDocument, setDeletingSvDocument] = useState<string | null>(null);
 
   useEffect(() => {
@@ -349,13 +351,13 @@ export default function AdminDashboard() {
       const res = await fetch("/api/scanvault-documents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...svDocumentForm, fileSize: 0, mimeType: "application/pdf" }),
+        body: JSON.stringify(svDocumentForm),
       });
       if (res.ok) {
         const newDoc = await res.json();
         setSvDocuments((prev) => [newDoc, ...prev]);
         setShowSvDocumentModal(false);
-        setSvDocumentForm({ title: "", description: "", category: "GENERAL", fileUrl: "" });
+        setSvDocumentForm({ title: "", description: "", category: "GENERAL", fileUrl: "", fileData: "", mimeType: "application/pdf", fileSize: 0 });
         alert("Document uploaded successfully!");
       } else {
         const error = await res.json();
@@ -1479,8 +1481,32 @@ export default function AdminDashboard() {
                       </select>
                     </div>
                     <div>
-                      <Label htmlFor="svDocUrl">File URL *</Label>
-                      <Input id="svDocUrl" required value={svDocumentForm.fileUrl} onChange={(e) => setSvDocumentForm({ ...svDocumentForm, fileUrl: e.target.value })} placeholder="https://..." />
+                      <Label htmlFor="svDocFile">Local File</Label>
+                      <Input
+                        id="svDocFile"
+                        type="file"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            setSvDocumentForm({
+                              ...svDocumentForm,
+                              fileUrl: "",
+                              fileData: String(ev.target?.result || ""),
+                              mimeType: file.type,
+                              fileSize: file.size,
+                            });
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Accepted: PDF, Word, Excel, images</p>
+                    </div>
+                    <div>
+                      <Label htmlFor="svDocUrl">Or File URL</Label>
+                      <Input id="svDocUrl" value={svDocumentForm.fileUrl} onChange={(e) => setSvDocumentForm({ ...svDocumentForm, fileUrl: e.target.value, fileData: "" })} placeholder="https://..." />
                     </div>
                     <div>
                       <Label htmlFor="svDocNotes">Notes (Optional)</Label>
