@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
+import { uploadToS3, sanitiseFilename } from "@/lib/s3";
 import { randomUUID } from "crypto";
 
 export async function GET() {
@@ -48,22 +46,42 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "A file or file URL is required" }, { status: 400 });
     }
 
-    let finalFileUrl = fileUrl || "";
+    const ALLOWED_TYPES = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+    const MAX_BYTES = 50 * 1024 * 1024; // 50 MB
+
+    let finalFileUrl: string | null = fileUrl || null;
+    let finalS3Key: string | null = null;
+    let finalOriginalName: string | null = null;
     let finalFileSize = 0;
     let finalMimeType = "application/pdf";
 
     if (file && file.size > 0) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        return NextResponse.json({ error: "File type not allowed" }, { status: 400 });
+      }
+      if (file.size > MAX_BYTES) {
+        return NextResponse.json({ error: "File exceeds 50 MB limit" }, { status: 400 });
+      }
+
       const bytes = Buffer.from(await file.arrayBuffer());
       finalFileSize = bytes.length;
-      finalMimeType = file.type || finalMimeType;
+      finalMimeType = file.type;
+      finalOriginalName = file.name;
 
-      const ext = finalMimeType.split("/").pop() || "bin";
-      const filename = `${randomUUID()}.${ext}`;
-      const uploadDir = path.join(process.cwd(), "public", "uploads", "scanvault");
-      if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true });
+      const safeName = sanitiseFilename(file.name);
+      finalS3Key = `scanvault-documents/${randomUUID()}/${safeName}`;
 
-      await writeFile(path.join(uploadDir, filename), bytes);
-      finalFileUrl = `/uploads/scanvault/${filename}`;
+      await uploadToS3(finalS3Key, bytes, finalMimeType);
+      finalFileUrl = null; // stored in S3, not as a public URL
     }
 
     const document = await (prisma as any).scanVaultDocument.create({
@@ -72,6 +90,9 @@ export async function POST(request: Request) {
         description: description || null,
         category: category || "GENERAL",
         fileUrl: finalFileUrl,
+        s3Key: finalS3Key,
+        originalName: finalOriginalName,
+        uploadedBy: session.user.email ?? null,
         fileSize: finalFileSize,
         mimeType: finalMimeType,
       },

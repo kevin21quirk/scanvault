@@ -79,7 +79,9 @@ interface SvDocument {
   title: string;
   description: string | null;
   category: string;
-  fileUrl: string;
+  fileUrl: string | null;
+  s3Key: string | null;
+  originalName: string | null;
   mimeType: string;
   fileSize: number;
   uploadedAt: string;
@@ -380,6 +382,21 @@ export default function AdminDashboard() {
       alert(err instanceof Error ? err.message : "Failed to upload document");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleViewSvDocument = async (id: string) => {
+    try {
+      const res = await fetch(`/api/scanvault-documents/${id}`);
+      if (res.ok) {
+        const { url } = await res.json();
+        window.open(url, "_blank");
+      } else {
+        const err = await res.json();
+        alert(err.error || "Could not retrieve document");
+      }
+    } catch {
+      alert("Failed to open document");
     }
   };
 
@@ -1437,7 +1454,7 @@ export default function AdminDashboard() {
                         <div className="text-right shrink-0 flex flex-col items-end gap-2">
                           <p className="text-sm text-gray-500">{new Date(doc.uploadedAt).toLocaleDateString("en-GB")}</p>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => window.open(doc.fileUrl, "_blank")}>
+                            <Button size="sm" variant="outline" onClick={() => handleViewSvDocument(doc.id)}>
                               <Download className="h-3.5 w-3.5 mr-1" />
                               View
                             </Button>

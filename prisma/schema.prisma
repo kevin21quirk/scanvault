@@ -213,15 +213,18 @@ enum InvoiceStatus {
 }
 
 model ScanVaultDocument {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  category    String   @default("GENERAL")
-  fileUrl     String
-  fileSize    Int      @default(0)
-  mimeType    String   @default("application/pdf")
-  uploadedAt  DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  category     String   @default("GENERAL")
+  fileUrl      String?
+  s3Key        String?
+  originalName String?
+  uploadedBy   String?
+  fileSize     Int      @default(0)
+  mimeType     String   @default("application/pdf")
+  uploadedAt   DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([category])
 }
