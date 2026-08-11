@@ -67,12 +67,12 @@ export async function PATCH(
       if (!existingReceipt) {
         const receiptNumber = invoice.invoiceNumber;
 
-        // Calculate deposit amount if deposit was already paid
+        // Use the actual deposit receipt amount (source of truth) rather than recalculating
+        const depositReceipt = invoice.depositPaid
+          ? await prisma.receipt.findUnique({ where: { receiptNumber: `${invoice.invoiceNumber}D` } })
+          : null;
+        const depositAmount = depositReceipt ? depositReceipt.amount : 0;
         const depositPct = invoice.depositPercent ?? 0;
-        const depositAmount =
-          depositPct > 0 && invoice.depositPaid
-            ? parseFloat((invoice.total * (depositPct / 100)).toFixed(2))
-            : 0;
         const receiptAmount = parseFloat((invoice.total - depositAmount).toFixed(2));
 
         // Build description with breakdown

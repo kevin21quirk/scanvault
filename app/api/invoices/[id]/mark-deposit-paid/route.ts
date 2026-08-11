@@ -31,7 +31,12 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json({ error: "This invoice has no deposit configured" }, { status: 400 });
     }
 
-    const depositAmount = parseFloat((invoice.total * (invoice.depositPercent / 100)).toFixed(2));
+    // Match the admin dashboard getDeposit() logic exactly
+    const addl = (invoice.additionalItems as any[] | null) ?? [];
+    const addlSubtotal = addl.reduce((s: number, i: any) => s + (i.quantity ?? 0) * (i.rate ?? 0), 0);
+    const originalSubtotal = addlSubtotal > 0 ? invoice.subtotal - addlSubtotal : invoice.subtotal;
+    const depositBase = invoice.vatOnBalanceOnly ? originalSubtotal : invoice.total;
+    const depositAmount = parseFloat((depositBase * (invoice.depositPercent / 100)).toFixed(2));
     const balanceRemaining = parseFloat((invoice.total - depositAmount).toFixed(2));
 
     const receiptNumber = `${invoice.invoiceNumber}D`;
