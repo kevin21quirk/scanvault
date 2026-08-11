@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   FileText, Receipt, Download, Loader2,
-  CheckCircle2, Clock, XCircle, AlertCircle, LogOut, KeyRound, FolderOpen,
+  CheckCircle2, Clock, XCircle, AlertCircle, LogOut, KeyRound, FolderOpen, ClipboardList,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -28,7 +28,9 @@ interface SvDocument {
   title: string;
   description: string | null;
   category: string;
-  fileUrl: string;
+  fileUrl: string | null;
+  s3Key: string | null;
+  originalName: string | null;
   uploadedAt: string;
 }
 
@@ -75,6 +77,37 @@ export default function AccountantDashboard() {
   const [receipts, setReceipts] = useState<ReceiptItem[]>([]);
   const [svDocuments, setSvDocuments] = useState<SvDocument[]>([]);
   const [loading,  setLoading]  = useState(true);
+  const [svCategoryFilter, setSvCategoryFilter] = useState("ALL");
+  const [openNotesId, setOpenNotesId] = useState<string | null>(null);
+
+  const SV_CATEGORIES = [
+    { value: "GENERAL", label: "General" },
+    { value: "ACCOUNTS", label: "Accounts" },
+    { value: "HR", label: "HR" },
+    { value: "LEGAL", label: "Legal" },
+    { value: "COMPLIANCE", label: "Compliance" },
+    { value: "INSURANCE", label: "Insurance" },
+    { value: "TAX", label: "Tax" },
+    { value: "SALES_RECEIPTS", label: "Sales Receipts" },
+    { value: "OTHER", label: "Other" },
+  ];
+
+  const svCategoryLabel = (v: string) => SV_CATEGORIES.find((c) => c.value === v)?.label ?? v;
+
+  const handleViewSvDoc = async (id: string) => {
+    try {
+      const res = await fetch(`/api/scanvault-documents/${id}`);
+      if (res.ok) {
+        const { url } = await res.json();
+        window.open(url, "_blank");
+      } else {
+        const err = await res.json();
+        alert(err.error || "Could not retrieve document");
+      }
+    } catch {
+      alert("Failed to open document");
+    }
+  };
 
   useEffect(() => {
     if (status === "loading") return;
@@ -247,7 +280,23 @@ export default function AccountantDashboard() {
           </TabsContent>
 
           {/* ── SCANVAULT DOCS ── */}
-          <TabsContent value="scanvault-docs">
+          <TabsContent value="scanvault-docs" className="space-y-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-600 shrink-0">Filter:</label>
+              <select
+                className="px-3 py-1.5 border rounded-md text-sm bg-white"
+                value={svCategoryFilter}
+                onChange={(e) => setSvCategoryFilter(e.target.value)}
+              >
+                <option value="ALL">All Categories</option>
+                {SV_CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+              {svCategoryFilter !== "ALL" && (
+                <button className="text-xs text-gray-400 hover:text-gray-600 underline" onClick={() => setSvCategoryFilter("ALL")}>Clear</button>
+              )}
+            </div>
             <Card>
               <CardHeader>
                 <CardTitle>ScanVault Documents</CardTitle>
@@ -256,25 +305,44 @@ export default function AccountantDashboard() {
               <CardContent>
                 {svDocuments.length === 0 ? (
                   <div className="text-center py-16 text-gray-400"><FolderOpen className="h-10 w-10 mx-auto mb-2" /><p>No documents found</p></div>
-                ) : (
-                  <div className="space-y-3">
-                    {svDocuments.map((doc) => (
-                      <div key={doc.id} className="border rounded-lg p-4 flex justify-between items-start gap-4">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold">{doc.title}</p>
-                          {doc.description && <p className="text-sm text-gray-500 mt-0.5">{doc.description}</p>}
-                          <span className="inline-block mt-1 text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{doc.category}</span>
+                ) : (() => {
+                  const filtered = svCategoryFilter === "ALL" ? svDocuments : svDocuments.filter((d) => d.category === svCategoryFilter);
+                  return filtered.length === 0 ? (
+                    <div className="text-center py-12 text-gray-400"><FolderOpen className="h-10 w-10 mx-auto mb-2" /><p>No documents in this category</p></div>
+                  ) : (
+                    <div className="space-y-3">
+                      {filtered.map((doc) => (
+                        <div key={doc.id} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-start gap-4">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold">{doc.title}</p>
+                              <span className="inline-block mt-1 text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{svCategoryLabel(doc.category)}</span>
+                            </div>
+                            <div className="text-right shrink-0 flex flex-col items-end gap-2">
+                              <p className="text-xs text-gray-400">{formatDate(doc.uploadedAt)}</p>
+                              <div className="flex gap-2">
+                                {doc.description && (
+                                  <Button size="sm" variant="outline" onClick={() => setOpenNotesId(openNotesId === doc.id ? null : doc.id)}>
+                                    <ClipboardList className="h-3.5 w-3.5 mr-1" />Notes
+                                  </Button>
+                                )}
+                                <Button size="sm" variant="outline" onClick={() => handleViewSvDoc(doc.id)}>
+                                  <Download className="h-3.5 w-3.5 mr-1" />View
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                          {openNotesId === doc.id && doc.description && (
+                            <div className="mt-3 pt-3 border-t">
+                              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Notes</p>
+                              <p className="text-sm text-gray-700 whitespace-pre-wrap">{doc.description}</p>
+                            </div>
+                          )}
                         </div>
-                        <div className="text-right shrink-0 flex flex-col items-end gap-2">
-                          <p className="text-xs text-gray-400">{formatDate(doc.uploadedAt)}</p>
-                          <Button size="sm" variant="outline" onClick={() => window.open(doc.fileUrl, "_blank")}>
-                            <Download className="h-3.5 w-3.5 mr-1" />View
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           </TabsContent>
