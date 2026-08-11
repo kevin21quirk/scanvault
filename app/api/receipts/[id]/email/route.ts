@@ -6,7 +6,7 @@ import { generateReceiptPdf } from "@/lib/receipt-pdf";
 import nodemailer from "nodemailer";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -16,6 +16,13 @@ export async function POST(
     }
 
     const { id } = await params;
+
+    // Optional override: { toEmail: "test@example.com" } for test sends
+    let overrideEmail: string | undefined;
+    try {
+      const body = await request.json();
+      if (body?.toEmail) overrideEmail = body.toEmail;
+    } catch { /* no body is fine */ }
 
     const receipt = await prisma.receipt.findUnique({
       where: { id },
@@ -30,10 +37,13 @@ export async function POST(
       return NextResponse.json({ error: "Receipt not found" }, { status: 404 });
     }
 
-    const toEmail = receipt.user.email;
-    if (!toEmail) {
+    const clientEmail = receipt.user.email;
+    if (!clientEmail && !overrideEmail) {
       return NextResponse.json({ error: "Client has no email address" }, { status: 400 });
     }
+
+    const isTest = !!overrideEmail;
+    const toEmail = overrideEmail || clientEmail!;
 
     const pdfBytes = generateReceiptPdf(receipt as any);
 
@@ -47,15 +57,26 @@ export async function POST(
       },
     });
 
-    const clientName = receipt.user.name || receipt.user.companyName || toEmail;
+    const clientName = receipt.user.name || receipt.user.companyName || clientEmail || toEmail;
     const fromAddress = `"ScanVault" <${process.env.SMTP_USER}>`;
+    const subject = isTest
+      ? `[TEST] Receipt ${receipt.receiptNumber} — ScanVault (client: ${clientEmail})`
+      : `Receipt ${receipt.receiptNumber} — ScanVault`;
+
+    const testBanner = isTest
+      ? `<div style="background:#fef3c7;border:1px solid #f59e0b;padding:10px 16px;margin-bottom:16px;border-radius:4px;font-size:13px;color:#92400e;">
+<strong>TEST EMAIL</strong> — This is a preview of the email that would be sent to <strong>${clientEmail}</strong>. Do not reply to this message.
+</div>`
+      : "";
 
     await transporter.sendMail({
       from: fromAddress,
       to: toEmail,
-      subject: `Receipt ${receipt.receiptNumber} — ScanVault`,
-      text: `Dear ${clientName},\n\nPlease find attached your receipt (${receipt.receiptNumber}) for £${receipt.amount.toFixed(2)}.\n\nThank you for your payment.\n\nScanVault\nkevin@scanvault.co.uk`,
-      html: `<p>Dear ${clientName},</p>
+      subject,
+      text: isTest
+        ? `[TEST EMAIL — would be sent to ${clientEmail}]\n\nDear ${clientName},\n\nPlease find attached your receipt (${receipt.receiptNumber}) for £${receipt.amount.toFixed(2)}.\n\nThank you for your payment.\n\nScanVault\nkevin@scanvault.co.uk`
+        : `Dear ${clientName},\n\nPlease find attached your receipt (${receipt.receiptNumber}) for £${receipt.amount.toFixed(2)}.\n\nThank you for your payment.\n\nScanVault\nkevin@scanvault.co.uk`,
+      html: `${testBanner}<p>Dear ${clientName},</p>
 <p>Please find attached your receipt <strong>${receipt.receiptNumber}</strong> for <strong>£${receipt.amount.toFixed(2)}</strong>.</p>
 <p>Thank you for your payment.</p>
 <p>ScanVault<br>kevin@scanvault.co.uk</p>`,
@@ -68,7 +89,7 @@ export async function POST(
       ],
     });
 
-    return NextResponse.json({ success: true, sentTo: toEmail });
+    return NextResponse.json({ success: true, sentTo: toEmail, isTest });
   } catch (error) {
     console.error("Error emailing receipt:", error);
     const message = error instanceof Error ? error.message : String(error);

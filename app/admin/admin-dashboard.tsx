@@ -132,6 +132,9 @@ export default function AdminDashboard() {
   const [deletingInvoice, setDeletingInvoice] = useState<string | null>(null);
   const [deletingReceipt, setDeletingReceipt] = useState<string | null>(null);
   const [emailingReceipt, setEmailingReceipt] = useState<string | null>(null);
+  const [testEmailModal, setTestEmailModal] = useState<{ receiptId: string; clientEmail: string } | null>(null);
+  const [testEmailAddress, setTestEmailAddress] = useState("");
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
   const [svDocuments, setSvDocuments] = useState<SvDocument[]>([]);
   const [showSvDocumentModal, setShowSvDocumentModal] = useState(false);
   const [svDocumentForm, setSvDocumentForm] = useState({
@@ -501,6 +504,35 @@ export default function AdminDashboard() {
       alert("Failed to send email");
     } finally {
       setEmailingReceipt(null);
+    }
+  };
+
+  const handleOpenTestEmail = (receiptId: string, clientEmail: string) => {
+    setTestEmailAddress("");
+    setTestEmailModal({ receiptId, clientEmail });
+  };
+
+  const handleSendTestEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testEmailModal || !testEmailAddress.trim()) return;
+    setSendingTestEmail(true);
+    try {
+      const res = await fetch(`/api/receipts/${testEmailModal.receiptId}/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ toEmail: testEmailAddress.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Test email sent to ${data.sentTo}`);
+        setTestEmailModal(null);
+      } else {
+        alert(data.error || "Failed to send test email");
+      }
+    } catch {
+      alert("Failed to send test email");
+    } finally {
+      setSendingTestEmail(false);
     }
   };
 
@@ -1353,6 +1385,15 @@ export default function AdminDashboard() {
                         <Button
                           size="sm"
                           variant="outline"
+                          className="text-amber-600 hover:bg-amber-50 border-amber-200"
+                          onClick={() => handleOpenTestEmail(receipt.id, receipt.user.email)}
+                        >
+                          <Mail className="h-4 w-4 mr-1" />
+                          Test
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="text-red-600 hover:bg-red-50 border-red-200"
                           onClick={() => handleDeleteReceipt(receipt.id)}
                           disabled={deletingReceipt === receipt.id}
@@ -1366,6 +1407,47 @@ export default function AdminDashboard() {
               )}
             </CardContent>
           </Card>
+
+          {testEmailModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <Card className="w-full max-w-sm">
+                <CardHeader className="flex flex-row items-start justify-between pb-2">
+                  <div>
+                    <CardTitle className="text-base">Send Test Email</CardTitle>
+                    <CardDescription className="text-xs">Preview exactly what the client receives. Sent to your address, not theirs.</CardDescription>
+                  </div>
+                  <button onClick={() => setTestEmailModal(null)} className="text-gray-400 hover:text-gray-700 ml-4 mt-1">✕</button>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSendTestEmail} className="space-y-4">
+                    <div>
+                      <Label htmlFor="testEmailClient" className="text-xs text-gray-500">Client&apos;s email (for reference)</Label>
+                      <Input id="testEmailClient" value={testEmailModal.clientEmail} readOnly className="bg-gray-50 text-gray-500 text-sm" />
+                    </div>
+                    <div>
+                      <Label htmlFor="testEmailTo">Send test to *</Label>
+                      <Input
+                        id="testEmailTo"
+                        type="email"
+                        required
+                        placeholder="your@email.com"
+                        value={testEmailAddress}
+                        onChange={(e) => setTestEmailAddress(e.target.value)}
+                        autoFocus
+                      />
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <Button type="button" variant="outline" onClick={() => setTestEmailModal(null)}>Cancel</Button>
+                      <Button type="submit" className="bg-amber-500 hover:bg-amber-600 text-white" disabled={sendingTestEmail}>
+                        {sendingTestEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4 mr-1" />}
+                        {sendingTestEmail ? "Sending…" : "Send Test"}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {showReceiptModal && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
