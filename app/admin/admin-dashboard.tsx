@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList, Pencil, FileDown } from "lucide-react";
+import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList, Pencil, FileDown, Mail } from "lucide-react";
 import LeadsTab from "@/components/leads-tab";
 import ContractsTab from "@/components/contracts-tab";
 import QuotationsTab from "@/components/quotations-tab";
@@ -131,6 +131,7 @@ export default function AdminDashboard() {
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [deletingInvoice, setDeletingInvoice] = useState<string | null>(null);
   const [deletingReceipt, setDeletingReceipt] = useState<string | null>(null);
+  const [emailingReceipt, setEmailingReceipt] = useState<string | null>(null);
   const [svDocuments, setSvDocuments] = useState<SvDocument[]>([]);
   const [showSvDocumentModal, setShowSvDocumentModal] = useState(false);
   const [svDocumentForm, setSvDocumentForm] = useState({
@@ -482,6 +483,24 @@ export default function AdminDashboard() {
       alert("Failed to delete document");
     } finally {
       setDeletingSvDocument(null);
+    }
+  };
+
+  const handleEmailReceipt = async (id: string, clientEmail: string) => {
+    if (!confirm(`Send receipt PDF to ${clientEmail}?`)) return;
+    setEmailingReceipt(id);
+    try {
+      const res = await fetch(`/api/receipts/${id}/email`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Receipt emailed to ${data.sentTo}`);
+      } else {
+        alert(data.error || "Failed to send email");
+      }
+    } catch {
+      alert("Failed to send email");
+    } finally {
+      setEmailingReceipt(null);
     }
   };
 
@@ -1321,6 +1340,15 @@ export default function AdminDashboard() {
                         >
                           <Download className="h-4 w-4 mr-1" />
                           PDF
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEmailReceipt(receipt.id, receipt.user.email)}
+                          disabled={emailingReceipt === receipt.id}
+                        >
+                          {emailingReceipt === receipt.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4 mr-1" />}
+                          {emailingReceipt === receipt.id ? "Sending…" : "Email"}
                         </Button>
                         <Button
                           size="sm"

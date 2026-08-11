@@ -59,32 +59,14 @@ export async function PATCH(
     // If status is PAID, automatically generate a receipt
     let receipt = null;
     if (status === "PAID") {
-      // Check if receipt already exists for this invoice
-      const existingReceipt = await prisma.receipt.findFirst({
-        where: {
-          description: {
-            contains: invoice.invoiceNumber,
-          },
-          userId: invoice.userId,
-        },
+      // Check if receipt already exists for this invoice (by matching receipt number)
+      const existingReceipt = await prisma.receipt.findUnique({
+        where: { receiptNumber: invoice.invoiceNumber },
       });
 
       if (!existingReceipt) {
-        // Generate receipt number based on latest receipt
-        const latestReceipt = await prisma.receipt.findFirst({
-          orderBy: { createdAt: "desc" },
-          select: { receiptNumber: true },
-        });
-
-        let nextReceiptNumber = 1500;
-        if (latestReceipt && latestReceipt.receiptNumber) {
-          const match = latestReceipt.receiptNumber.match(/REC-(\d+)/);
-          if (match) {
-            nextReceiptNumber = parseInt(match[1], 10) + 1;
-          }
-        }
-
-        const receiptNumber = `REC-${String(nextReceiptNumber).padStart(5, '0')}`;
+        // Receipt number mirrors the invoice number exactly
+        const receiptNumber = invoice.invoiceNumber;
 
         // Create receipt
         receipt = await prisma.receipt.create({
