@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { getPresignedDownloadUrl, deleteFromS3 } from "@/lib/s3";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -21,8 +21,11 @@ export async function GET(
       return NextResponse.json({ error: "Document not found" }, { status: 404 });
     }
 
+    const forDownload = new URL(request.url).searchParams.get("download") === "1";
+    const disposition = forDownload ? "attachment" : "inline";
+
     if (doc.s3Key) {
-      const url = await getPresignedDownloadUrl(doc.s3Key, doc.originalName, 300);
+      const url = await getPresignedDownloadUrl(doc.s3Key, doc.originalName, 300, disposition);
       return NextResponse.json({ url, filename: doc.originalName, mimeType: doc.mimeType });
     }
 

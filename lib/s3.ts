@@ -50,15 +50,15 @@ export async function uploadToS3(
 export async function getPresignedDownloadUrl(
   key: string,
   originalName?: string | null,
-  expiresIn = 300
+  expiresIn = 300,
+  disposition: "inline" | "attachment" = "inline"
 ): Promise<string> {
   const client = getS3Client();
+  const safeName = originalName ? sanitiseFilename(originalName) : "document";
   const command = new GetObjectCommand({
     Bucket: getBucket(),
     Key: key,
-    ResponseContentDisposition: originalName
-      ? `inline; filename="${sanitiseFilename(originalName)}"`
-      : undefined,
+    ResponseContentDisposition: `${disposition}; filename="${safeName}"`,
   });
   return getSignedUrl(client, command, { expiresIn });
 }

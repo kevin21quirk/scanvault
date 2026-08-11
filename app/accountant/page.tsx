@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   FileText, Receipt, Download, Loader2,
-  CheckCircle2, Clock, XCircle, AlertCircle, LogOut, KeyRound, FolderOpen, ClipboardList,
+  CheckCircle2, Clock, XCircle, AlertCircle, LogOut, KeyRound, FolderOpen, ClipboardList, FileDown,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -93,6 +93,26 @@ export default function AccountantDashboard() {
   ];
 
   const svCategoryLabel = (v: string) => SV_CATEGORIES.find((c) => c.value === v)?.label ?? v;
+
+  const handleDownloadSvDoc = async (id: string) => {
+    try {
+      const res = await fetch(`/api/scanvault-documents/${id}?download=1`);
+      if (res.ok) {
+        const { url } = await res.json();
+        const a = document.createElement("a");
+        a.href = url;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Could not download document");
+      }
+    } catch {
+      alert("Failed to download document");
+    }
+  };
 
   const handleViewSvDoc = async (id: string) => {
     try {
@@ -328,6 +348,9 @@ export default function AccountantDashboard() {
                                 )}
                                 <Button size="sm" variant="outline" onClick={() => handleViewSvDoc(doc.id)}>
                                   <Download className="h-3.5 w-3.5 mr-1" />View
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={() => handleDownloadSvDoc(doc.id)}>
+                                  <FileDown className="h-3.5 w-3.5 mr-1" />Download
                                 </Button>
                               </div>
                             </div>

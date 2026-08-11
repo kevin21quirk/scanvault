@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList, Pencil } from "lucide-react";
+import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList, Pencil, FileDown } from "lucide-react";
 import LeadsTab from "@/components/leads-tab";
 import ContractsTab from "@/components/contracts-tab";
 import QuotationsTab from "@/components/quotations-tab";
@@ -429,6 +429,26 @@ export default function AdminDashboard() {
       alert("Failed to save changes");
     } finally {
       setSavingEdit(false);
+    }
+  };
+
+  const handleDownloadSvDocument = async (id: string) => {
+    try {
+      const res = await fetch(`/api/scanvault-documents/${id}?download=1`);
+      if (res.ok) {
+        const { url } = await res.json();
+        const a = document.createElement("a");
+        a.href = url;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Could not download document");
+      }
+    } catch {
+      alert("Failed to download document");
     }
   };
 
@@ -1536,6 +1556,10 @@ export default function AdminDashboard() {
                             <Button size="sm" variant="outline" onClick={() => handleViewSvDocument(doc.id)}>
                               <Download className="h-3.5 w-3.5 mr-1" />
                               View
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => handleDownloadSvDocument(doc.id)}>
+                              <FileDown className="h-3.5 w-3.5 mr-1" />
+                              Download
                             </Button>
                             <Button
                               size="sm"
