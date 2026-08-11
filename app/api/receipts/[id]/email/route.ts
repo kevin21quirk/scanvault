@@ -38,17 +38,17 @@ export async function POST(
     const pdfBytes = generateReceiptPdf(receipt as any);
 
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT || "587"),
-      secure: process.env.EMAIL_SECURE === "true",
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || "587"),
+      secure: process.env.SMTP_SECURE === "true",
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
 
     const clientName = receipt.user.name || receipt.user.companyName || toEmail;
-    const fromAddress = process.env.EMAIL_FROM || `"ScanVault" <${process.env.EMAIL_USER}>`;
+    const fromAddress = `"ScanVault" <${process.env.SMTP_USER}>`;
 
     await transporter.sendMail({
       from: fromAddress,
