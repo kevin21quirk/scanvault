@@ -20,7 +20,8 @@ export async function GET() {
     return NextResponse.json(documents);
   } catch (error) {
     console.error("Error fetching ScanVault documents:", error);
-    return NextResponse.json({ error: "Failed to fetch documents" }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: "Failed to fetch documents", details: message }, { status: 500 });
   }
 }
 
