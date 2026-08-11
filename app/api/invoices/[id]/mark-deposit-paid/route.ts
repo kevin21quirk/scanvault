@@ -32,8 +32,17 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     }
 
     const depositAmount = parseFloat((invoice.total * (invoice.depositPercent / 100)).toFixed(2));
+    const balanceRemaining = parseFloat((invoice.total - depositAmount).toFixed(2));
 
     const receiptNumber = `${invoice.invoiceNumber}D`;
+
+    const depositDescription = [
+      `Deposit payment for Invoice ${invoice.invoiceNumber}`,
+      ``,
+      `Invoice total:             £${invoice.total.toFixed(2)}`,
+      `Deposit paid (${invoice.depositPercent}%):     £${depositAmount.toFixed(2)}`,
+      `Balance remaining:         £${balanceRemaining.toFixed(2)}`,
+    ].join("\n");
 
     // Resolve live care home name/address (prefer relation, fall back to snapshot)
     const careHomeName    = invoice.careHome?.name    ?? invoice.careHomeName    ?? null;
@@ -46,7 +55,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
           receiptNumber,
           userId: invoice.userId,
           amount: depositAmount,
-          description: `Deposit payment (${invoice.depositPercent}%) for invoice ${invoice.invoiceNumber}`,
+          description: depositDescription,
           paymentMethod: "Bank Transfer",
           date: new Date(),
           ...(careHomeName    && { careHomeName }),

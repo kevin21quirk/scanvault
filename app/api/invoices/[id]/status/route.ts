@@ -65,18 +65,38 @@ export async function PATCH(
       });
 
       if (!existingReceipt) {
-        // Receipt number mirrors the invoice number exactly
         const receiptNumber = invoice.invoiceNumber;
 
-        // Create receipt
+        // Calculate deposit amount if deposit was already paid
+        const depositPct = invoice.depositPercent ?? 0;
+        const depositAmount =
+          depositPct > 0 && invoice.depositPaid
+            ? parseFloat((invoice.total * (depositPct / 100)).toFixed(2))
+            : 0;
+        const receiptAmount = parseFloat((invoice.total - depositAmount).toFixed(2));
+
+        // Build description with breakdown
+        const description =
+          depositAmount > 0
+            ? [
+                `Final balance payment for Invoice ${invoice.invoiceNumber}`,
+                ``,
+                `Invoice total:             £${invoice.total.toFixed(2)}`,
+                `Deposit already paid (${depositPct}%): -£${depositAmount.toFixed(2)}`,
+                `Balance received:          £${receiptAmount.toFixed(2)}`,
+              ].join("\n")
+            : `Full payment for Invoice ${invoice.invoiceNumber}\n\nAmount received: £${invoice.total.toFixed(2)}`;
+
         receipt = await prisma.receipt.create({
           data: {
             receiptNumber,
             userId: invoice.userId,
-            amount: invoice.total,
-            description: `Payment for Invoice ${invoice.invoiceNumber}`,
+            amount: receiptAmount,
+            description,
             paymentMethod: "Bank Transfer",
             date: new Date(),
+            careHomeName: invoice.careHomeName ?? null,
+            careHomeAddress: invoice.careHomeAddress ?? null,
           },
         });
       }

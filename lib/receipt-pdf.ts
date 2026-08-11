@@ -88,10 +88,16 @@ export function generateReceiptPdf(receipt: ReceiptForPdf): ArrayBuffer {
 
   // ── Description box ───────────────────────────────────────────────────────
   const descY = 90;
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  const descLines = doc.splitTextToSize(receipt.description, pageW - 56);
+  const lineH = 5.2;
+  const descBoxH = Math.max(28, 14 + descLines.length * lineH);
+
   doc.setFillColor(249, 250, 251);
   doc.setDrawColor(229, 231, 235);
   doc.setLineWidth(0.3);
-  doc.roundedRect(20, descY, pageW - 40, 28, 2, 2, "FD");
+  doc.roundedRect(20, descY, pageW - 40, descBoxH, 2, 2, "FD");
 
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
@@ -101,11 +107,10 @@ export function generateReceiptPdf(receipt: ReceiptForPdf): ArrayBuffer {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(17, 24, 39);
-  const descLines = doc.splitTextToSize(receipt.description, pageW - 56);
-  doc.text(descLines, 26, descY + 16);
+  doc.text(descLines, 26, descY + 15);
 
   // ── Payment method ────────────────────────────────────────────────────────
-  const pmY = descY + 36;
+  const pmY = descY + descBoxH + 8;
   doc.setFontSize(8.5);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(107, 114, 128);
