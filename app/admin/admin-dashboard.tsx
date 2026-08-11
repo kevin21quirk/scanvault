@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList } from "lucide-react";
+import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList, Pencil } from "lucide-react";
 import LeadsTab from "@/components/leads-tab";
 import ContractsTab from "@/components/contracts-tab";
 import QuotationsTab from "@/components/quotations-tab";
@@ -139,6 +139,10 @@ export default function AdminDashboard() {
   const [svDocFile, setSvDocFile] = useState<File | null>(null);
   const [deletingSvDocument, setDeletingSvDocument] = useState<string | null>(null);
   const [openNotesId, setOpenNotesId] = useState<string | null>(null);
+  const [svCategoryFilter, setSvCategoryFilter] = useState("ALL");
+  const [editingSvDoc, setEditingSvDoc] = useState<SvDocument | null>(null);
+  const [editSvDocForm, setEditSvDocForm] = useState({ title: "", description: "", category: "GENERAL" });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -383,6 +387,48 @@ export default function AdminDashboard() {
       alert(err instanceof Error ? err.message : "Failed to upload document");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const SV_CATEGORIES = [
+    { value: "GENERAL", label: "General" },
+    { value: "ACCOUNTS", label: "Accounts" },
+    { value: "HR", label: "HR" },
+    { value: "LEGAL", label: "Legal" },
+    { value: "COMPLIANCE", label: "Compliance" },
+    { value: "INSURANCE", label: "Insurance" },
+    { value: "TAX", label: "Tax" },
+    { value: "SALES_RECEIPTS", label: "Sales Receipts" },
+    { value: "OTHER", label: "Other" },
+  ];
+
+  const handleOpenEditSvDoc = (doc: SvDocument) => {
+    setEditingSvDoc(doc);
+    setEditSvDocForm({ title: doc.title, description: doc.description || "", category: doc.category });
+  };
+
+  const handleSaveEditSvDoc = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSvDoc) return;
+    setSavingEdit(true);
+    try {
+      const res = await fetch(`/api/scanvault-documents/${editingSvDoc.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editSvDocForm),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setSvDocuments((prev) => prev.map((d) => d.id === updated.id ? { ...d, ...updated } : d));
+        setEditingSvDoc(null);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to save changes");
+      }
+    } catch {
+      alert("Failed to save changes");
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -1435,6 +1481,22 @@ export default function AdminDashboard() {
               Upload Document
             </Button>
           </div>
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-600 shrink-0">Filter:</label>
+            <select
+              className="px-3 py-1.5 border rounded-md text-sm bg-white"
+              value={svCategoryFilter}
+              onChange={(e) => setSvCategoryFilter(e.target.value)}
+            >
+              <option value="ALL">All Categories</option>
+              {SV_CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+            {svCategoryFilter !== "ALL" && (
+              <button className="text-xs text-gray-400 hover:text-gray-600 underline" onClick={() => setSvCategoryFilter("ALL")}>Clear</button>
+            )}
+          </div>
           <Card>
             <CardContent className="pt-6">
               {svDocuments.length === 0 ? (
@@ -1442,9 +1504,16 @@ export default function AdminDashboard() {
                   <FolderOpen className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                   <p>No ScanVault documents yet</p>
                 </div>
-              ) : (
+              ) : (() => {
+                const filtered = svCategoryFilter === "ALL" ? svDocuments : svDocuments.filter((d) => d.category === svCategoryFilter);
+                return filtered.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <FolderOpen className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                    <p>No documents in this category</p>
+                  </div>
+                ) : (
                 <div className="space-y-3">
-                  {svDocuments.map((doc) => (
+                  {filtered.map((doc) => (
                     <div key={doc.id} className="border rounded-lg p-4">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
@@ -1460,6 +1529,10 @@ export default function AdminDashboard() {
                                 Notes
                               </Button>
                             )}
+                            <Button size="sm" variant="outline" onClick={() => handleOpenEditSvDoc(doc)}>
+                              <Pencil className="h-3.5 w-3.5 mr-1" />
+                              Edit
+                            </Button>
                             <Button size="sm" variant="outline" onClick={() => handleViewSvDocument(doc.id)}>
                               <Download className="h-3.5 w-3.5 mr-1" />
                               View
@@ -1485,9 +1558,50 @@ export default function AdminDashboard() {
                     </div>
                   ))}
                 </div>
-              )}
+                );
+              })()}
             </CardContent>
           </Card>
+
+          {editingSvDoc && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <Card className="w-full max-w-md">
+                <CardHeader className="flex flex-row items-start justify-between pb-2">
+                  <div>
+                    <CardTitle className="text-lg">Edit Document</CardTitle>
+                    <CardDescription>Update title, category or notes</CardDescription>
+                  </div>
+                  <button onClick={() => setEditingSvDoc(null)} className="text-gray-400 hover:text-gray-700 ml-4 mt-1">✕</button>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSaveEditSvDoc} className="space-y-4">
+                    <div>
+                      <Label htmlFor="editSvTitle">Document Title *</Label>
+                      <Input id="editSvTitle" required value={editSvDocForm.title} onChange={(e) => setEditSvDocForm({ ...editSvDocForm, title: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label htmlFor="editSvCategory">Category</Label>
+                      <select id="editSvCategory" className="w-full px-3 py-2 border rounded-md" value={editSvDocForm.category} onChange={(e) => setEditSvDocForm({ ...editSvDocForm, category: e.target.value })}>
+                        {SV_CATEGORIES.map((c) => (
+                          <option key={c.value} value={c.value}>{c.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <Label htmlFor="editSvNotes">Notes (Optional)</Label>
+                      <textarea id="editSvNotes" className="w-full px-3 py-2 border rounded-md" rows={3} value={editSvDocForm.description} onChange={(e) => setEditSvDocForm({ ...editSvDocForm, description: e.target.value })} placeholder="Additional notes..." />
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <Button type="button" variant="outline" onClick={() => setEditingSvDoc(null)}>Cancel</Button>
+                      <Button type="submit" className="bg-scanvault-red hover:bg-red-700" disabled={savingEdit}>
+                        {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Changes"}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {showSvDocumentModal && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -1519,6 +1633,7 @@ export default function AdminDashboard() {
                         <option value="COMPLIANCE">Compliance</option>
                         <option value="INSURANCE">Insurance</option>
                         <option value="TAX">Tax</option>
+                        <option value="SALES_RECEIPTS">Sales Receipts</option>
                         <option value="OTHER">Other</option>
                       </select>
                     </div>

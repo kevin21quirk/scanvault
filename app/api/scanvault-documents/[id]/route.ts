@@ -37,6 +37,40 @@ export async function GET(
   }
 }
 
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const { title, description, category } = body;
+
+    if (!title) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 });
+    }
+
+    const doc = await (prisma as any).scanVaultDocument.update({
+      where: { id },
+      data: {
+        title,
+        description: description || null,
+        category: category || "GENERAL",
+      },
+    });
+
+    return NextResponse.json(doc);
+  } catch (error) {
+    console.error("Error updating ScanVault document:", error);
+    return NextResponse.json({ error: "Failed to update document" }, { status: 500 });
+  }
+}
+
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
