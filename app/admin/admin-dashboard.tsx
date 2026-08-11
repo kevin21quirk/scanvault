@@ -138,6 +138,7 @@ export default function AdminDashboard() {
   });
   const [svDocFile, setSvDocFile] = useState<File | null>(null);
   const [deletingSvDocument, setDeletingSvDocument] = useState<string | null>(null);
+  const [openNotesId, setOpenNotesId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -1448,12 +1449,17 @@ export default function AdminDashboard() {
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold">{doc.title}</p>
-                          {doc.description && <p className="text-sm text-gray-600 mt-0.5">{doc.description}</p>}
                           <span className="inline-block mt-1 text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{doc.category}</span>
                         </div>
                         <div className="text-right shrink-0 flex flex-col items-end gap-2">
                           <p className="text-sm text-gray-500">{new Date(doc.uploadedAt).toLocaleDateString("en-GB")}</p>
                           <div className="flex gap-2">
+                            {doc.description && (
+                              <Button size="sm" variant="outline" onClick={() => setOpenNotesId(openNotesId === doc.id ? null : doc.id)}>
+                                <ClipboardList className="h-3.5 w-3.5 mr-1" />
+                                Notes
+                              </Button>
+                            )}
                             <Button size="sm" variant="outline" onClick={() => handleViewSvDocument(doc.id)}>
                               <Download className="h-3.5 w-3.5 mr-1" />
                               View
@@ -1470,6 +1476,12 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                       </div>
+                      {openNotesId === doc.id && doc.description && (
+                        <div className="mt-3 pt-3 border-t">
+                          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Notes</p>
+                          <p className="text-sm text-gray-700 whitespace-pre-wrap">{doc.description}</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
