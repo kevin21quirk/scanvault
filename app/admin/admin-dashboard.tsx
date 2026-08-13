@@ -133,6 +133,7 @@ export default function AdminDashboard() {
   const [deletingReceipt, setDeletingReceipt] = useState<string | null>(null);
   const [emailingReceipt, setEmailingReceipt] = useState<string | null>(null);
   const [hoveredMonth, setHoveredMonth] = useState<number | null>(null);
+  const [activePopup, setActivePopup] = useState<"received" | "outstanding" | "overdue" | "clients" | null>(null);
   const [testEmailModal, setTestEmailModal] = useState<{ receiptId: string; clientEmail: string } | null>(null);
   const [testEmailAddress, setTestEmailAddress] = useState("");
   const [sendingTestEmail, setSendingTestEmail] = useState(false);
@@ -770,168 +771,190 @@ export default function AdminDashboard() {
           {/* ── Main content ── */}
           <div className="flex-1 min-w-0">
 
-        <TabsContent value="overview" className="space-y-4 mt-0">
+        <TabsContent value="overview" className="space-y-3 mt-0">
 
-          {/* ── Row 1: Hero KPI gradient cards ── */}
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-100">
-              <div className="flex justify-between items-start mb-4">
-                <div className="bg-white/20 backdrop-blur rounded-xl p-2"><TrendingUp className="h-5 w-5" /></div>
-                <span className="text-[11px] font-bold bg-white/25 px-2.5 py-1 rounded-full">{collectionRate}% rate</span>
-              </div>
-              <p className="text-3xl font-black tracking-tight">£{totalReceived.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
-              <p className="text-emerald-100 text-xs mt-1.5 font-medium">Total Revenue Received</p>
-              <div className="mt-3 h-1.5 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-1.5 bg-white rounded-full transition-all duration-1000" style={{ width: `${collectionRate}%` }} />
-              </div>
+          {/* ── Command strip ── */}
+          <div className="bg-slate-900 rounded-xl px-5 py-3.5 flex items-center overflow-x-auto gap-0 scrollbar-none">
+            <div className="flex items-center gap-2 pr-5 shrink-0">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+              </span>
+              <span className="text-[9px] font-black text-slate-500 tracking-[0.2em] uppercase">Live</span>
             </div>
-
-            <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-100">
-              <div className="flex justify-between items-start mb-4">
-                <div className="bg-white/20 backdrop-blur rounded-xl p-2"><CreditCard className="h-5 w-5" /></div>
-                <span className="text-[11px] font-bold bg-white/25 px-2.5 py-1 rounded-full">{pendingCount} pending</span>
+            {[
+              { label: "TOTAL INVOICED", value: `£${totalInvoiced.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`, color: "text-white" },
+              { label: "REVENUE IN",     value: `£${totalReceived.toLocaleString("en-GB",  { maximumFractionDigits: 0 })}`, color: "text-emerald-400" },
+              { label: "OUTSTANDING",   value: `£${totalOutstanding.toLocaleString("en-GB",{ maximumFractionDigits: 0 })}`, color: "text-amber-400" },
+              { label: "COLLECTION",    value: `${collectionRate}%`, color: collectionRate >= 70 ? "text-emerald-400" : "text-amber-400" },
+              { label: "OVERDUE",       value: overdueInvoices.length === 0 ? "Clear" : `${overdueInvoices.length} invoice${overdueInvoices.length !== 1 ? "s" : ""}`, color: overdueInvoices.length > 0 ? "text-red-400" : "text-slate-500" },
+              { label: "CLIENTS",       value: `${clientUsers.length} active`, color: "text-white" },
+              { label: "DOCUMENTS",     value: `${documents.length + svDocuments.length} archived`, color: "text-slate-400" },
+            ].map(({ label, value, color }, i) => (
+              <div key={i} className="flex items-center shrink-0">
+                <div className="w-px h-6 bg-slate-700 mx-5" />
+                <div>
+                  <p className="text-[9px] font-black text-slate-500 tracking-[0.15em] uppercase leading-none">{label}</p>
+                  <p className={`text-sm font-bold ${color} mt-1 leading-none tabular-nums`}>{value}</p>
+                </div>
               </div>
-              <p className="text-3xl font-black tracking-tight">£{totalOutstanding.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
-              <p className="text-amber-100 text-xs mt-1.5 font-medium">Outstanding Balance</p>
-              <div className="mt-3 h-1.5 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-1.5 bg-white rounded-full transition-all duration-1000" style={{ width: totalInvoiced > 0 ? `${Math.round((totalOutstanding / totalInvoiced) * 100)}%` : "0%" }} />
-              </div>
-            </div>
-
-            <div className={`bg-gradient-to-br ${overdueInvoices.length > 0 ? "from-red-500 to-rose-600 shadow-red-100" : "from-slate-600 to-slate-800 shadow-slate-100"} rounded-2xl p-5 text-white shadow-lg`}>
-              <div className="flex justify-between items-start mb-4">
-                <div className="bg-white/20 backdrop-blur rounded-xl p-2"><AlertCircle className="h-5 w-5" /></div>
-                {overdueInvoices.length > 0
-                  ? <span className="text-[11px] font-bold bg-white/25 px-2.5 py-1 rounded-full">{overdueInvoices.length} overdue</span>
-                  : <span className="text-[11px] font-bold bg-white/25 px-2.5 py-1 rounded-full">✓ All clear</span>
-                }
-              </div>
-              <p className="text-3xl font-black tracking-tight">£{overdueTotalAmt.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
-              <p className="text-white/70 text-xs mt-1.5 font-medium">{overdueInvoices.length === 0 ? "No overdue invoices" : "Total overdue balance"}</p>
-              <div className="mt-3 h-1.5 bg-white/20 rounded-full" />
-            </div>
-
-            <div className="bg-gradient-to-br from-violet-500 to-purple-700 rounded-2xl p-5 text-white shadow-lg shadow-violet-100">
-              <div className="flex justify-between items-start mb-4">
-                <div className="bg-white/20 backdrop-blur rounded-xl p-2"><Building2 className="h-5 w-5" /></div>
-                <span className="text-[11px] font-bold bg-white/25 px-2.5 py-1 rounded-full">{users.length} users</span>
-              </div>
-              <p className="text-3xl font-black tracking-tight">{clientUsers.length}</p>
-              <p className="text-violet-200 text-xs mt-1.5 font-medium">Active Clients</p>
-              <p className="text-white/50 text-[11px] mt-1">{documents.length} document{documents.length !== 1 ? "s" : ""} archived · {receipts.length} receipts</p>
-            </div>
-
+            ))}
           </div>
 
-          {/* ── Row 2: Bar chart + Donut ── */}
-          <div className="grid xl:grid-cols-3 gap-4">
+          {/* ── KPI Cards ── */}
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+            {([
+              { id: "received"    as const, label: "Total Received",   value: `£${totalReceived.toLocaleString("en-GB",{ maximumFractionDigits:0 })}`,    sub: `${paidInvoices.length} paid invoice${paidInvoices.length!==1?"s":""}`,              icon: <TrendingUp className="h-4 w-4"/>,  border:"border-l-emerald-500", iconCls:"bg-emerald-50 text-emerald-600", badge:"bg-emerald-50 text-emerald-700", badgeText:`${collectionRate}% rate`, positive: true },
+              { id: "outstanding" as const, label: "Outstanding",      value: `£${totalOutstanding.toLocaleString("en-GB",{ maximumFractionDigits:0 })}`, sub: `${pendingCount} pending invoice${pendingCount!==1?"s":""}`,                           icon: <CreditCard className="h-4 w-4"/>,  border:"border-l-amber-500",   iconCls:"bg-amber-50 text-amber-600",   badge:"bg-amber-50 text-amber-700",   badgeText:"awaiting",            positive: null },
+              { id: "overdue"     as const, label: "Overdue Balance",  value: `£${overdueTotalAmt.toLocaleString("en-GB",{ maximumFractionDigits:0 })}`,  sub: overdueInvoices.length===0?"No overdue invoices":`${overdueInvoices.length} past due`, icon: <AlertCircle className="h-4 w-4"/>, border: overdueInvoices.length>0?"border-l-red-500":"border-l-slate-200", iconCls: overdueInvoices.length>0?"bg-red-50 text-red-600":"bg-slate-50 text-slate-400", badge: overdueInvoices.length>0?"bg-red-50 text-red-700":"bg-slate-100 text-slate-400", badgeText: overdueInvoices.length===0?"✓ clear":"action needed", positive: overdueInvoices.length===0 },
+              { id: "clients"     as const, label: "Active Clients",   value: String(clientUsers.length),                                                  sub: `${invoices.length} invoices · ${receipts.length} receipts`,                          icon: <Building2 className="h-4 w-4"/>,   border:"border-l-violet-500",  iconCls:"bg-violet-50 text-violet-600", badge:"bg-slate-100 text-slate-500",  badgeText:`${users.length} users`,   positive: null },
+            ] as const).map(({ id, label, value, sub, icon, border, iconCls, badge, badgeText, positive }) => (
+              <button key={id} onClick={() => setActivePopup(id)}
+                className={`group bg-white border border-slate-100 border-l-4 ${border} rounded-xl p-5 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer w-full`}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`rounded-lg p-2 ${iconCls}`}>{icon}</div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badge}`}>{badgeText}</span>
+                </div>
+                <p className="text-2xl font-black text-slate-900 tracking-tight tabular-nums">{value}</p>
+                <p className="text-xs text-slate-400 font-semibold mt-1">{label}</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">{sub}</p>
+                <div className="mt-3 pt-3 border-t border-slate-50 flex items-center justify-between text-[10px] text-slate-300 group-hover:text-slate-400 transition-colors">
+                  <span>Click for details</span><span className="group-hover:translate-x-0.5 transition-transform inline-block">→</span>
+                </div>
+              </button>
+            ))}
+          </div>
 
-            {/* Monthly bar chart */}
-            <Card className="xl:col-span-2 border-0 shadow-sm bg-white">
+          {/* ── Charts ── */}
+          <div className="grid xl:grid-cols-3 gap-3">
+
+            {/* Area / line chart */}
+            <Card className="xl:col-span-2 border border-slate-100 shadow-sm bg-white">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <p className="font-bold text-gray-900">Revenue Trend</p>
-                    <p className="text-xs text-gray-400 mt-0.5">Invoiced vs received — last 6 months</p>
+                    <p className="font-bold text-slate-900">Revenue Timeline</p>
+                    <p className="text-xs text-slate-400 mt-0.5">Last 6 months · hover to inspect</p>
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-slate-200 inline-block" />Invoiced</span>
-                    <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-red-500 inline-block" />Received</span>
+                  <div className="flex items-center gap-5 text-xs text-slate-500">
+                    <span className="flex items-center gap-1.5"><span className="h-px w-6 bg-slate-300 inline-block" /><span className="h-2 w-2 rounded-full bg-slate-300 inline-block" />Invoiced</span>
+                    <span className="flex items-center gap-1.5"><span className="h-px w-6 bg-red-500 inline-block" /><span className="h-2 w-2 rounded-full bg-red-500 inline-block" />Received</span>
                   </div>
                 </div>
-                <div className="flex items-end gap-2" style={{ height: 140 }}>
-                  {monthlyData.map((m, i) => {
-                    const invPct = maxMonthly > 0 ? (m.invoiced / maxMonthly) * 100 : 0;
-                    const recvPct = maxMonthly > 0 ? (m.received / maxMonthly) * 100 : 0;
-                    return (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full group relative"
-                        onMouseEnter={() => setHoveredMonth(i)} onMouseLeave={() => setHoveredMonth(null)}>
-                        {hoveredMonth === i && (
-                          <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-20 bg-slate-800 text-white rounded-xl p-3 shadow-2xl text-xs whitespace-nowrap pointer-events-none">
-                            <p className="font-bold mb-1 text-slate-300">{m.label}</p>
-                            <p>Invoiced: <span className="font-bold text-white">£{m.invoiced.toLocaleString("en-GB")}</span></p>
-                            <p className="text-red-300">Received: <span className="font-bold text-white">£{m.received.toLocaleString("en-GB")}</span></p>
-                          </div>
-                        )}
-                        <div className="flex items-end gap-1 w-full flex-1">
-                          <div className="flex-1 rounded-t-md transition-all duration-500 bg-slate-200 group-hover:bg-slate-300"
-                            style={{ height: `${invPct}%`, minHeight: invPct > 0 ? 3 : 0 }} />
-                          <div className="flex-1 rounded-t-md transition-all duration-500 bg-red-500 group-hover:bg-red-600 opacity-90"
-                            style={{ height: `${recvPct}%`, minHeight: recvPct > 0 ? 3 : 0 }} />
-                        </div>
+                <div className="relative" onMouseLeave={() => setHoveredMonth(null)}>
+                  <svg viewBox="0 0 420 100" className="w-full overflow-visible" style={{ height: 130 }}>
+                    <defs>
+                      <linearGradient id="recvFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#dc2626" stopOpacity="0.12" /><stop offset="100%" stopColor="#dc2626" stopOpacity="0" />
+                      </linearGradient>
+                      <linearGradient id="invFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.07" /><stop offset="100%" stopColor="#94a3b8" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    {[0, 25, 50, 75, 100].map(pct => (
+                      <line key={pct} x1="0" x2="420" y1={95 - pct * 0.9} y2={95 - pct * 0.9} stroke="#f1f5f9" strokeWidth="1" />
+                    ))}
+                    {(() => {
+                      const pts = monthlyData.map((m, i) => ({ x: i * 84, y: maxMonthly > 0 ? 95 - (m.invoiced / maxMonthly) * 88 : 95 }));
+                      const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+                      const area = `${line} L${pts[5].x},95 L0,95 Z`;
+                      return (<><path d={area} fill="url(#invFill)" /><path d={line} fill="none" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></>);
+                    })()}
+                    {(() => {
+                      const pts = monthlyData.map((m, i) => ({ x: i * 84, y: maxMonthly > 0 ? 95 - (m.received / maxMonthly) * 88 : 95 }));
+                      const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+                      const area = `${line} L${pts[5].x},95 L0,95 Z`;
+                      return (<><path d={area} fill="url(#recvFill)" /><path d={line} fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></>);
+                    })()}
+                    {monthlyData.map((m, i) => {
+                      const x = i * 84;
+                      const invY = maxMonthly > 0 ? 95 - (m.invoiced / maxMonthly) * 88 : 95;
+                      const recvY = maxMonthly > 0 ? 95 - (m.received / maxMonthly) * 88 : 95;
+                      return (
+                        <g key={i} onMouseEnter={() => setHoveredMonth(i)} style={{ cursor: "crosshair" }}>
+                          <rect x={x - 30} y={0} width="60" height="95" fill="transparent" />
+                          {hoveredMonth === i && <line x1={x} x2={x} y1={4} y2={95} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />}
+                          <circle cx={x} cy={invY} r={hoveredMonth === i ? 4 : 2.5} fill="white" stroke="#cbd5e1" strokeWidth="2" style={{ transition: "r 0.15s" }} />
+                          <circle cx={x} cy={recvY} r={hoveredMonth === i ? 4 : 2.5} fill="white" stroke="#dc2626" strokeWidth="2" style={{ transition: "r 0.15s" }} />
+                        </g>
+                      );
+                    })}
+                  </svg>
+                  {hoveredMonth !== null && (
+                    <div className="absolute pointer-events-none z-20 bg-slate-900 text-white rounded-xl p-3 shadow-2xl text-xs"
+                      style={{ bottom: 28, left: `clamp(0px, calc(${(hoveredMonth / 5) * 100}% - 72px), calc(100% - 148px))` }}>
+                      <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-2">{monthlyData[hoveredMonth].label}</p>
+                      <div className="space-y-1.5">
+                        <p className="flex justify-between gap-8"><span className="text-slate-400">Invoiced</span><span className="font-bold tabular-nums">£{monthlyData[hoveredMonth].invoiced.toLocaleString("en-GB")}</span></p>
+                        <p className="flex justify-between gap-8"><span className="text-red-300">Received</span><span className="font-bold tabular-nums">£{monthlyData[hoveredMonth].received.toLocaleString("en-GB")}</span></p>
                       </div>
-                    );
-                  })}
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-2 mt-2">
+                <div className="flex mt-1">
                   {monthlyData.map((m, i) => (
-                    <div key={i} className="flex-1 text-center text-[10px] text-gray-400 font-semibold">{m.label}</div>
+                    <div key={i} className={`flex-1 text-center text-[10px] font-bold transition-colors ${hoveredMonth === i ? "text-slate-700" : "text-slate-300"}`}>{m.label}</div>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wide font-bold mb-0.5">Total Invoiced</p>
-                    <p className="text-lg font-black text-gray-900">£{totalInvoiced.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-emerald-500 uppercase tracking-wide font-bold mb-0.5">Received</p>
-                    <p className="text-lg font-black text-gray-900">£{totalReceived.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-amber-500 uppercase tracking-wide font-bold mb-0.5">Outstanding</p>
-                    <p className="text-lg font-black text-gray-900">£{totalOutstanding.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
-                  </div>
+                <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 divide-x divide-slate-100">
+                  {[
+                    { label: "Invoiced", val: totalInvoiced, color: "text-slate-400" },
+                    { label: "Received", val: totalReceived, color: "text-emerald-600" },
+                    { label: "Outstanding", val: totalOutstanding, color: "text-amber-600" },
+                  ].map(({ label, val, color }) => (
+                    <div key={label} className="px-4 first:pl-0 last:pr-0 text-center">
+                      <p className={`text-[9px] font-black uppercase tracking-widest ${color}`}>{label}</p>
+                      <p className="text-base font-black text-slate-900 mt-0.5 tabular-nums">£{val.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Donut chart */}
-            <Card className="border-0 shadow-sm bg-white">
+            {/* Donut */}
+            <Card className="border border-slate-100 shadow-sm bg-white">
               <CardContent className="p-6">
-                <p className="font-bold text-gray-900 mb-1">Revenue Split</p>
-                <p className="text-xs text-gray-400 mb-5">Of £{totalInvoiced.toLocaleString("en-GB", { maximumFractionDigits: 0 })} total invoiced</p>
-                <div className="flex justify-center mb-5">
-                  <svg viewBox="0 0 128 128" className="w-36 h-36">
-                    <circle cx="64" cy="64" r={donutR} fill="none" stroke="#f1f5f9" strokeWidth="18" />
+                <div className="flex items-center justify-between mb-4">
+                  <p className="font-bold text-slate-900">Collection Rate</p>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${collectionRate >= 70 ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{collectionRate}%</span>
+                </div>
+                <div className="flex justify-center my-4">
+                  <svg viewBox="0 0 128 128" className="w-40 h-40">
+                    <circle cx="64" cy="64" r={donutR} fill="none" stroke="#f1f5f9" strokeWidth="14" />
                     {totalInvoiced > 0 && (<>
-                      <circle cx="64" cy="64" r={donutR} fill="none" stroke="#10b981" strokeWidth="18"
+                      <circle cx="64" cy="64" r={donutR} fill="none" stroke="#059669" strokeWidth="14"
                         strokeDasharray={`${(totalReceived / totalInvoiced) * donutCirc} ${donutCirc}`}
-                        strokeDashoffset="0" transform="rotate(-90 64 64)"
-                        style={{ transition: "stroke-dasharray 1s ease" }}
-                      />
-                      {totalOutstanding > 0 && (
-                        <circle cx="64" cy="64" r={donutR} fill="none" stroke="#f59e0b" strokeWidth="18"
-                          strokeDasharray={`${(totalOutstanding / totalInvoiced) * donutCirc} ${donutCirc}`}
-                          strokeDashoffset={`${-(totalReceived / totalInvoiced) * donutCirc}`}
-                          transform="rotate(-90 64 64)"
-                          style={{ transition: "stroke-dasharray 1s ease" }}
-                        />
-                      )}
-                      {overdueTotalAmt > 0 && (
-                        <circle cx="64" cy="64" r={donutR} fill="none" stroke="#ef4444" strokeWidth="18"
-                          strokeDasharray={`${(overdueTotalAmt / totalInvoiced) * donutCirc} ${donutCirc}`}
-                          strokeDashoffset={`${-((totalReceived + totalOutstanding) / totalInvoiced) * donutCirc}`}
-                          transform="rotate(-90 64 64)"
-                          style={{ transition: "stroke-dasharray 1s ease" }}
-                        />
-                      )}
+                        strokeDashoffset="0" transform="rotate(-90 64 64)" />
+                      {totalOutstanding > 0 && <circle cx="64" cy="64" r={donutR} fill="none" stroke="#d97706" strokeWidth="14"
+                        strokeDasharray={`${(totalOutstanding / totalInvoiced) * donutCirc} ${donutCirc}`}
+                        strokeDashoffset={`${-(totalReceived / totalInvoiced) * donutCirc}`}
+                        transform="rotate(-90 64 64)" />}
+                      {overdueTotalAmt > 0 && <circle cx="64" cy="64" r={donutR} fill="none" stroke="#dc2626" strokeWidth="14"
+                        strokeDasharray={`${(overdueTotalAmt / totalInvoiced) * donutCirc} ${donutCirc}`}
+                        strokeDashoffset={`${-((totalReceived + totalOutstanding) / totalInvoiced) * donutCirc}`}
+                        transform="rotate(-90 64 64)" />}
                     </>)}
-                    <text x="64" y="59" textAnchor="middle" fontSize="17" fontWeight="900" fill="#111827">{collectionRate}%</text>
-                    <text x="64" y="74" textAnchor="middle" fontSize="9" fill="#9ca3af">collected</text>
+                    <text x="64" y="57" textAnchor="middle" fontSize="20" fontWeight="900" fill="#0f172a" fontFamily="system-ui">{collectionRate}%</text>
+                    <text x="64" y="73" textAnchor="middle" fontSize="9" fill="#94a3b8" fontWeight="700" fontFamily="system-ui" letterSpacing="2">COLLECTED</text>
                   </svg>
                 </div>
                 <div className="space-y-3">
                   {[
-                    { label: "Received", color: "bg-emerald-500", val: totalReceived },
-                    { label: "Outstanding", color: "bg-amber-400", val: totalOutstanding },
-                    { label: "Overdue", color: "bg-red-500", val: overdueTotalAmt },
-                  ].map(({ label, color, val }) => (
-                    <div key={label} className="flex items-center justify-between">
-                      <span className="flex items-center gap-2 text-sm text-gray-600">
-                        <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${color}`} />{label}
-                      </span>
-                      <span className="text-sm font-bold text-gray-900">£{val.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</span>
+                    { label: "Revenue In",   color: "bg-emerald-500", val: totalReceived,   pct: totalInvoiced > 0 ? Math.round((totalReceived / totalInvoiced) * 100) : 0 },
+                    { label: "Outstanding",  color: "bg-amber-500",   val: totalOutstanding, pct: totalInvoiced > 0 ? Math.round((totalOutstanding / totalInvoiced) * 100) : 0 },
+                    { label: "Overdue",      color: "bg-red-500",     val: overdueTotalAmt,  pct: totalInvoiced > 0 ? Math.round((overdueTotalAmt / totalInvoiced) * 100) : 0 },
+                  ].map(({ label, color, val, pct }) => (
+                    <div key={label} className="flex items-center gap-3">
+                      <div className={`h-2 w-2 rounded-full shrink-0 ${color}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-xs text-slate-600 font-medium">{label}</span>
+                          <span className="text-xs font-bold text-slate-900 tabular-nums">£{val.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</span>
+                        </div>
+                        <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
+                          <div className={`h-1 ${color} rounded-full transition-all duration-700`} style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -940,76 +963,72 @@ export default function AdminDashboard() {
 
           </div>
 
-          {/* ── Row 3: Invoice pipeline + Recent activity ── */}
-          <div className="grid xl:grid-cols-3 gap-4">
+          {/* ── Pipeline + Activity ── */}
+          <div className="grid xl:grid-cols-3 gap-3">
 
-            {/* Invoice pipeline */}
-            <Card className="border-0 shadow-sm bg-white">
+            <Card className="border border-slate-100 shadow-sm bg-white">
               <CardContent className="p-6">
-                <p className="font-bold text-gray-900 mb-5">Invoice Pipeline</p>
+                <p className="font-bold text-slate-900 mb-5">Invoice Pipeline</p>
                 <div className="space-y-4">
                   {[
-                    { label: "Paid", count: paidInvoices.length, color: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700" },
-                    { label: "Pending", count: pendingCount, color: "bg-amber-400", badge: "bg-amber-50 text-amber-700" },
-                    { label: "Overdue", count: overdueInvoices.length, color: "bg-red-500", badge: "bg-red-50 text-red-700" },
-                    { label: "Cancelled", count: cancelledCount, color: "bg-slate-300", badge: "bg-slate-50 text-slate-500" },
-                  ].map(({ label, count, color, badge }) => (
+                    { label: "Paid",      count: paidInvoices.length,    bar: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700" },
+                    { label: "Pending",   count: pendingCount,            bar: "bg-amber-400",   badge: "bg-amber-50 text-amber-700" },
+                    { label: "Overdue",   count: overdueInvoices.length,  bar: "bg-red-500",     badge: "bg-red-50 text-red-700" },
+                    { label: "Cancelled", count: cancelledCount,          bar: "bg-slate-200",   badge: "bg-slate-100 text-slate-500" },
+                  ].map(({ label, count, bar, badge }) => (
                     <div key={label}>
                       <div className="flex justify-between items-center mb-1.5">
-                        <span className="text-sm text-gray-600 font-medium">{label}</span>
+                        <span className="text-sm text-slate-600 font-medium">{label}</span>
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${badge}`}>{count}</span>
                       </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div className={`h-2 ${color} rounded-full transition-all duration-700`}
+                      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className={`h-1.5 ${bar} rounded-full transition-all duration-700`}
                           style={{ width: invoices.length > 0 ? `${(count / invoices.length) * 100}%` : "0%" }} />
                       </div>
                     </div>
                   ))}
                 </div>
-                <div className="mt-5 pt-5 border-t border-gray-100 grid grid-cols-2 gap-3">
-                  <div className="bg-gray-50 rounded-xl p-3 text-center">
-                    <p className="text-2xl font-black text-gray-900">{invoices.length}</p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">Total Invoices</p>
+                <div className="mt-5 pt-5 border-t border-slate-100 grid grid-cols-2 gap-3">
+                  <div className="bg-slate-50 rounded-xl p-3 text-center">
+                    <p className="text-2xl font-black text-slate-900">{invoices.length}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Total Invoices</p>
                   </div>
-                  <div className="bg-gray-50 rounded-xl p-3 text-center">
-                    <p className="text-2xl font-black text-gray-900">{receipts.length}</p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">Receipts Issued</p>
+                  <div className="bg-slate-50 rounded-xl p-3 text-center">
+                    <p className="text-2xl font-black text-slate-900">{receipts.length}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Receipts</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Recent activity feed */}
-            <Card className="xl:col-span-2 border-0 shadow-sm bg-white">
+            <Card className="xl:col-span-2 border border-slate-100 shadow-sm bg-white">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-5">
-                  <p className="font-bold text-gray-900">Recent Activity</p>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">Latest transactions</span>
+                <div className="flex items-center justify-between mb-4">
+                  <p className="font-bold text-slate-900">Recent Activity</p>
+                  <span className="text-[9px] font-black text-slate-400 tracking-[0.2em] uppercase">Latest {recentActivity.length}</span>
                 </div>
                 {recentActivity.length === 0 ? (
-                  <div className="text-center py-10 text-gray-400 text-sm">No activity yet</div>
+                  <div className="text-center py-10 text-slate-300 text-sm">No activity yet</div>
                 ) : (
-                  <div className="space-y-1">
+                  <div className="divide-y divide-slate-50">
                     {recentActivity.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-default">
-                        <div className={`rounded-xl p-2.5 shrink-0 ${item.type === "invoice" ? "bg-blue-50" : "bg-emerald-50"}`}>
+                      <div key={idx} className="flex items-center gap-4 py-2.5 hover:bg-slate-50 px-2 -mx-2 rounded-lg transition-colors duration-150">
+                        <div className={`rounded-lg p-2 shrink-0 ${item.type === "invoice" ? "bg-slate-50" : "bg-emerald-50"}`}>
                           {item.type === "invoice"
-                            ? <FileText className={`h-4 w-4 ${item.status === "PAID" ? "text-emerald-500" : item.status === "CANCELLED" ? "text-gray-400" : overdueInvoices.some(o => o.invoiceNumber === item.label.replace("Invoice ", "")) ? "text-red-500" : "text-amber-500"}`} />
-                            : <Receipt className="h-4 w-4 text-emerald-500" />
-                          }
+                            ? <FileText className={`h-3.5 w-3.5 ${item.status === "PAID" ? "text-emerald-500" : item.status === "CANCELLED" ? "text-slate-300" : "text-amber-500"}`} />
+                            : <Receipt className="h-3.5 w-3.5 text-emerald-500" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900">{item.label}</p>
-                          <p className="text-xs text-gray-400 truncate">{item.sub}</p>
+                          <p className="text-sm font-semibold text-slate-800">{item.label}</p>
+                          <p className="text-xs text-slate-400 truncate">{item.sub} · {new Date(item.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-sm font-bold text-gray-900">£{item.amount.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
-                          <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${
+                          <p className="text-sm font-bold text-slate-900 tabular-nums">£{item.amount.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                             item.status === "PAID" ? "bg-emerald-50 text-emerald-700" :
                             item.status === "PENDING" ? "bg-amber-50 text-amber-700" :
-                            item.status === "CANCELLED" ? "bg-gray-100 text-gray-500" :
-                            "bg-red-50 text-red-700"
-                          }`}>{item.status}</span>
+                            item.status === "CANCELLED" ? "bg-slate-100 text-slate-400" :
+                            "bg-red-50 text-red-700"}`}>{item.status}</span>
                         </div>
                       </div>
                     ))}
@@ -1019,6 +1038,86 @@ export default function AdminDashboard() {
             </Card>
 
           </div>
+
+          {/* ── Detail popup overlay ── */}
+          {activePopup && (
+            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+              onClick={() => setActivePopup(null)}>
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[70vh] flex flex-col animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200"
+                onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                  <div>
+                    <p className="font-bold text-slate-900">
+                      {activePopup === "received" ? "Revenue Received" : activePopup === "outstanding" ? "Outstanding Balance" : activePopup === "overdue" ? "Overdue Invoices" : "Active Clients"}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {activePopup === "received" ? `${paidInvoices.length} paid invoices` : activePopup === "outstanding" ? `${pendingCount} pending` : activePopup === "overdue" ? `${overdueInvoices.length} past due date` : `${clientUsers.length} registered clients`}
+                    </p>
+                  </div>
+                  <button onClick={() => setActivePopup(null)} className="text-slate-300 hover:text-slate-700 transition-colors text-xl leading-none p-1 rounded-lg hover:bg-slate-100">✕</button>
+                </div>
+                <div className="overflow-y-auto flex-1 px-6 py-4 space-y-0">
+                  {activePopup === "received" && paidInvoices.map(inv => (
+                    <div key={inv.id} className="flex justify-between items-center py-3 border-b border-slate-50 last:border-0">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800">{inv.invoiceNumber}</p>
+                        <p className="text-xs text-slate-400">{inv.user.name || inv.user.email}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-slate-900 tabular-nums">£{inv.total.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
+                        <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold">PAID</span>
+                      </div>
+                    </div>
+                  ))}
+                  {activePopup === "outstanding" && invoices.filter(i => i.status !== "PAID" && i.status !== "CANCELLED" && !overdueInvoices.some(o => o.id === i.id)).map(inv => (
+                    <div key={inv.id} className="flex justify-between items-center py-3 border-b border-slate-50 last:border-0">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800">{inv.invoiceNumber}</p>
+                        <p className="text-xs text-slate-400">{inv.user.name || inv.user.email} · Due {new Date(inv.dueDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-slate-900 tabular-nums">£{inv.total.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
+                        <span className="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-bold">PENDING</span>
+                      </div>
+                    </div>
+                  ))}
+                  {activePopup === "overdue" && overdueInvoices.map(inv => {
+                    const days = Math.floor((Date.now() - new Date(inv.dueDate).getTime()) / 86400000);
+                    return (
+                      <div key={inv.id} className="flex justify-between items-center py-3 border-b border-slate-50 last:border-0">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-800">{inv.invoiceNumber}</p>
+                          <p className="text-xs text-slate-400">{inv.user.name || inv.user.email}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-slate-900 tabular-nums">£{inv.total.toLocaleString("en-GB", { maximumFractionDigits: 0 })}</p>
+                          <span className="text-[10px] bg-red-50 text-red-700 px-2 py-0.5 rounded-full font-bold">{days}d overdue</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {activePopup === "clients" && clientUsers.map(u => {
+                    const ci = invoices.filter(i => i.user.id === u.id);
+                    return (
+                      <div key={u.id} className="flex justify-between items-center py-3 border-b border-slate-50 last:border-0">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-800">{u.companyName || u.name || u.email}</p>
+                          <p className="text-xs text-slate-400">{u.email}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-slate-900">{ci.length} invoice{ci.length !== 1 ? "s" : ""}</p>
+                          <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold tabular-nums">£{ci.reduce((a, i) => a + i.total, 0).toLocaleString("en-GB", { maximumFractionDigits: 0 })}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {((activePopup === "received" && paidInvoices.length === 0) || (activePopup === "outstanding" && pendingCount === 0) || (activePopup === "overdue" && overdueInvoices.length === 0) || (activePopup === "clients" && clientUsers.length === 0)) && (
+                    <p className="text-center text-slate-300 py-10 text-sm">Nothing to show</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
         </TabsContent>
 
