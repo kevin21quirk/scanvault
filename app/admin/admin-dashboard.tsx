@@ -1121,126 +1121,131 @@ export default function AdminDashboard() {
 
         </TabsContent>
 
-        <TabsContent value="clients" className="space-y-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Users className="w-5 h-5 text-scanvault-red" />
-            <h2 className="text-2xl font-bold">Clients</h2>
+        <TabsContent value="clients" className="space-y-3 mt-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-black text-slate-900">Clients</h2>
+              <p className="text-xs text-slate-400 mt-0.5">{clientUsers.length} registered client{clientUsers.length !== 1 ? "s" : ""}</p>
+            </div>
+            <span className="text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase">People</span>
           </div>
           <ClientsTab />
         </TabsContent>
 
-        <TabsContent value="system-users" className="space-y-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Users className="w-5 h-5 text-scanvault-red" />
-            <h2 className="text-xl sm:text-2xl font-bold">System Users</h2>
+        <TabsContent value="system-users" className="space-y-3 mt-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-black text-slate-900">System Users</h2>
+              <p className="text-xs text-slate-400 mt-0.5">{users.length} total user{users.length !== 1 ? "s" : ""}</p>
+            </div>
+            <span className="text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase">People</span>
           </div>
           <SystemUsersTab />
         </TabsContent>
 
-        <TabsContent value="invoices" className="space-y-4">
-          <div className="flex flex-wrap justify-between items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold">Invoice Management</h2>
-            <Button onClick={handleOpenInvoiceModal} className="bg-scanvault-red hover:bg-red-700 shrink-0">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Invoice
+        <TabsContent value="invoices" className="space-y-3 mt-0">
+          {/* Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-black text-slate-900">Invoices</h2>
+              <p className="text-xs text-slate-400 mt-0.5">{invoices.length} total · {paidInvoices.length} paid · {pendingCount} pending · {overdueInvoices.length} overdue</p>
+            </div>
+            <Button onClick={handleOpenInvoiceModal} className="bg-scanvault-red hover:bg-red-700 shrink-0 h-8 text-xs">
+              <Plus className="h-3.5 w-3.5 mr-1.5" />Create Invoice
             </Button>
           </div>
-          <Card>
-            <CardContent className="pt-6">
-              {invoices.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                  <p>No invoices yet</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {invoices.map((invoice) => (
-                    <div key={invoice.id} className="border rounded-lg p-4 space-y-3">
-                      {/* Top row: info left, total+status right */}
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold">{invoice.invoiceNumber}</p>
-                          <p className="text-sm text-gray-600 truncate">{invoice.user.email}{invoice.careHomeName ? ` · ${invoice.careHomeName}` : ""}</p>
-                          <p className="text-sm text-gray-600">{invoice.description}</p>
-                          <div className="mt-2 text-xs text-gray-500">
-                            <p>Subtotal: £{invoice.subtotal.toFixed(2)}</p>
-                            {invoice.vatRate > 0 && (
-                              <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
-                            )}
-                            {invoice.depositPercent && invoice.depositPercent > 0 && (
-                              <p className="mt-1">
-                                Deposit ({invoice.depositPercent}%): £{(invoice.total * invoice.depositPercent / 100).toFixed(2)}
-                                {invoice.depositPaid
-                                  ? <span className="ml-2 inline-flex items-center gap-1 text-green-700 font-medium">✓ Paid</span>
-                                  : <span className="ml-2 text-yellow-600">Unpaid</span>
-                                }
-                              </p>
-                            )}
-                          </div>
+          {/* Stats strip */}
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { label: "Invoiced", value: `£${totalInvoiced.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`, cls: "bg-slate-50 text-slate-900" },
+              { label: "Received", value: `£${totalReceived.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`, cls: "bg-emerald-50 text-emerald-800" },
+              { label: "Outstanding", value: `£${totalOutstanding.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`, cls: "bg-amber-50 text-amber-800" },
+              { label: "Overdue", value: `£${overdueTotalAmt.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`, cls: overdueInvoices.length > 0 ? "bg-red-50 text-red-800" : "bg-slate-50 text-slate-400" },
+            ].map(({ label, value, cls }) => (
+              <div key={label} className={`rounded-xl px-3 py-2.5 text-center ${cls}`}>
+                <p className="text-sm font-black tabular-nums">{value}</p>
+                <p className="text-[9px] font-bold uppercase tracking-widest mt-0.5 opacity-70">{label}</p>
+              </div>
+            ))}
+          </div>
+          {/* Invoice list */}
+          {invoices.length === 0 ? (
+            <div className="bg-white border border-slate-100 rounded-xl text-center py-16 text-slate-300">
+              <FileText className="h-10 w-10 mx-auto mb-3" />
+              <p className="text-sm font-semibold">No invoices yet</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {invoices.map((invoice) => {
+                const ss = invoice.status === "PAID" ? { b: "border-l-emerald-500", badge: "bg-emerald-50 text-emerald-700" }
+                  : invoice.status === "DEPOSIT_PAID" ? { b: "border-l-blue-500", badge: "bg-blue-50 text-blue-700" }
+                  : invoice.status === "PENDING" ? { b: "border-l-amber-400", badge: "bg-amber-50 text-amber-700" }
+                  : invoice.status === "OVERDUE" ? { b: "border-l-red-500", badge: "bg-red-50 text-red-700" }
+                  : { b: "border-l-slate-200", badge: "bg-slate-100 text-slate-500" };
+                return (
+                  <div key={invoice.id} className={`bg-white border border-slate-100 border-l-4 ${ss.b} rounded-xl p-4 hover:shadow-sm transition-shadow duration-150`}>
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span className="font-black text-slate-900">{invoice.invoiceNumber}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ss.badge}`}>
+                            {invoice.status === "DEPOSIT_PAID" ? "DEP PAID" : invoice.status}
+                          </span>
+                          {invoice.depositPaid && invoice.status !== "DEPOSIT_PAID" && (
+                            <span className="text-[10px] bg-blue-50 text-blue-600 font-bold px-2 py-0.5 rounded-full">DEP ✓</span>
+                          )}
                         </div>
-                        <div className="text-right shrink-0">
-                          <p className="font-bold text-lg">£{invoice.total.toFixed(2)}</p>
-                          <div className="mt-1">
-                            <select
-                              value={invoice.status}
-                              onChange={(e) => handleStatusChange(invoice.id, e.target.value)}
-                              disabled={updatingStatus === invoice.id}
-                              className={`text-sm px-2 py-1 border rounded w-full ${
-                                invoice.status === 'PAID' ? 'bg-green-50 text-green-700 border-green-300' :
-                                invoice.status === 'DEPOSIT_PAID' ? 'bg-blue-50 text-blue-700 border-blue-300' :
-                                invoice.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-300' :
-                                'bg-red-50 text-red-700 border-red-300'
-                              }`}
-                            >
-                              <option value="PENDING">Pending</option>
-                              <option value="DEPOSIT_PAID">Pending - Dep Paid</option>
-                              <option value="PAID">Paid</option>
-                              <option value="OVERDUE">Overdue</option>
-                              <option value="CANCELLED">Cancelled</option>
-                            </select>
-                          </div>
-                        </div>
+                        <p className="text-sm text-slate-500 font-medium truncate">{invoice.user.name || invoice.user.email}{invoice.careHomeName ? ` · ${invoice.careHomeName}` : ""}</p>
+                        <p className="text-xs text-slate-400 mt-0.5 truncate">{invoice.description}</p>
                       </div>
-                      {/* Bottom row: action buttons — wrap on mobile */}
-                      <div className="flex flex-wrap gap-2">
+                      <div className="text-right shrink-0">
+                        <p className="text-xl font-black text-slate-900 tabular-nums leading-tight">£{invoice.total.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">Due {new Date(invoice.dueDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" })}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-slate-50 flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
+                        <span>Sub £{invoice.subtotal.toFixed(2)}</span>
+                        {invoice.vatRate > 0 && <span>VAT {invoice.vatRate}% = £{invoice.vatAmount.toFixed(2)}</span>}
+                        {invoice.depositPercent && invoice.depositPercent > 0 && (
+                          <span className={invoice.depositPaid ? "text-emerald-600 font-semibold" : "text-amber-600"}>
+                            Dep {invoice.depositPercent}% {invoice.depositPaid ? "✓" : "— unpaid"}
+                          </span>
+                        )}
+                        <span className="text-slate-300">Issued {new Date(invoice.issueDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        <select value={invoice.status} onChange={(e) => handleStatusChange(invoice.id, e.target.value)}
+                          disabled={updatingStatus === invoice.id}
+                          className="text-xs px-2 py-1.5 border border-slate-200 rounded-lg bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-slate-300">
+                          <option value="PENDING">Pending</option>
+                          <option value="DEPOSIT_PAID">Dep Paid</option>
+                          <option value="PAID">Paid</option>
+                          <option value="OVERDUE">Overdue</option>
+                          <option value="CANCELLED">Cancelled</option>
+                        </select>
                         {invoice.depositPercent && invoice.depositPercent > 0 && !invoice.depositPaid && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-700 border-green-300 hover:bg-green-50"
-                            onClick={() => handleMarkDepositPaid(invoice.id)}
-                            disabled={markingDeposit === invoice.id}
-                          >
-                            {markingDeposit === invoice.id ? <Loader2 className="h-4 w-4 animate-spin" /> : "Deposit Paid"}
+                          <Button size="sm" variant="outline" className="text-xs h-7 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                            onClick={() => handleMarkDepositPaid(invoice.id)} disabled={markingDeposit === invoice.id}>
+                            {markingDeposit === invoice.id ? <Loader2 className="h-3 w-3 animate-spin" /> : "Dep Paid"}
                           </Button>
                         )}
-                        <Button size="sm" variant="outline" onClick={() => handleEditInvoice(invoice)}>
-                          Edit
+                        <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => handleEditInvoice(invoice)}>Edit</Button>
+                        <Button size="sm" variant="outline" className="h-7 w-7 p-0" title="Download PDF"
+                          onClick={() => window.open(`/api/invoices/${invoice.id}/download`, "_blank")}>
+                          <Download className="h-3.5 w-3.5" />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.open(`/api/invoices/${invoice.id}/download`, '_blank')}
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          PDF
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 hover:bg-red-50 border-red-200"
-                          onClick={() => handleDeleteInvoice(invoice.id)}
-                          disabled={deletingInvoice === invoice.id}
-                        >
-                          {deletingInvoice === invoice.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        <Button size="sm" variant="outline" className="h-7 w-7 p-0 border-red-100 text-red-500 hover:bg-red-50"
+                          onClick={() => handleDeleteInvoice(invoice.id)} disabled={deletingInvoice === invoice.id}>
+                          {deletingInvoice === invoice.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                         </Button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {showInvoiceModal && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -1499,165 +1504,126 @@ export default function AdminDashboard() {
           )}
         </TabsContent>
 
-        <TabsContent value="overdue" className="space-y-4">
-          <div className="flex justify-between items-center">
+        <TabsContent value="overdue" className="space-y-3 mt-0">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-red-600">Overdue Invoices</h2>
-              <p className="text-sm text-gray-600 mt-1">Invoices past their due date that require attention</p>
+              <h2 className="text-xl font-black text-slate-900">Overdue Invoices</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Invoices past their due date requiring attention</p>
             </div>
             {overdueInvoices.length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2">
-                <p className="text-red-700 font-semibold">{overdueInvoices.length} Overdue Invoice{overdueInvoices.length !== 1 ? 's' : ''}</p>
+              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
+                <p className="text-red-700 font-bold text-sm tabular-nums">{overdueInvoices.length} overdue · £{overdueTotalAmt.toLocaleString("en-GB", { maximumFractionDigits: 0 })} total</p>
               </div>
             )}
           </div>
-          <Card>
-            <CardContent className="pt-6">
-              {overdueInvoices.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                  <p className="text-lg font-semibold text-green-600">No overdue invoices!</p>
-                  <p className="text-sm mt-2">All invoices are up to date</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {overdueInvoices.map((invoice) => {
-                    const dueDate = new Date(invoice.dueDate);
-                    const today = new Date();
-                    const daysOverdue = Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
-                    
-                    return (
-                      <div key={invoice.id} className="border-2 border-red-200 bg-red-50 rounded-lg p-4">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className="font-semibold text-lg">{invoice.invoiceNumber}</p>
-                              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                                {daysOverdue} day{daysOverdue !== 1 ? 's' : ''} overdue
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-700 mt-1">{invoice.user.email}{invoice.careHomeName ? ` · ${invoice.careHomeName}` : ""}</p>
-                            <p className="text-sm text-gray-600">{invoice.description}</p>
-                            <div className="mt-2 text-xs text-gray-600">
-                              <p>Due Date: <span className="font-semibold text-red-600">{new Date(invoice.dueDate).toLocaleDateString('en-GB')}</span></p>
-                              <p className="mt-1">Subtotal: £{invoice.subtotal.toFixed(2)}</p>
-                              {invoice.vatRate > 0 && (
-                                <p>VAT ({invoice.vatRate}%): £{invoice.vatAmount.toFixed(2)}</p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="text-right flex flex-col items-end gap-2">
-                            <div>
-                              <p className="font-bold text-xl text-red-700">£{invoice.total.toFixed(2)}</p>
-                              <div className="mt-1">
-                                <select
-                                  value={invoice.status}
-                                  onChange={(e) => handleStatusChange(invoice.id, e.target.value)}
-                                  disabled={updatingStatus === invoice.id}
-                                  className="text-sm px-2 py-1 border rounded bg-red-100 text-red-700 border-red-300"
-                                >
-                                  <option value="PENDING">Pending</option>
-                                  <option value="DEPOSIT_PAID">Pending - Dep Paid</option>
-                                  <option value="PAID">Paid</option>
-                                  <option value="OVERDUE">Overdue</option>
-                                  <option value="CANCELLED">Cancelled</option>
-                                </select>
-                              </div>
-                            </div>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-red-300 text-red-700 hover:bg-red-100"
-                              onClick={() => window.open(`/api/invoices/${invoice.id}/download`, '_blank')}
-                            >
-                              <Download className="h-4 w-4 mr-2" />
-                              Download PDF
-                            </Button>
-                          </div>
+          {overdueInvoices.length === 0 ? (
+            <div className="bg-white border border-slate-100 rounded-xl text-center py-16">
+              <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-emerald-50 mx-auto mb-3">
+                <FileText className="h-6 w-6 text-emerald-500" />
+              </div>
+              <p className="text-sm font-bold text-emerald-700">No overdue invoices</p>
+              <p className="text-xs text-slate-400 mt-1">All invoices are up to date</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {overdueInvoices.map((invoice) => {
+                const days = Math.floor((Date.now() - new Date(invoice.dueDate).getTime()) / 86400000);
+                const urgencyCls = days > 60 ? "bg-red-600" : days > 30 ? "bg-orange-500" : "bg-amber-400";
+                return (
+                  <div key={invoice.id} className="bg-white border border-red-100 border-l-4 border-l-red-500 rounded-xl p-4 hover:shadow-sm transition-shadow duration-150">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span className="font-black text-slate-900">{invoice.invoiceNumber}</span>
+                          <span className={`text-[10px] font-black text-white px-2.5 py-0.5 rounded-full ${urgencyCls}`}>{days}d overdue</span>
                         </div>
+                        <p className="text-sm text-slate-500 font-medium truncate">{invoice.user.name || invoice.user.email}{invoice.careHomeName ? ` · ${invoice.careHomeName}` : ""}</p>
+                        <p className="text-xs text-slate-400 mt-0.5 truncate">{invoice.description}</p>
+                        <p className="text-xs text-red-500 font-semibold mt-1">Due {new Date(invoice.dueDate).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}</p>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="receipts" className="space-y-4">
-          <div className="flex flex-wrap justify-between items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold">Receipt Management</h2>
-            <Button onClick={() => setShowReceiptModal(true)} className="bg-scanvault-red hover:bg-red-700 shrink-0">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Receipt
-            </Button>
-          </div>
-          <Card>
-            <CardContent className="pt-6">
-              {receipts.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Receipt className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                  <p>No receipts yet</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {receipts.map((receipt) => (
-                    <div key={receipt.id} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold">{receipt.receiptNumber}</p>
-                          <p className="text-sm text-gray-600 truncate">{receipt.user.email}</p>
-                          <p className="text-sm text-gray-600">{receipt.description}</p>
-                          <p className="text-sm text-gray-600">{receipt.paymentMethod}</p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="font-bold text-lg">£{receipt.amount.toFixed(2)}</p>
-                          <p className="text-sm text-gray-600">{new Date(receipt.date).toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.open(`/api/receipts/${receipt.id}/download`, '_blank')}
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          PDF
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEmailReceipt(receipt.id, receipt.user.email)}
-                          disabled={emailingReceipt === receipt.id}
-                        >
-                          {emailingReceipt === receipt.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4 mr-1" />}
-                          {emailingReceipt === receipt.id ? "Sending…" : "Email"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-amber-600 hover:bg-amber-50 border-amber-200"
-                          onClick={() => handleOpenTestEmail(receipt.id, receipt.user.email)}
-                        >
-                          <Mail className="h-4 w-4 mr-1" />
-                          Test
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 hover:bg-red-50 border-red-200"
-                          onClick={() => handleDeleteReceipt(receipt.id)}
-                          disabled={deletingReceipt === receipt.id}
-                        >
-                          {deletingReceipt === receipt.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                        </Button>
+                      <div className="text-right shrink-0">
+                        <p className="text-xl font-black text-red-700 tabular-nums leading-tight">£{invoice.total.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                        <select value={invoice.status} onChange={(e) => handleStatusChange(invoice.id, e.target.value)}
+                          disabled={updatingStatus === invoice.id}
+                          className="mt-1.5 text-xs px-2 py-1.5 border border-red-200 rounded-lg bg-red-50 text-red-700 font-medium focus:outline-none">
+                          <option value="PENDING">Pending</option>
+                          <option value="DEPOSIT_PAID">Dep Paid</option>
+                          <option value="PAID">Paid</option>
+                          <option value="OVERDUE">Overdue</option>
+                          <option value="CANCELLED">Cancelled</option>
+                        </select>
                       </div>
                     </div>
-                  ))}
+                    <div className="mt-3 pt-3 border-t border-red-50 flex gap-2">
+                      <Button size="sm" variant="outline" className="h-7 text-xs border-red-100 text-red-600 hover:bg-red-50"
+                        onClick={() => window.open(`/api/invoices/${invoice.id}/download`, "_blank")}>
+                        <Download className="h-3.5 w-3.5 mr-1" />PDF
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="receipts" className="space-y-3 mt-0">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-black text-slate-900">Receipts</h2>
+              <p className="text-xs text-slate-400 mt-0.5">{receipts.length} receipt{receipts.length !== 1 ? "s" : ""} · £{receipts.reduce((a, r) => a + r.amount, 0).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total</p>
+            </div>
+            <Button onClick={() => setShowReceiptModal(true)} className="bg-scanvault-red hover:bg-red-700 shrink-0 h-8 text-xs">
+              <Plus className="h-3.5 w-3.5 mr-1.5" />Create Receipt
+            </Button>
+          </div>
+          {receipts.length === 0 ? (
+            <div className="bg-white border border-slate-100 rounded-xl text-center py-16 text-slate-300">
+              <Receipt className="h-10 w-10 mx-auto mb-3" />
+              <p className="text-sm font-semibold">No receipts yet</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {receipts.map((receipt) => (
+                <div key={receipt.id} className="bg-white border border-slate-100 border-l-4 border-l-emerald-500 rounded-xl p-4 hover:shadow-sm transition-shadow duration-150">
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="font-black text-slate-900">{receipt.receiptNumber}</span>
+                        <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">PAID</span>
+                        <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full font-medium">{receipt.paymentMethod}</span>
+                      </div>
+                      <p className="text-sm text-slate-500 font-medium truncate">{receipt.user.name || receipt.user.email}</p>
+                      <p className="text-xs text-slate-400 mt-0.5 truncate">{receipt.description.split("\n")[0]}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-xl font-black text-slate-900 tabular-nums leading-tight">£{receipt.amount.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">{new Date(receipt.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" })}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-slate-50 flex flex-wrap gap-1.5 items-center">
+                    <Button size="sm" variant="outline" className="h-7 text-xs"
+                      onClick={() => window.open(`/api/receipts/${receipt.id}/download`, "_blank")}>
+                      <Download className="h-3.5 w-3.5 mr-1" />PDF
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs"
+                      onClick={() => handleEmailReceipt(receipt.id, receipt.user.email)} disabled={emailingReceipt === receipt.id}>
+                      {emailingReceipt === receipt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Mail className="h-3.5 w-3.5 mr-1" />}
+                      {emailingReceipt === receipt.id ? "Sending…" : "Email"}
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs border-amber-200 text-amber-600 hover:bg-amber-50"
+                      onClick={() => handleOpenTestEmail(receipt.id, receipt.user.email)}>
+                      <Mail className="h-3.5 w-3.5 mr-1" />Test
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 w-7 p-0 border-red-100 text-red-500 hover:bg-red-50 ml-auto"
+                      onClick={() => handleDeleteReceipt(receipt.id)} disabled={deletingReceipt === receipt.id}>
+                      {deletingReceipt === receipt.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                    </Button>
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              ))}
+            </div>
+          )}
 
           {testEmailModal && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -1760,41 +1726,50 @@ export default function AdminDashboard() {
           )}
         </TabsContent>
 
-        <TabsContent value="documents" className="space-y-4">
-          <div className="flex flex-wrap justify-between items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold">Document Management</h2>
-            <Button onClick={() => setShowDocumentModal(true)} className="bg-scanvault-red hover:bg-red-700 shrink-0">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Document
+        <TabsContent value="documents" className="space-y-3 mt-0">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-black text-slate-900">Client Documents</h2>
+              <p className="text-xs text-slate-400 mt-0.5">{documents.length} document{documents.length !== 1 ? "s" : ""} archived</p>
+            </div>
+            <Button onClick={() => setShowDocumentModal(true)} className="bg-scanvault-red hover:bg-red-700 shrink-0 h-8 text-xs">
+              <Upload className="h-3.5 w-3.5 mr-1.5" />Upload Document
             </Button>
           </div>
-          <Card>
-            <CardContent className="pt-6">
-              {documents.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <FolderOpen className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                  <p>No documents yet</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {documents.map((doc) => (
-                    <div key={doc.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold">{doc.title}</p>
-                          <p className="text-sm text-gray-600 truncate">{doc.user.email}</p>
-                          <p className="text-sm text-gray-600">{doc.category}</p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-sm text-gray-600">{new Date(doc.uploadedAt).toLocaleDateString()}</p>
+          {documents.length === 0 ? (
+            <div className="bg-white border border-slate-100 rounded-xl text-center py-16 text-slate-300">
+              <FolderOpen className="h-10 w-10 mx-auto mb-3" />
+              <p className="text-sm font-semibold">No documents yet</p>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3">
+              {documents.map((doc) => {
+                const catCls = doc.category === "HR" ? "bg-violet-50 text-violet-700" :
+                  doc.category === "ACCOUNTS" ? "bg-emerald-50 text-emerald-700" :
+                  doc.category === "CLIENT_RECORDS" ? "bg-blue-50 text-blue-700" :
+                  doc.category === "ARCHIVE" ? "bg-amber-50 text-amber-700" :
+                  doc.category === "ADMIN" ? "bg-slate-100 text-slate-600" :
+                  "bg-slate-100 text-slate-500";
+                return (
+                  <div key={doc.id} className="bg-white border border-slate-100 rounded-xl p-4 hover:shadow-sm transition-shadow duration-150">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-slate-50 rounded-lg p-2.5 shrink-0">
+                        <FolderOpen className="h-5 w-5 text-slate-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-slate-900 text-sm truncate">{doc.title}</p>
+                        <p className="text-xs text-slate-400 truncate mt-0.5">{doc.user.name || doc.user.email}</p>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${catCls}`}>{doc.category.replace("_", " ")}</span>
+                          <span className="text-[10px] text-slate-300">{new Date(doc.uploadedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" })}</span>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {showDocumentModal && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -1851,15 +1826,14 @@ export default function AdminDashboard() {
           )}
         </TabsContent>
 
-        <TabsContent value="scanvault-docs" className="space-y-4">
-          <div className="flex flex-wrap justify-between items-center gap-2">
+        <TabsContent value="scanvault-docs" className="space-y-3 mt-0">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold">ScanVault Documents</h2>
-              <p className="text-sm text-gray-500 mt-1">Internal company documents — visible to Admins and Accountant only.</p>
+              <h2 className="text-xl font-black text-slate-900">ScanVault Documents</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Internal documents — Admins &amp; Accountant only · {svDocuments.length} file{svDocuments.length !== 1 ? "s" : ""}</p>
             </div>
-            <Button onClick={() => setShowSvDocumentModal(true)} className="bg-scanvault-red hover:bg-red-700 shrink-0">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Document
+            <Button onClick={() => setShowSvDocumentModal(true)} className="bg-scanvault-red hover:bg-red-700 shrink-0 h-8 text-xs">
+              <Upload className="h-3.5 w-3.5 mr-1.5" />Upload Document
             </Button>
           </div>
           <div className="flex items-center gap-2">
