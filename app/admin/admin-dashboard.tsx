@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList, Pencil, FileDown, Mail } from "lucide-react";
+import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList, Pencil, FileDown, Mail, Copy, ExternalLink, FileImage, Briefcase } from "lucide-react";
 import LeadsTab from "@/components/leads-tab";
 import ContractsTab from "@/components/contracts-tab";
 import QuotationsTab from "@/components/quotations-tab";
@@ -87,6 +87,20 @@ interface SvDocument {
   uploadedAt: string;
 }
 
+interface CompanyAsset {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  assetType: string;
+  s3Key: string | null;
+  originalName: string | null;
+  mimeType: string;
+  fileSize: number;
+  uploadedBy: string | null;
+  uploadedAt: string;
+}
+
 export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -149,6 +163,15 @@ export default function AdminDashboard() {
   const [editingSvDoc, setEditingSvDoc] = useState<SvDocument | null>(null);
   const [editSvDocForm, setEditSvDocForm] = useState({ title: "", description: "", category: "GENERAL" });
   const [savingEdit, setSavingEdit] = useState(false);
+
+  const [companyAssets, setCompanyAssets] = useState<CompanyAsset[]>([]);
+  const [showCompanyAssetModal, setShowCompanyAssetModal] = useState(false);
+  const [uploadingAsset, setUploadingAsset] = useState(false);
+  const [deletingAsset, setDeletingAsset] = useState<string | null>(null);
+  const [copyingLink, setCopyingLink] = useState<string | null>(null);
+  const [assetCategoryFilter, setAssetCategoryFilter] = useState("ALL");
+  const [companyAssetForm, setCompanyAssetForm] = useState({ title: "", description: "", category: "BROCHURE", assetType: "DOCUMENT" });
+  const [companyAssetFile, setCompanyAssetFile] = useState<File | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -234,12 +257,13 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const [usersRes, invoicesRes, receiptsRes, documentsRes, svDocsRes] = await Promise.all([
+      const [usersRes, invoicesRes, receiptsRes, documentsRes, svDocsRes, assetsRes] = await Promise.all([
         fetch("/api/users"),
         fetch("/api/invoices"),
         fetch("/api/receipts"),
         fetch("/api/documents"),
         fetch("/api/scanvault-documents"),
+        fetch("/api/company-assets"),
       ]);
 
       if (usersRes.ok) setUsers(await usersRes.json());
@@ -247,6 +271,7 @@ export default function AdminDashboard() {
       if (receiptsRes.ok) setReceipts(await receiptsRes.json());
       if (documentsRes.ok) setDocuments(await documentsRes.json());
       if (svDocsRes.ok) setSvDocuments(await svDocsRes.json());
+      if (assetsRes.ok) setCompanyAssets(await assetsRes.json());
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -538,6 +563,101 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUploadCompanyAsset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!companyAssetFile) return;
+    setUploadingAsset(true);
+    try {
+      const fd = new FormData();
+      fd.append("title", companyAssetForm.title);
+      fd.append("description", companyAssetForm.description);
+      fd.append("category", companyAssetForm.category);
+      fd.append("assetType", companyAssetForm.assetType);
+      fd.append("file", companyAssetFile);
+      const res = await fetch("/api/company-assets", { method: "POST", body: fd });
+      if (res.ok) {
+        const asset = await res.json();
+        setCompanyAssets((prev) => [asset, ...prev]);
+        setShowCompanyAssetModal(false);
+        setCompanyAssetForm({ title: "", description: "", category: "BROCHURE", assetType: "DOCUMENT" });
+        setCompanyAssetFile(null);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to upload asset");
+      }
+    } catch {
+      alert("Failed to upload asset");
+    } finally {
+      setUploadingAsset(false);
+    }
+  };
+
+  const handleViewCompanyAsset = async (id: string) => {
+    try {
+      const res = await fetch(`/api/company-assets/${id}`);
+      if (res.ok) {
+        const { url } = await res.json();
+        window.open(url, "_blank");
+      } else {
+        alert("Failed to get asset URL");
+      }
+    } catch {
+      alert("Failed to get asset URL");
+    }
+  };
+
+  const handleDownloadCompanyAsset = async (id: string) => {
+    try {
+      const res = await fetch(`/api/company-assets/${id}?download=1`);
+      if (res.ok) {
+        const { url, filename } = await res.json();
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename || "download";
+        a.click();
+      } else {
+        alert("Failed to download asset");
+      }
+    } catch {
+      alert("Failed to download asset");
+    }
+  };
+
+  const handleCopyCompanyAssetLink = async (id: string) => {
+    setCopyingLink(id);
+    try {
+      const res = await fetch(`/api/company-assets/${id}`);
+      if (res.ok) {
+        const { url } = await res.json();
+        await navigator.clipboard.writeText(url);
+        alert("Link copied! Valid for 7 days.");
+      } else {
+        alert("Failed to get link");
+      }
+    } catch {
+      alert("Failed to copy link");
+    } finally {
+      setCopyingLink(null);
+    }
+  };
+
+  const handleDeleteCompanyAsset = async (id: string) => {
+    if (!confirm("Delete this asset? This cannot be undone.")) return;
+    setDeletingAsset(id);
+    try {
+      const res = await fetch(`/api/company-assets/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setCompanyAssets((prev) => prev.filter((a) => a.id !== id));
+      } else {
+        alert("Failed to delete asset");
+      }
+    } catch {
+      alert("Failed to delete asset");
+    } finally {
+      setDeletingAsset(null);
+    }
+  };
+
   const handleDeleteReceipt = async (id: string) => {
     if (!confirm("Delete this receipt? This cannot be undone.")) return;
     setDeletingReceipt(id);
@@ -744,6 +864,9 @@ export default function AdminDashboard() {
               </TabsTrigger>
               <TabsTrigger value="scanvault-docs" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <FolderOpen className="h-4 w-4 shrink-0" /> ScanVault Docs
+              </TabsTrigger>
+              <TabsTrigger value="company-assets" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <Briefcase className="h-4 w-4 shrink-0" /> Company Assets
               </TabsTrigger>
 
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] px-2 pt-3 pb-1">Sales</span>
@@ -2081,6 +2204,204 @@ export default function AdminDashboard() {
 
         <TabsContent value="bank-import" className="space-y-4">
           <RevolutImportTab />
+        </TabsContent>
+
+        {/* ── Company Assets ── */}
+        <TabsContent value="company-assets" className="space-y-3 mt-0">
+          {/* Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-black text-slate-900">Company Assets</h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Brochures, images &amp; documents stored on S3 — generate a shareable link for any asset
+              </p>
+            </div>
+            <Button onClick={() => setShowCompanyAssetModal(true)} className="bg-scanvault-red hover:bg-red-700 shrink-0 h-8 text-xs">
+              <Upload className="h-3.5 w-3.5 mr-1.5" />Upload Asset
+            </Button>
+          </div>
+
+          {/* Stats strip */}
+          {(() => {
+            const cats = ["BROCHURE", "CASE_STUDY", "IMAGE", "PRICE_LIST", "TEMPLATE", "GENERAL"];
+            const totalSize = companyAssets.reduce((s, a) => s + a.fileSize, 0);
+            const fmtSize = totalSize > 1024 * 1024
+              ? `${(totalSize / (1024 * 1024)).toFixed(1)} MB`
+              : `${(totalSize / 1024).toFixed(0)} KB`;
+            return (
+              <div className="flex flex-wrap gap-2">
+                <button onClick={() => setAssetCategoryFilter("ALL")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${assetCategoryFilter === "ALL" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}>
+                  All ({companyAssets.length})
+                </button>
+                {cats.map((c) => {
+                  const count = companyAssets.filter((a) => a.category === c).length;
+                  if (count === 0) return null;
+                  return (
+                    <button key={c} onClick={() => setAssetCategoryFilter(c)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${assetCategoryFilter === c ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}>
+                      {c.replace("_", " ")} ({count})
+                    </button>
+                  );
+                })}
+                <span className="ml-auto text-xs text-slate-400 self-center">{fmtSize} total</span>
+              </div>
+            );
+          })()}
+
+          {/* Asset grid */}
+          {companyAssets.length === 0 ? (
+            <div className="bg-white border border-slate-100 rounded-xl text-center py-16 text-slate-300">
+              <Briefcase className="h-10 w-10 mx-auto mb-3" />
+              <p className="text-sm font-semibold">No company assets yet</p>
+              <p className="text-xs mt-1">Upload brochures, images, price lists and more</p>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3">
+              {companyAssets
+                .filter((a) => assetCategoryFilter === "ALL" || a.category === assetCategoryFilter)
+                .map((asset) => {
+                  const isImage = asset.mimeType.startsWith("image/");
+                  const isPdf = asset.mimeType === "application/pdf";
+                  const catCls = asset.category === "BROCHURE" ? "bg-violet-50 text-violet-700"
+                    : asset.category === "CASE_STUDY" ? "bg-blue-50 text-blue-700"
+                    : asset.category === "IMAGE" ? "bg-emerald-50 text-emerald-700"
+                    : asset.category === "PRICE_LIST" ? "bg-amber-50 text-amber-700"
+                    : asset.category === "TEMPLATE" ? "bg-orange-50 text-orange-700"
+                    : "bg-slate-100 text-slate-600";
+                  const sizeFmt = asset.fileSize > 1024 * 1024
+                    ? `${(asset.fileSize / (1024 * 1024)).toFixed(1)} MB`
+                    : `${(asset.fileSize / 1024).toFixed(0)} KB`;
+                  return (
+                    <div key={asset.id} className="bg-white border border-slate-100 rounded-xl p-4 hover:shadow-sm transition-shadow duration-150 flex flex-col gap-3">
+                      {/* Top */}
+                      <div className="flex items-start gap-3">
+                        <div className="bg-slate-50 rounded-lg p-2.5 shrink-0">
+                          {isImage ? <FileImage className="h-5 w-5 text-emerald-400" /> : isPdf ? <FileText className="h-5 w-5 text-red-400" /> : <FileDown className="h-5 w-5 text-slate-400" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-slate-900 text-sm truncate" title={asset.title}>{asset.title}</p>
+                          {asset.description && (
+                            <p className="text-xs text-slate-400 truncate mt-0.5">{asset.description}</p>
+                          )}
+                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${catCls}`}>{asset.category.replace("_", " ")}</span>
+                            <span className="text-[10px] text-slate-300">{sizeFmt}</span>
+                            <span className="text-[10px] text-slate-300">{new Date(asset.uploadedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" })}</span>
+                          </div>
+                          {asset.originalName && (
+                            <p className="text-[10px] text-slate-300 truncate mt-0.5">{asset.originalName}</p>
+                          )}
+                        </div>
+                      </div>
+                      {/* Actions */}
+                      <div className="flex gap-1.5 items-center pt-2 border-t border-slate-50">
+                        <Button size="sm" variant="outline" className="h-7 text-xs flex-1" title="View in browser"
+                          onClick={() => handleViewCompanyAsset(asset.id)}>
+                          <ExternalLink className="h-3 w-3 mr-1" />View
+                        </Button>
+                        <Button size="sm" variant="outline" className="h-7 text-xs flex-1" title="Download file"
+                          onClick={() => handleDownloadCompanyAsset(asset.id)}>
+                          <Download className="h-3 w-3 mr-1" />Download
+                        </Button>
+                        <Button size="sm" variant="outline" className="h-7 text-xs flex-1 border-violet-100 text-violet-600 hover:bg-violet-50"
+                          title="Copy 7-day shareable link" onClick={() => handleCopyCompanyAssetLink(asset.id)}
+                          disabled={copyingLink === asset.id}>
+                          {copyingLink === asset.id ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                          Link
+                        </Button>
+                        <Button size="sm" variant="outline" className="h-7 w-7 p-0 border-red-100 text-red-500 hover:bg-red-50 shrink-0"
+                          onClick={() => handleDeleteCompanyAsset(asset.id)} disabled={deletingAsset === asset.id}>
+                          {deletingAsset === asset.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+
+          {/* Upload modal */}
+          {showCompanyAssetModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
+                <div className="flex items-start justify-between p-6 pb-4 border-b border-slate-100">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-900">Upload Company Asset</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Stored on AWS S3 · PDF, Word, Excel, PowerPoint, images up to 50 MB</p>
+                  </div>
+                  <button onClick={() => setShowCompanyAssetModal(false)} className="text-slate-400 hover:text-slate-700 ml-4 mt-1 text-lg leading-none">✕</button>
+                </div>
+                <form onSubmit={handleUploadCompanyAsset} className="p-6 space-y-4">
+                  <div>
+                    <Label htmlFor="assetTitle">Title *</Label>
+                    <Input id="assetTitle" required placeholder="e.g. ScanVault Services Brochure 2025"
+                      value={companyAssetForm.title}
+                      onChange={(e) => setCompanyAssetForm((p) => ({ ...p, title: e.target.value }))} />
+                  </div>
+                  <div>
+                    <Label htmlFor="assetDescription">Description <span className="text-slate-400 font-normal">(optional)</span></Label>
+                    <Input id="assetDescription" placeholder="Short description of this asset"
+                      value={companyAssetForm.description}
+                      onChange={(e) => setCompanyAssetForm((p) => ({ ...p, description: e.target.value }))} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="assetCategory">Category *</Label>
+                      <select id="assetCategory" className="w-full px-3 py-2 border rounded-md text-sm"
+                        value={companyAssetForm.category}
+                        onChange={(e) => setCompanyAssetForm((p) => ({ ...p, category: e.target.value }))}>
+                        <option value="BROCHURE">Brochure</option>
+                        <option value="CASE_STUDY">Case Study</option>
+                        <option value="IMAGE">Image</option>
+                        <option value="PRICE_LIST">Price List</option>
+                        <option value="TEMPLATE">Template</option>
+                        <option value="GENERAL">General</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label htmlFor="assetType">File Type</Label>
+                      <select id="assetType" className="w-full px-3 py-2 border rounded-md text-sm"
+                        value={companyAssetForm.assetType}
+                        onChange={(e) => setCompanyAssetForm((p) => ({ ...p, assetType: e.target.value }))}>
+                        <option value="DOCUMENT">Document</option>
+                        <option value="IMAGE">Image</option>
+                        <option value="SPREADSHEET">Spreadsheet</option>
+                        <option value="PRESENTATION">Presentation</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="assetFile">File *</Label>
+                    <div className={`mt-1 border-2 border-dashed rounded-xl p-6 text-center transition-colors ${companyAssetFile ? "border-emerald-300 bg-emerald-50" : "border-slate-200 hover:border-slate-300"}`}>
+                      {companyAssetFile ? (
+                        <div className="space-y-1">
+                          <p className="text-sm font-bold text-emerald-700">{companyAssetFile.name}</p>
+                          <p className="text-xs text-slate-400">{(companyAssetFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                          <button type="button" onClick={() => setCompanyAssetFile(null)} className="text-xs text-red-500 hover:underline">Remove</button>
+                        </div>
+                      ) : (
+                        <label htmlFor="assetFile" className="cursor-pointer">
+                          <Upload className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                          <p className="text-sm text-slate-500 font-medium">Click to choose a file</p>
+                          <p className="text-xs text-slate-400 mt-1">PDF, Word, Excel, PowerPoint, JPEG, PNG, WebP, GIF, SVG · max 50 MB</p>
+                        </label>
+                      )}
+                      <input id="assetFile" type="file" className="hidden"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp,.gif,.svg"
+                        onChange={(e) => setCompanyAssetFile(e.target.files?.[0] ?? null)} />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 justify-end pt-2">
+                    <Button type="button" variant="outline" onClick={() => setShowCompanyAssetModal(false)}>Cancel</Button>
+                    <Button type="submit" className="bg-scanvault-red hover:bg-red-700" disabled={uploadingAsset || !companyAssetFile}>
+                      {uploadingAsset ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Uploading…</> : <><Upload className="h-4 w-4 mr-2" />Upload to S3</>}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
           </div>{/* end content area */}

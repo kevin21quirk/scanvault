@@ -229,6 +229,24 @@ model ScanVaultDocument {
   @@index([category])
 }
 
+model CompanyAsset {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  category     String   @default("GENERAL")
+  assetType    String   @default("DOCUMENT")
+  s3Key        String?
+  originalName String?
+  mimeType     String   @default("application/octet-stream")
+  fileSize     Int      @default(0)
+  uploadedBy   String?
+  uploadedAt   DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([assetType])
+}
+
 model Lead {
   id          String    @id @default(cuid())
   type        LeadType
