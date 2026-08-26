@@ -47,6 +47,20 @@ export async function uploadToS3(
   );
 }
 
+export async function getPresignedUploadUrl(
+  key: string,
+  contentType: string,
+  expiresIn = 600
+): Promise<string> {
+  const client = getS3Client();
+  const command = new PutObjectCommand({
+    Bucket: getBucket(),
+    Key: key,
+    ContentType: contentType,
+  });
+  return getSignedUrl(client, command, { expiresIn });
+}
+
 export async function getPresignedDownloadUrl(
   key: string,
   originalName?: string | null,

@@ -568,25 +568,61 @@ export default function AdminDashboard() {
     if (!companyAssetFile) return;
     setUploadingAsset(true);
     try {
-      const fd = new FormData();
-      fd.append("title", companyAssetForm.title);
-      fd.append("description", companyAssetForm.description);
-      fd.append("category", companyAssetForm.category);
-      fd.append("assetType", companyAssetForm.assetType);
-      fd.append("file", companyAssetFile);
-      const res = await fetch("/api/company-assets", { method: "POST", body: fd });
-      if (res.ok) {
-        const asset = await res.json();
+      // Step 1: Get presigned S3 PUT URL (tiny JSON request — no file data)
+      const presignRes = await fetch("/api/company-assets/presign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: companyAssetFile.name,
+          mimeType: companyAssetFile.type,
+          fileSize: companyAssetFile.size,
+        }),
+      });
+      if (!presignRes.ok) {
+        const err = await presignRes.json();
+        alert(err.error || "Failed to prepare upload");
+        return;
+      }
+      const { uploadUrl, s3Key } = await presignRes.json();
+
+      // Step 2: Upload file directly from browser to S3 (bypasses Next.js entirely)
+      const s3Res = await fetch(uploadUrl, {
+        method: "PUT",
+        body: companyAssetFile,
+        headers: { "Content-Type": companyAssetFile.type },
+      });
+      if (!s3Res.ok) {
+        alert("S3 upload failed. Ensure your S3 bucket has a CORS rule allowing PUT from this origin.");
+        return;
+      }
+
+      // Step 3: Save metadata to DB (tiny JSON request)
+      const saveRes = await fetch("/api/company-assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: companyAssetForm.title,
+          description: companyAssetForm.description,
+          category: companyAssetForm.category,
+          assetType: companyAssetForm.assetType,
+          s3Key,
+          originalName: companyAssetFile.name,
+          mimeType: companyAssetFile.type,
+          fileSize: companyAssetFile.size,
+        }),
+      });
+      if (saveRes.ok) {
+        const asset = await saveRes.json();
         setCompanyAssets((prev) => [asset, ...prev]);
         setShowCompanyAssetModal(false);
         setCompanyAssetForm({ title: "", description: "", category: "BROCHURE", assetType: "DOCUMENT" });
         setCompanyAssetFile(null);
       } else {
-        const err = await res.json();
-        alert(err.error || "Failed to upload asset");
+        const err = await saveRes.json();
+        alert(err.error || "Failed to save asset record");
       }
     } catch {
-      alert("Failed to upload asset");
+      alert("Upload failed. Check browser console for details.");
     } finally {
       setUploadingAsset(false);
     }
