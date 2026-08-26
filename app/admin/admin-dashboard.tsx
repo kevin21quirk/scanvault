@@ -168,7 +168,6 @@ export default function AdminDashboard() {
   const [showCompanyAssetModal, setShowCompanyAssetModal] = useState(false);
   const [uploadingAsset, setUploadingAsset] = useState(false);
   const [deletingAsset, setDeletingAsset] = useState<string | null>(null);
-  const [copyingLink, setCopyingLink] = useState<string | null>(null);
   const [assetCategoryFilter, setAssetCategoryFilter] = useState("ALL");
   const [companyAssetForm, setCompanyAssetForm] = useState({ title: "", description: "", category: "BROCHURE", assetType: "DOCUMENT" });
   const [companyAssetFile, setCompanyAssetFile] = useState<File | null>(null);
@@ -660,20 +659,12 @@ export default function AdminDashboard() {
   };
 
   const handleCopyCompanyAssetLink = async (id: string) => {
-    setCopyingLink(id);
     try {
-      const res = await fetch(`/api/company-assets/${id}`);
-      if (res.ok) {
-        const { url } = await res.json();
-        await navigator.clipboard.writeText(url);
-        alert("Link copied! Valid for 7 days.");
-      } else {
-        alert("Failed to get link");
-      }
+      const url = `${window.location.origin}/api/company-assets/${id}/file`;
+      await navigator.clipboard.writeText(url);
+      alert("Permanent link copied to clipboard!");
     } catch {
       alert("Failed to copy link");
-    } finally {
-      setCopyingLink(null);
     }
   };
 
@@ -2341,10 +2332,8 @@ export default function AdminDashboard() {
                           <Download className="h-3 w-3 mr-1" />Download
                         </Button>
                         <Button size="sm" variant="outline" className="h-7 text-xs flex-1 border-violet-100 text-violet-600 hover:bg-violet-50"
-                          title="Copy 7-day shareable link" onClick={() => handleCopyCompanyAssetLink(asset.id)}
-                          disabled={copyingLink === asset.id}>
-                          {copyingLink === asset.id ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                          Link
+                          title="Copy permanent shareable link" onClick={() => handleCopyCompanyAssetLink(asset.id)}>
+                          <Copy className="h-3 w-3 mr-1" />Link
                         </Button>
                         <Button size="sm" variant="outline" className="h-7 w-7 p-0 border-red-100 text-red-500 hover:bg-red-50 shrink-0"
                           onClick={() => handleDeleteCompanyAsset(asset.id)} disabled={deletingAsset === asset.id}>
