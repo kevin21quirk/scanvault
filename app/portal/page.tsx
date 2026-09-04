@@ -92,6 +92,8 @@ export default function Portal() {
       router.push("/login");
     } else if (status === "authenticated" && session?.user?.role === "ACCOUNTANT") {
       router.push("/accountant");
+    } else if (status === "authenticated" && session?.user?.mustChangePassword) {
+      router.push("/change-password");
     }
   }, [status, session, router]);
 

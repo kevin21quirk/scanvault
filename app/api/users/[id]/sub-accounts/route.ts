@@ -9,6 +9,7 @@ const subSelect = {
   email: true,
   name: true,
   parentUserId: true,
+  mustChangePassword: true,
   createdAt: true,
 } as const;
 
@@ -58,6 +59,7 @@ export async function POST(
       role: "CLIENT",
       companyName: parent.companyName,
       parentUserId: id,
+      mustChangePassword: true,
     },
     select: subSelect,
   });

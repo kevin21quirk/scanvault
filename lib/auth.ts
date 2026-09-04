@@ -48,6 +48,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             role: user.role,
             parentUserId: user.parentUserId ?? null,
+            mustChangePassword: user.mustChangePassword ?? false,
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -68,7 +69,16 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           role: user.role,
           parentUserId: user.parentUserId ?? null,
+          mustChangePassword: user.mustChangePassword ?? false,
         };
+      }
+      // Re-check the flag from DB so changes (clear or set) take effect on next token refresh
+      if (token.mustChangePassword) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { mustChangePassword: true },
+        });
+        if (dbUser) token.mustChangePassword = dbUser.mustChangePassword;
       }
       return token;
     },
@@ -80,6 +90,7 @@ export const authOptions: NextAuthOptions = {
           id: token.id,
           role: token.role,
           parentUserId: token.parentUserId ?? null,
+          mustChangePassword: token.mustChangePassword ?? false,
         },
       };
     },

@@ -8,6 +8,7 @@ declare module "next-auth" {
       name?: string | null;
       role: string;
       parentUserId?: string | null;
+      mustChangePassword?: boolean;
     };
   }
 
@@ -17,6 +18,7 @@ declare module "next-auth" {
     name?: string | null;
     role: string;
     parentUserId?: string | null;
+    mustChangePassword?: boolean;
   }
 }
 
@@ -25,5 +27,6 @@ declare module "next-auth/jwt" {
     id: string;
     role: string;
     parentUserId?: string | null;
+    mustChangePassword?: boolean;
   }
 }

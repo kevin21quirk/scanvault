@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Users, Plus, Trash2, X, Pencil, Loader2, Mail, Phone, MapPin, Building2, Home, ChevronDown, ChevronUp, Check, KeyRound,
+  Users, Plus, Trash2, X, Pencil, Loader2, Mail, Phone, MapPin, Building2, Home, ChevronDown, ChevronUp, Check, KeyRound, RotateCcw,
 } from "lucide-react";
 
 interface Client {
@@ -23,11 +23,12 @@ interface Client {
 }
 
 interface SubAccount {
-  id:          string;
-  email:       string;
-  name:        string | null;
-  parentUserId: string;
-  createdAt:   string;
+  id:              string;
+  email:           string;
+  name:            string | null;
+  parentUserId:    string;
+  mustChangePassword: boolean;
+  createdAt:       string;
 }
 
 interface CareHome {
@@ -68,6 +69,7 @@ export default function ClientsTab() {
   const [subAccountForm, setSubAccountForm] = useState({ name: "", email: "", password: "" });
   const [savingSubAccount, setSavingSubAccount] = useState(false);
   const [deletingSubAccount, setDeletingSubAccount] = useState<string | null>(null);
+  const [resettingLogin, setResettingLogin] = useState<string | null>(null);
 
   const fetch$ = useCallback(async () => {
     try {
@@ -139,6 +141,32 @@ export default function ClientsTab() {
       }
     } finally {
       setSavingSubAccount(false);
+    }
+  };
+
+  const handleResetLogin = async (userId: string) => {
+    setResettingLogin(userId);
+    try {
+      const res = await fetch(`/api/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mustChangePassword: true }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Failed to reset login");
+      } else {
+        // Update sub-account list state if it's a sub-account
+        setSubAccounts((prev) => {
+          const updated: Record<string, SubAccount[]> = {};
+          for (const [k, list] of Object.entries(prev)) {
+            updated[k] = list.map((s) => s.id === userId ? { ...s, mustChangePassword: true } : s);
+          }
+          return updated;
+        });
+      }
+    } finally {
+      setResettingLogin(null);
     }
   };
 
@@ -427,7 +455,19 @@ export default function ClientsTab() {
                         <p className="text-xs font-semibold text-blue-800">{c.email}</p>
                         {c.contactName && <p className="text-[11px] text-blue-600">{c.contactName}</p>}
                       </div>
-                      <span className="text-[10px] font-bold bg-blue-200 text-blue-700 px-2 py-0.5 rounded-full">Primary</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold bg-blue-200 text-blue-700 px-2 py-0.5 rounded-full">Primary</span>
+                        <button
+                          type="button"
+                          title="Require password change on next login"
+                          disabled={resettingLogin === c.id}
+                          onClick={() => handleResetLogin(c.id)}
+                          className="h-6 px-2 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50 flex items-center gap-1"
+                        >
+                          {resettingLogin === c.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <RotateCcw className="w-3 h-3" />}
+                          Reset Login
+                        </button>
+                      </div>
                     </div>
                     {/* Sub-accounts */}
                     {(subAccounts[c.id] || []).map((sub) => (
@@ -435,15 +475,30 @@ export default function ClientsTab() {
                         <div>
                           <p className="text-xs font-medium text-gray-800">{sub.email}</p>
                           {sub.name && <p className="text-[11px] text-gray-500">{sub.name}</p>}
+                          {sub.mustChangePassword && (
+                            <span className="text-[10px] font-semibold text-amber-600">⚠ Must change password</span>
+                          )}
                         </div>
-                        <button
-                          type="button"
-                          disabled={deletingSubAccount === sub.id}
-                          onClick={() => handleDeleteSubAccount(c.id, sub.id)}
-                          className="h-6 px-2 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 flex items-center gap-1"
-                        >
-                          {deletingSubAccount === sub.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            title="Require password change on next login"
+                            disabled={resettingLogin === sub.id}
+                            onClick={() => handleResetLogin(sub.id)}
+                            className="h-6 px-2 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50 flex items-center gap-1"
+                          >
+                            {resettingLogin === sub.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <RotateCcw className="w-3 h-3" />}
+                            Reset
+                          </button>
+                          <button
+                            type="button"
+                            disabled={deletingSubAccount === sub.id}
+                            onClick={() => handleDeleteSubAccount(c.id, sub.id)}
+                            className="h-6 px-2 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 flex items-center gap-1"
+                          >
+                            {deletingSubAccount === sub.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                          </button>
+                        </div>
                       </div>
                     ))}
                     {/* Add sub-account form */}
