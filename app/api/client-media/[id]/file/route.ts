@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import { getEffectiveUserId } from "@/lib/auth-utils";
 import { getPresignedDownloadUrl } from "@/lib/s3";
 
 // Authenticated: admin can access any, client can only access their own.
@@ -23,13 +24,9 @@ export async function GET(
 
     if (!media) return new NextResponse("Not found", { status: 404 });
 
-    // Clients can only access their own media
+    // Clients can only access their own media (sub-accounts resolve to parent)
     if (session.user.role !== "ADMIN") {
-      const user = await (prisma as any).user.findUnique({
-        where: { email: session.user.email! },
-        select: { id: true },
-      });
-      if (!user || user.id !== media.userId) {
+      if (getEffectiveUserId(session) !== media.userId) {
         return new NextResponse("Forbidden", { status: 403 });
       }
     }
