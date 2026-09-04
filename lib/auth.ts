@@ -47,6 +47,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             role: user.role,
+            parentUserId: user.parentUserId ?? null,
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -66,6 +67,7 @@ export const authOptions: NextAuthOptions = {
           ...token,
           id: user.id,
           role: user.role,
+          parentUserId: user.parentUserId ?? null,
         };
       }
       return token;
@@ -77,6 +79,7 @@ export const authOptions: NextAuthOptions = {
           ...session.user,
           id: token.id,
           role: token.role,
+          parentUserId: token.parentUserId ?? null,
         },
       };
     },

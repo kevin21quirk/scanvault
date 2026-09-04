@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import { getEffectiveUserId } from "@/lib/auth-utils";
 
 export async function GET() {
   try {
@@ -30,7 +31,7 @@ export async function GET() {
     } else {
       documents = await prisma.document.findMany({
         where: {
-          userId: session.user.id,
+          userId: getEffectiveUserId(session),
         },
         orderBy: {
           uploadedAt: "desc",

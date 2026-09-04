@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import { getEffectiveUserId } from "@/lib/auth-utils";
 
 export async function GET() {
   try {
@@ -29,9 +30,10 @@ export async function GET() {
         },
       });
     } else {
+      const effectiveUserId = getEffectiveUserId(session);
       invoices = await prisma.invoice.findMany({
         where: {
-          userId: session.user.id,
+          userId: effectiveUserId,
         },
         orderBy: {
           createdAt: "desc",

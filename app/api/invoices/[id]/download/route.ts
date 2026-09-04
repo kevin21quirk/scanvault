@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import { getEffectiveUserId } from "@/lib/auth-utils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -45,7 +46,7 @@ export async function GET(
     }
 
     // Check authorization
-    if (session.user.role !== "ADMIN" && invoice.userId !== session.user.id) {
+    if (session.user.role !== "ADMIN" && invoice.userId !== getEffectiveUserId(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

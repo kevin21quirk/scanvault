@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Users, Plus, Trash2, X, Pencil, Loader2, Mail, Phone, MapPin, Building2, Home, ChevronDown, ChevronUp, Check,
+  Users, Plus, Trash2, X, Pencil, Loader2, Mail, Phone, MapPin, Building2, Home, ChevronDown, ChevronUp, Check, KeyRound,
 } from "lucide-react";
 
 interface Client {
@@ -18,6 +18,15 @@ interface Client {
   contactName: string | null;
   phone:       string | null;
   address:     string | null;
+  createdAt:   string;
+  parentUserId: string | null;
+}
+
+interface SubAccount {
+  id:          string;
+  email:       string;
+  name:        string | null;
+  parentUserId: string;
   createdAt:   string;
 }
 
@@ -54,12 +63,18 @@ export default function ClientsTab() {
   const [editingCareHomeId, setEditingCareHomeId] = useState<string | null>(null);
   const [savingCareHome, setSavingCareHome] = useState(false);
 
+  const [subAccounts, setSubAccounts] = useState<Record<string, SubAccount[]>>({});
+  const [expandedSubAccounts, setExpandedSubAccounts] = useState<string | null>(null);
+  const [subAccountForm, setSubAccountForm] = useState({ name: "", email: "", password: "" });
+  const [savingSubAccount, setSavingSubAccount] = useState(false);
+  const [deletingSubAccount, setDeletingSubAccount] = useState<string | null>(null);
+
   const fetch$ = useCallback(async () => {
     try {
       const res = await fetch("/api/users");
       if (res.ok) {
         const all: Client[] = await res.json();
-        setClients(all.filter((u) => u.role === "CLIENT"));
+        setClients(all.filter((u) => u.role === "CLIENT" && !u.parentUserId));
       }
     } finally {
       setLoading(false);
@@ -85,6 +100,66 @@ export default function ClientsTab() {
     setEditingCareHomeId(null);
     setCareHomeForm({ ...BLANK_CARE_HOME });
     if (!careHomes[clientId]) fetchCareHomes(clientId);
+  };
+
+  const fetchSubAccounts = useCallback(async (clientId: string) => {
+    const res = await fetch(`/api/users/${clientId}/sub-accounts`);
+    if (res.ok) {
+      const data: SubAccount[] = await res.json();
+      setSubAccounts((p) => ({ ...p, [clientId]: data }));
+    }
+  }, []);
+
+  const toggleSubAccounts = (clientId: string) => {
+    if (expandedSubAccounts === clientId) {
+      setExpandedSubAccounts(null);
+      return;
+    }
+    setExpandedSubAccounts(clientId);
+    setSubAccountForm({ name: "", email: "", password: "" });
+    if (!subAccounts[clientId]) fetchSubAccounts(clientId);
+  };
+
+  const handleAddSubAccount = async (clientId: string, e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSubAccount(true);
+    try {
+      const res = await fetch(`/api/users/${clientId}/sub-accounts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(subAccountForm),
+      });
+      if (res.ok) {
+        const saved: SubAccount = await res.json();
+        setSubAccounts((p) => ({ ...p, [clientId]: [...(p[clientId] || []), saved] }));
+        setSubAccountForm({ name: "", email: "", password: "" });
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to add login");
+      }
+    } finally {
+      setSavingSubAccount(false);
+    }
+  };
+
+  const handleDeleteSubAccount = async (clientId: string, subId: string) => {
+    if (!confirm("Remove this login? The user will no longer be able to sign in.")) return;
+    setDeletingSubAccount(subId);
+    try {
+      const res = await fetch(`/api/users/${clientId}/sub-accounts`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subId }),
+      });
+      if (res.ok) {
+        setSubAccounts((p) => ({ ...p, [clientId]: (p[clientId] || []).filter((s) => s.id !== subId) }));
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to remove login");
+      }
+    } finally {
+      setDeletingSubAccount(null);
+    }
   };
 
   const setCareHomeField = (k: keyof typeof BLANK_CARE_HOME) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -306,7 +381,7 @@ export default function ClientsTab() {
                       {c.address ? <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {c.address}</span> : null}
                     </div>
                   </div>
-                  <div className="flex gap-1 flex-shrink-0">
+                  <div className="flex gap-1 flex-shrink-0 flex-wrap justify-end">
                     <Button
                       size="sm"
                       variant="outline"
@@ -316,6 +391,16 @@ export default function ClientsTab() {
                       <Home className="w-3 h-3" />
                       Care Homes{careHomes[c.id] ? ` (${careHomes[c.id].length})` : ""}
                       {expandedClient === c.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => toggleSubAccounts(c.id)}
+                      className="h-7 px-2 text-xs flex items-center gap-1"
+                    >
+                      <KeyRound className="w-3 h-3" />
+                      Logins{subAccounts[c.id] ? ` (${subAccounts[c.id].length + 1})` : ""}
+                      {expandedSubAccounts === c.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => openEdit(c)} className="h-7 px-2 text-xs flex items-center gap-1">
                       <Pencil className="w-3 h-3" /> Edit
@@ -330,6 +415,70 @@ export default function ClientsTab() {
                     </Button>
                   </div>
                 </div>
+
+                {expandedSubAccounts === c.id && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <p className="text-xs font-semibold text-gray-600 mb-3 flex items-center gap-1">
+                      <KeyRound className="w-3 h-3" /> Portal logins for {c.companyName || c.name || c.email}
+                    </p>
+                    {/* Primary account */}
+                    <div className="flex items-center justify-between bg-blue-50 rounded-md px-3 py-2 mb-2">
+                      <div>
+                        <p className="text-xs font-semibold text-blue-800">{c.email}</p>
+                        {c.contactName && <p className="text-[11px] text-blue-600">{c.contactName}</p>}
+                      </div>
+                      <span className="text-[10px] font-bold bg-blue-200 text-blue-700 px-2 py-0.5 rounded-full">Primary</span>
+                    </div>
+                    {/* Sub-accounts */}
+                    {(subAccounts[c.id] || []).map((sub) => (
+                      <div key={sub.id} className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2 mb-2">
+                        <div>
+                          <p className="text-xs font-medium text-gray-800">{sub.email}</p>
+                          {sub.name && <p className="text-[11px] text-gray-500">{sub.name}</p>}
+                        </div>
+                        <button
+                          type="button"
+                          disabled={deletingSubAccount === sub.id}
+                          onClick={() => handleDeleteSubAccount(c.id, sub.id)}
+                          className="h-6 px-2 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 flex items-center gap-1"
+                        >
+                          {deletingSubAccount === sub.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                        </button>
+                      </div>
+                    ))}
+                    {/* Add sub-account form */}
+                    <p className="text-[11px] font-semibold text-gray-500 mt-3 mb-2">Add another login</p>
+                    <form onSubmit={(e) => handleAddSubAccount(c.id, e)} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-start">
+                      <Input
+                        value={subAccountForm.name}
+                        onChange={(e) => setSubAccountForm((p) => ({ ...p, name: e.target.value }))}
+                        placeholder="Name (optional)"
+                        className="h-8 text-sm"
+                      />
+                      <Input
+                        type="email"
+                        required
+                        value={subAccountForm.email}
+                        onChange={(e) => setSubAccountForm((p) => ({ ...p, email: e.target.value }))}
+                        placeholder="Email *"
+                        className="h-8 text-sm"
+                      />
+                      <Input
+                        type="password"
+                        required
+                        minLength={6}
+                        value={subAccountForm.password}
+                        onChange={(e) => setSubAccountForm((p) => ({ ...p, password: e.target.value }))}
+                        placeholder="Password (min 6 chars) *"
+                        className="h-8 text-sm"
+                      />
+                      <Button type="submit" size="sm" disabled={savingSubAccount} className="h-8 bg-scanvault-red hover:bg-red-700 text-white text-xs flex items-center gap-1">
+                        {savingSubAccount ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                        Add
+                      </Button>
+                    </form>
+                  </div>
+                )}
 
                 {expandedClient === c.id && (
                   <div className="mt-4 pt-4 border-t border-gray-100">

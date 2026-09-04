@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import { getEffectiveUserId } from "@/lib/auth-utils";
 import { generateReceiptPdf } from "@/lib/receipt-pdf";
 
 export async function GET(
@@ -29,7 +30,7 @@ export async function GET(
       return NextResponse.json({ error: "Receipt not found" }, { status: 404 });
     }
 
-    if (session.user.role !== "ADMIN" && session.user.role !== "ACCOUNTANT" && receipt.userId !== session.user.id) {
+    if (session.user.role !== "ADMIN" && session.user.role !== "ACCOUNTANT" && receipt.userId !== getEffectiveUserId(session)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

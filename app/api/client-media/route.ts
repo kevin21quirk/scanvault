@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import { getEffectiveUserId } from "@/lib/auth-utils";
 
 export async function GET() {
   try {
@@ -18,15 +19,9 @@ export async function GET() {
       return NextResponse.json(media);
     }
 
-    // CLIENT: own media only
-    const user = await (prisma as any).user.findUnique({
-      where: { email: session.user.email! },
-      select: { id: true },
-    });
-    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-
+    // CLIENT: own media only (sub-accounts resolve to parent)
     const media = await (prisma as any).clientMedia.findMany({
-      where: { userId: user.id },
+      where: { userId: getEffectiveUserId(session) },
       orderBy: { uploadedAt: "desc" },
     });
     return NextResponse.json(media);

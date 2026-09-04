@@ -23,6 +23,7 @@ export async function GET() {
         phone: true,
         address: true,
         createdAt: true,
+        parentUserId: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { email, name, password, role, companyName, contactName, phone, address } = body;
+    const { email, name, password, role, companyName, contactName, phone, address, parentUserId } = body;
 
     if (!email) {
       return NextResponse.json(
@@ -84,6 +85,7 @@ export async function POST(request: Request) {
         contactName,
         phone,
         address,
+        ...(parentUserId ? { parentUserId } : {}),
       },
       select: {
         id: true,
@@ -95,6 +97,7 @@ export async function POST(request: Request) {
         phone: true,
         address: true,
         createdAt: true,
+        parentUserId: true,
       },
     });
 

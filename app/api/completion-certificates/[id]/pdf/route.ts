@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getEffectiveUserId } from "@/lib/auth-utils";
 import { prisma } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -16,7 +17,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const cert = await prisma.completionCertificate.findUnique({ where: { id } });
   if (!cert) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  if (session.user.role !== "ADMIN" && cert.userId !== session.user.id) {
+  if (session.user.role !== "ADMIN" && cert.userId !== getEffectiveUserId(session)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

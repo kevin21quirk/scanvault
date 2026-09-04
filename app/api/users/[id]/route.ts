@@ -14,6 +14,7 @@ const clientSelect = {
   phone: true,
   address: true,
   createdAt: true,
+  parentUserId: true,
 } as const;
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getEffectiveUserId } from "@/lib/auth-utils";
 import { prisma } from "@/lib/db";
 
 export async function GET() {
@@ -9,7 +10,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
 
-  const where = session.user.role === "ADMIN" ? {} : { userId: session.user.id };
+  const effectiveUserId = getEffectiveUserId(session);
+  const where = session.user.role === "ADMIN" ? {} : { userId: effectiveUserId };
 
   const quotations = await prisma.quotation.findMany({
     where,
