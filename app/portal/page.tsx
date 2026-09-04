@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   FileText, Receipt, FolderOpen, Download, ClipboardList, ShieldCheck,
-  Loader2, Building2, Clock, Award, KeyRound, CheckCircle2,
+  Loader2, Building2, Clock, Award, KeyRound, CheckCircle2, Camera, Video, Play,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +42,10 @@ interface ReceiptItem {
 interface DocumentItem {
   id: string; title: string; description: string | null; category: string;
   fileUrl: string; uploadedAt: string;
+}
+interface ClientMediaItem {
+  id: string; title: string; description: string | null; category: string;
+  mimeType: string; fileSize: number; originalName: string; uploadedAt: string;
 }
 
 const invoiceStatusStyle = (s: string) =>
@@ -79,6 +83,8 @@ export default function Portal() {
   const [completionCerts, setCompletionCerts] = useState<CompletionCert[]>([]);
   const [receipts, setReceipts] = useState<ReceiptItem[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [clientMedia, setClientMedia] = useState<ClientMediaItem[]>([]);
+  const [mediaCategoryFilter, setMediaCategoryFilter] = useState("ALL");
   const [downloading, setDownloading] = useState<string | null>(null);
 
   useEffect(() => {
@@ -91,7 +97,7 @@ export default function Portal() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const [invRes, quoRes, conRes, raRes, recRes, docRes, ccRes] = await Promise.all([
+      const [invRes, quoRes, conRes, raRes, recRes, docRes, ccRes, mediaRes] = await Promise.all([
         fetch("/api/invoices"),
         fetch("/api/quotations"),
         fetch("/api/contracts"),
@@ -99,6 +105,7 @@ export default function Portal() {
         fetch("/api/receipts"),
         fetch("/api/documents"),
         fetch("/api/completion-certificates"),
+        fetch("/api/client-media"),
       ]);
       if (invRes.ok) setInvoices(await invRes.json());
       if (quoRes.ok) setQuotations(await quoRes.json());
@@ -107,6 +114,7 @@ export default function Portal() {
       if (recRes.ok) setReceipts(await recRes.json());
       if (docRes.ok) setDocuments(await docRes.json());
       if (ccRes.ok) setCompletionCerts(await ccRes.json());
+      if (mediaRes.ok) setClientMedia(await mediaRes.json());
     } catch (err) {
       console.error("Error fetching portal data:", err);
     } finally {
@@ -215,6 +223,10 @@ export default function Portal() {
           </TabsTrigger>
           <TabsTrigger value="completion-certificates" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
             <Award className="h-3.5 w-3.5" /> Certificates
+          </TabsTrigger>
+          <TabsTrigger value="media" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <Camera className="h-3.5 w-3.5" /> Photos &amp; Videos
+            {clientMedia.length > 0 && <span className="ml-1 bg-scanvault-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{clientMedia.length}</span>}
           </TabsTrigger>
           <TabsTrigger value="account" className="rounded-xl px-4 py-2 text-sm font-medium gap-1.5 data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-none">
             <KeyRound className="h-3.5 w-3.5" /> Account
@@ -547,6 +559,95 @@ export default function Portal() {
             </CardContent>
           </Card>
         </TabsContent>
+        {/* Photos & Videos */}
+        <TabsContent value="media" className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <Camera className="h-5 w-5 text-scanvault-red" /> Photos &amp; Videos
+              </CardTitle>
+              <CardDescription>Images and videos from your care home visits uploaded by the ScanVault team</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {clientMedia.length === 0 ? (
+                <div className="text-center py-12">
+                  <Camera className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 font-medium">No media yet</p>
+                  <p className="text-sm text-gray-400 mt-1">Photos and videos from your visits will appear here</p>
+                </div>
+              ) : (
+                <>
+                  {/* Category filter */}
+                  {(() => {
+                    const cats = Array.from(new Set(clientMedia.map((m) => m.category)));
+                    return cats.length > 1 ? (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        <button onClick={() => setMediaCategoryFilter("ALL")}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${mediaCategoryFilter === "ALL" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}>
+                          All ({clientMedia.length})
+                        </button>
+                        {cats.map((c) => (
+                          <button key={c} onClick={() => setMediaCategoryFilter(c)}
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${mediaCategoryFilter === c ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}>
+                            {c} ({clientMedia.filter((m) => m.category === c).length})
+                          </button>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
+                  {/* Gallery grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {clientMedia
+                      .filter((m) => mediaCategoryFilter === "ALL" || m.category === mediaCategoryFilter)
+                      .map((item) => {
+                        const isVideo = item.mimeType.startsWith("video/");
+                        const isImage = item.mimeType.startsWith("image/");
+                        const fileUrl = `/api/client-media/${item.id}/file`;
+                        const catCls = item.category === "BEFORE" ? "bg-amber-50 text-amber-700"
+                          : item.category === "AFTER" ? "bg-emerald-50 text-emerald-700"
+                          : item.category === "SURVEY" ? "bg-blue-50 text-blue-700"
+                          : item.category === "INSTALLATION" ? "bg-violet-50 text-violet-700"
+                          : item.category === "INSPECTION" ? "bg-orange-50 text-orange-700"
+                          : "bg-gray-100 text-gray-600";
+                        return (
+                          <div key={item.id} className="rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow cursor-pointer group"
+                            onClick={() => window.open(fileUrl, "_blank")}>
+                            <div className="aspect-square bg-gray-50 relative">
+                              {isImage ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={fileUrl} alt={item.title} loading="lazy"
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
+                              ) : isVideo ? (
+                                <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-slate-900">
+                                  <Video className="h-10 w-10 text-slate-400" />
+                                  <div className="bg-scanvault-red rounded-full p-2">
+                                    <Play className="h-5 w-5 text-white fill-white" />
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Camera className="h-10 w-10 text-gray-200" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-2.5">
+                              <p className="text-xs font-semibold text-gray-900 truncate">{item.title}</p>
+                              {item.description && <p className="text-[10px] text-gray-400 truncate mt-0.5">{item.description}</p>}
+                              <div className="flex items-center gap-1.5 mt-1.5">
+                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${catCls}`}>{item.category}</span>
+                                <span className="text-[10px] text-gray-300">{new Date(item.uploadedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" })}</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Account / Change Password */}
         <TabsContent value="account">
           <Card className="max-w-md">

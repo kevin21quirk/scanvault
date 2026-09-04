@@ -28,6 +28,7 @@ model User {
   careHomes               CareHome[]
   quotations              Quotation[]
   completionCertificates  CompletionCertificate[]
+  clientMedia             ClientMedia[]
 }
 
 model CareHome {
@@ -226,6 +227,25 @@ model ScanVaultDocument {
   uploadedAt   DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  @@index([category])
+}
+
+model ClientMedia {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  category     String   @default("GENERAL")
+  s3Key        String
+  originalName String
+  mimeType     String
+  fileSize     Int      @default(0)
+  uploadedBy   String?
+  uploadedAt   DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
   @@index([category])
 }
 

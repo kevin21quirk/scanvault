@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList, Pencil, FileDown, Mail, Copy, ExternalLink, FileImage, Briefcase } from "lucide-react";
+import { Users, FileText, Receipt, FolderOpen, Plus, Upload, Trash2, Loader2, Download, TrendingUp, ShieldCheck, Award, LayoutDashboard, Building2, AlertCircle, CreditCard, Landmark, ClipboardList, Pencil, FileDown, Mail, Copy, ExternalLink, FileImage, Briefcase, Camera, Video, Play } from "lucide-react";
 import LeadsTab from "@/components/leads-tab";
 import ContractsTab from "@/components/contracts-tab";
 import QuotationsTab from "@/components/quotations-tab";
@@ -87,6 +87,20 @@ interface SvDocument {
   uploadedAt: string;
 }
 
+interface ClientMedia {
+  id: string;
+  userId: string;
+  title: string;
+  description: string | null;
+  category: string;
+  s3Key: string;
+  originalName: string;
+  mimeType: string;
+  fileSize: number;
+  uploadedAt: string;
+  user: { id: string; name: string | null; email: string; companyName: string | null };
+}
+
 interface CompanyAsset {
   id: string;
   title: string;
@@ -163,6 +177,14 @@ export default function AdminDashboard() {
   const [editingSvDoc, setEditingSvDoc] = useState<SvDocument | null>(null);
   const [editSvDocForm, setEditSvDocForm] = useState({ title: "", description: "", category: "GENERAL" });
   const [savingEdit, setSavingEdit] = useState(false);
+
+  const [clientMedia, setClientMedia] = useState<ClientMedia[]>([]);
+  const [mediaClientFilter, setMediaClientFilter] = useState("ALL");
+  const [showMediaModal, setShowMediaModal] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [deletingMedia, setDeletingMedia] = useState<string | null>(null);
+  const [mediaForm, setMediaForm] = useState({ userId: "", title: "", description: "", category: "SURVEY" });
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
 
   const [companyAssets, setCompanyAssets] = useState<CompanyAsset[]>([]);
   const [showCompanyAssetModal, setShowCompanyAssetModal] = useState(false);
@@ -256,13 +278,14 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const [usersRes, invoicesRes, receiptsRes, documentsRes, svDocsRes, assetsRes] = await Promise.all([
+      const [usersRes, invoicesRes, receiptsRes, documentsRes, svDocsRes, assetsRes, mediaRes] = await Promise.all([
         fetch("/api/users"),
         fetch("/api/invoices"),
         fetch("/api/receipts"),
         fetch("/api/documents"),
         fetch("/api/scanvault-documents"),
         fetch("/api/company-assets"),
+        fetch("/api/client-media"),
       ]);
 
       if (usersRes.ok) setUsers(await usersRes.json());
@@ -271,6 +294,7 @@ export default function AdminDashboard() {
       if (documentsRes.ok) setDocuments(await documentsRes.json());
       if (svDocsRes.ok) setSvDocuments(await svDocsRes.json());
       if (assetsRes.ok) setCompanyAssets(await assetsRes.json());
+      if (mediaRes.ok) setClientMedia(await mediaRes.json());
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -685,6 +709,52 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUploadMedia = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mediaFile || !mediaForm.userId) return;
+    setUploadingMedia(true);
+    try {
+      const presignRes = await fetch("/api/client-media/presign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: mediaFile.name, mimeType: mediaFile.type, fileSize: mediaFile.size }),
+      });
+      if (!presignRes.ok) { const e = await presignRes.json(); alert(e.error || "Failed to prepare upload"); return; }
+      const { uploadUrl, s3Key } = await presignRes.json();
+
+      const s3Res = await fetch(uploadUrl, { method: "PUT", body: mediaFile, headers: { "Content-Type": mediaFile.type } });
+      if (!s3Res.ok) { alert("S3 upload failed — check CORS configuration."); return; }
+
+      const saveRes = await fetch("/api/client-media", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: mediaForm.userId, title: mediaForm.title, description: mediaForm.description, category: mediaForm.category, s3Key, originalName: mediaFile.name, mimeType: mediaFile.type, fileSize: mediaFile.size }),
+      });
+      if (saveRes.ok) {
+        const item = await saveRes.json();
+        setClientMedia((prev) => [item, ...prev]);
+        setShowMediaModal(false);
+        setMediaForm({ userId: "", title: "", description: "", category: "SURVEY" });
+        setMediaFile(null);
+      } else {
+        const err = await saveRes.json();
+        alert(err.error || "Failed to save media record");
+      }
+    } catch { alert("Upload failed"); }
+    finally { setUploadingMedia(false); }
+  };
+
+  const handleDeleteMedia = async (id: string) => {
+    if (!confirm("Delete this photo/video? This cannot be undone.")) return;
+    setDeletingMedia(id);
+    try {
+      const res = await fetch(`/api/client-media/${id}`, { method: "DELETE" });
+      if (res.ok) setClientMedia((prev) => prev.filter((m) => m.id !== id));
+      else alert("Failed to delete");
+    } catch { alert("Failed to delete"); }
+    finally { setDeletingMedia(null); }
+  };
+
   const handleDeleteReceipt = async (id: string) => {
     if (!confirm("Delete this receipt? This cannot be undone.")) return;
     setDeletingReceipt(id);
@@ -894,6 +964,9 @@ export default function AdminDashboard() {
               </TabsTrigger>
               <TabsTrigger value="company-assets" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
                 <Briefcase className="h-4 w-4 shrink-0" /> Company Assets
+              </TabsTrigger>
+              <TabsTrigger value="client-media" className="w-full justify-start gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors data-[state=active]:bg-scanvault-red data-[state=active]:text-white data-[state=active]:shadow-none">
+                <Camera className="h-4 w-4 shrink-0" /> Client Media
               </TabsTrigger>
 
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] px-2 pt-3 pb-1">Sales</span>
@@ -2421,6 +2494,193 @@ export default function AdminDashboard() {
                     <Button type="button" variant="outline" onClick={() => setShowCompanyAssetModal(false)}>Cancel</Button>
                     <Button type="submit" className="bg-scanvault-red hover:bg-red-700" disabled={uploadingAsset || !companyAssetFile}>
                       {uploadingAsset ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Uploading…</> : <><Upload className="h-4 w-4 mr-2" />Upload to S3</>}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* ── Client Media ── */}
+        <TabsContent value="client-media" className="space-y-3 mt-0">
+          {/* Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-black text-slate-900">Client Media</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Photos &amp; videos from care home visits — stored on S3, visible to each client in their portal</p>
+            </div>
+            <Button onClick={() => { setMediaForm({ userId: "", title: "", description: "", category: "SURVEY" }); setMediaFile(null); setShowMediaModal(true); }} className="bg-scanvault-red hover:bg-red-700 shrink-0 h-8 text-xs">
+              <Camera className="h-3.5 w-3.5 mr-1.5" />Upload Media
+            </Button>
+          </div>
+
+          {/* Client filter pills */}
+          {(() => {
+            const clientsWithMedia = Array.from(
+              new Map(clientMedia.map((m) => [m.user.id, m.user])).values()
+            );
+            return (
+              <div className="flex flex-wrap gap-2">
+                <button onClick={() => setMediaClientFilter("ALL")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${mediaClientFilter === "ALL" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}>
+                  All ({clientMedia.length})
+                </button>
+                {clientsWithMedia.map((u) => {
+                  const count = clientMedia.filter((m) => m.user.id === u.id).length;
+                  return (
+                    <button key={u.id} onClick={() => setMediaClientFilter(u.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${mediaClientFilter === u.id ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}>
+                      {u.companyName || u.name || u.email} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })()}
+
+          {/* Media gallery */}
+          {clientMedia.length === 0 ? (
+            <div className="bg-white border border-slate-100 rounded-xl text-center py-16 text-slate-300">
+              <Camera className="h-10 w-10 mx-auto mb-3" />
+              <p className="text-sm font-semibold">No media uploaded yet</p>
+              <p className="text-xs mt-1">Upload photos and videos from care home visits</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+              {clientMedia
+                .filter((m) => mediaClientFilter === "ALL" || m.user.id === mediaClientFilter)
+                .map((item) => {
+                  const isVideo = item.mimeType.startsWith("video/");
+                  const isImage = item.mimeType.startsWith("image/");
+                  const catCls = item.category === "BEFORE" ? "bg-amber-50 text-amber-700"
+                    : item.category === "AFTER" ? "bg-emerald-50 text-emerald-700"
+                    : item.category === "SURVEY" ? "bg-blue-50 text-blue-700"
+                    : item.category === "INSTALLATION" ? "bg-violet-50 text-violet-700"
+                    : item.category === "INSPECTION" ? "bg-orange-50 text-orange-700"
+                    : "bg-slate-100 text-slate-600";
+                  const fileUrl = `/api/client-media/${item.id}/file`;
+                  return (
+                    <div key={item.id} className="bg-white border border-slate-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-150 group">
+                      {/* Thumbnail area */}
+                      <div className="relative aspect-square bg-slate-50 cursor-pointer" onClick={() => window.open(fileUrl, "_blank")}>
+                        {isImage ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={fileUrl} alt={item.title} loading="lazy"
+                            className="w-full h-full object-cover" />
+                        ) : isVideo ? (
+                          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                            <Video className="h-10 w-10 text-slate-300" />
+                            <div className="bg-scanvault-red rounded-full p-1.5">
+                              <Play className="h-4 w-4 text-white fill-white" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <FileImage className="h-10 w-10 text-slate-200" />
+                          </div>
+                        )}
+                        {/* Delete overlay */}
+                        <button
+                          onClick={(ev) => { ev.stopPropagation(); handleDeleteMedia(item.id); }}
+                          disabled={deletingMedia === item.id}
+                          className="absolute top-1.5 right-1.5 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {deletingMedia === item.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+                        </button>
+                      </div>
+                      {/* Card footer */}
+                      <div className="p-2.5">
+                        <p className="text-xs font-bold text-slate-900 truncate leading-tight">{item.title}</p>
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.user.companyName || item.user.name || item.user.email}</p>
+                        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${catCls}`}>{item.category}</span>
+                          <span className="text-[10px] text-slate-300">{new Date(item.uploadedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+
+          {/* Upload modal */}
+          {showMediaModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
+                <div className="flex items-start justify-between p-6 pb-4 border-b border-slate-100">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-900">Upload Client Media</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Photos and videos stored on AWS S3 · visible to the client in their portal</p>
+                  </div>
+                  <button onClick={() => setShowMediaModal(false)} className="text-slate-400 hover:text-slate-700 ml-4 mt-1 text-lg leading-none">✕</button>
+                </div>
+                <form onSubmit={handleUploadMedia} className="p-6 space-y-4">
+                  <div>
+                    <Label htmlFor="mediaClient">Client *</Label>
+                    <select id="mediaClient" required className="w-full px-3 py-2 border rounded-md text-sm mt-1"
+                      value={mediaForm.userId}
+                      onChange={(e) => setMediaForm((p) => ({ ...p, userId: e.target.value }))}>
+                      <option value="">— Select a client —</option>
+                      {users.filter((u) => u.role === "CLIENT").map((u) => (
+                        <option key={u.id} value={u.id}>{u.companyName || u.name || u.email}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="mediaTitle">Title *</Label>
+                    <Input id="mediaTitle" required placeholder="e.g. Sunrise Care Home — Survey Photos"
+                      value={mediaForm.title}
+                      onChange={(e) => setMediaForm((p) => ({ ...p, title: e.target.value }))} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="mediaCategory">Category *</Label>
+                      <select id="mediaCategory" className="w-full px-3 py-2 border rounded-md text-sm mt-1"
+                        value={mediaForm.category}
+                        onChange={(e) => setMediaForm((p) => ({ ...p, category: e.target.value }))}>
+                        <option value="SURVEY">Survey</option>
+                        <option value="BEFORE">Before</option>
+                        <option value="AFTER">After / Completion</option>
+                        <option value="INSTALLATION">Installation</option>
+                        <option value="INSPECTION">Inspection</option>
+                        <option value="GENERAL">General</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label htmlFor="mediaDesc">Description</Label>
+                      <Input id="mediaDesc" placeholder="Optional note"
+                        value={mediaForm.description}
+                        onChange={(e) => setMediaForm((p) => ({ ...p, description: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>File *</Label>
+                    <div className={`mt-1 border-2 border-dashed rounded-xl p-6 text-center transition-colors ${mediaFile ? "border-emerald-300 bg-emerald-50" : "border-slate-200 hover:border-slate-300"}`}>
+                      {mediaFile ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-center gap-2">
+                            {mediaFile.type.startsWith("video/") ? <Video className="h-5 w-5 text-slate-500" /> : <Camera className="h-5 w-5 text-emerald-600" />}
+                            <p className="text-sm font-bold text-emerald-700">{mediaFile.name}</p>
+                          </div>
+                          <p className="text-xs text-slate-400">{(mediaFile.size / (1024 * 1024)).toFixed(1)} MB</p>
+                          <button type="button" onClick={() => setMediaFile(null)} className="text-xs text-red-500 hover:underline">Remove</button>
+                        </div>
+                      ) : (
+                        <label htmlFor="mediaFile" className="cursor-pointer">
+                          <Camera className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                          <p className="text-sm text-slate-500 font-medium">Click to choose a photo or video</p>
+                          <p className="text-xs text-slate-400 mt-1">JPEG, PNG, WebP, GIF, HEIC · MP4, MOV, WebM, AVI · up to 500 MB</p>
+                        </label>
+                      )}
+                      <input id="mediaFile" type="file" className="hidden"
+                        accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,video/mp4,video/quicktime,video/webm,video/x-msvideo"
+                        onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)} />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 justify-end pt-2">
+                    <Button type="button" variant="outline" onClick={() => setShowMediaModal(false)}>Cancel</Button>
+                    <Button type="submit" className="bg-scanvault-red hover:bg-red-700" disabled={uploadingMedia || !mediaFile || !mediaForm.userId}>
+                      {uploadingMedia ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Uploading…</> : <><Upload className="h-4 w-4 mr-2" />Upload to S3</>}
                     </Button>
                   </div>
                 </form>
