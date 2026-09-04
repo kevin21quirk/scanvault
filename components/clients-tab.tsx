@@ -69,7 +69,9 @@ export default function ClientsTab() {
   const [subAccountForm, setSubAccountForm] = useState({ name: "", email: "", password: "" });
   const [savingSubAccount, setSavingSubAccount] = useState(false);
   const [deletingSubAccount, setDeletingSubAccount] = useState<string | null>(null);
-  const [resettingLogin, setResettingLogin] = useState<string | null>(null);
+  const [resetLoginTarget, setResetLoginTarget] = useState<string | null>(null);
+  const [resetLoginPassword, setResetLoginPassword] = useState("");
+  const [savingReset, setSavingReset] = useState(false);
 
   const fetch$ = useCallback(async () => {
     try {
@@ -144,19 +146,32 @@ export default function ClientsTab() {
     }
   };
 
-  const handleResetLogin = async (userId: string) => {
-    setResettingLogin(userId);
+  const toggleResetForm = (userId: string) => {
+    if (resetLoginTarget === userId) {
+      setResetLoginTarget(null);
+      setResetLoginPassword("");
+    } else {
+      setResetLoginTarget(userId);
+      setResetLoginPassword("");
+    }
+  };
+
+  const handleSaveReset = async (userId: string) => {
+    if (resetLoginPassword.length < 6) {
+      alert("Temporary password must be at least 6 characters.");
+      return;
+    }
+    setSavingReset(true);
     try {
       const res = await fetch(`/api/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mustChangePassword: true }),
+        body: JSON.stringify({ password: resetLoginPassword, mustChangePassword: true }),
       });
       if (!res.ok) {
         const err = await res.json();
         alert(err.error || "Failed to reset login");
       } else {
-        // Update sub-account list state if it's a sub-account
         setSubAccounts((prev) => {
           const updated: Record<string, SubAccount[]> = {};
           for (const [k, list] of Object.entries(prev)) {
@@ -164,9 +179,11 @@ export default function ClientsTab() {
           }
           return updated;
         });
+        setResetLoginTarget(null);
+        setResetLoginPassword("");
       }
     } finally {
-      setResettingLogin(null);
+      setSavingReset(false);
     }
   };
 
@@ -450,55 +467,105 @@ export default function ClientsTab() {
                       <KeyRound className="w-3 h-3" /> Portal logins for {c.companyName || c.name || c.email}
                     </p>
                     {/* Primary account */}
-                    <div className="flex items-center justify-between bg-blue-50 rounded-md px-3 py-2 mb-2">
-                      <div>
-                        <p className="text-xs font-semibold text-blue-800">{c.email}</p>
-                        {c.contactName && <p className="text-[11px] text-blue-600">{c.contactName}</p>}
+                    <div className="bg-blue-50 rounded-md px-3 py-2 mb-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-semibold text-blue-800">{c.email}</p>
+                          {c.contactName && <p className="text-[11px] text-blue-600">{c.contactName}</p>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold bg-blue-200 text-blue-700 px-2 py-0.5 rounded-full">Primary</span>
+                          <button
+                            type="button"
+                            title="Set temporary password and require change on next login"
+                            onClick={() => toggleResetForm(c.id)}
+                            className={`h-6 px-2 text-xs border rounded flex items-center gap-1 ${
+                              resetLoginTarget === c.id
+                                ? "border-gray-300 text-gray-600 bg-gray-100"
+                                : "border-amber-300 text-amber-700 hover:bg-amber-50"
+                            }`}
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            {resetLoginTarget === c.id ? "Cancel" : "Reset Login"}
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold bg-blue-200 text-blue-700 px-2 py-0.5 rounded-full">Primary</span>
-                        <button
-                          type="button"
-                          title="Require password change on next login"
-                          disabled={resettingLogin === c.id}
-                          onClick={() => handleResetLogin(c.id)}
-                          className="h-6 px-2 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50 flex items-center gap-1"
-                        >
-                          {resettingLogin === c.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <RotateCcw className="w-3 h-3" />}
-                          Reset Login
-                        </button>
-                      </div>
+                      {resetLoginTarget === c.id && (
+                        <div className="mt-2 flex gap-2 items-center">
+                          <Input
+                            type="text"
+                            placeholder="Temporary password (min 6 chars)"
+                            value={resetLoginPassword}
+                            onChange={(e) => setResetLoginPassword(e.target.value)}
+                            className="h-7 text-xs flex-1"
+                          />
+                          <button
+                            type="button"
+                            disabled={savingReset}
+                            onClick={() => handleSaveReset(c.id)}
+                            className="h-7 px-3 text-xs bg-amber-500 hover:bg-amber-600 text-white rounded flex items-center gap-1 shrink-0"
+                          >
+                            {savingReset ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                            Set &amp; Reset
+                          </button>
+                        </div>
+                      )}
                     </div>
                     {/* Sub-accounts */}
                     {(subAccounts[c.id] || []).map((sub) => (
-                      <div key={sub.id} className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2 mb-2">
-                        <div>
-                          <p className="text-xs font-medium text-gray-800">{sub.email}</p>
-                          {sub.name && <p className="text-[11px] text-gray-500">{sub.name}</p>}
-                          {sub.mustChangePassword && (
-                            <span className="text-[10px] font-semibold text-amber-600">⚠ Must change password</span>
-                          )}
+                      <div key={sub.id} className="bg-gray-50 rounded-md px-3 py-2 mb-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-xs font-medium text-gray-800">{sub.email}</p>
+                            {sub.name && <p className="text-[11px] text-gray-500">{sub.name}</p>}
+                            {sub.mustChangePassword && (
+                              <span className="text-[10px] font-semibold text-amber-600">⚠ Must change password</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              title="Set temporary password and require change on next login"
+                              onClick={() => toggleResetForm(sub.id)}
+                              className={`h-6 px-2 text-xs border rounded flex items-center gap-1 ${
+                                resetLoginTarget === sub.id
+                                  ? "border-gray-300 text-gray-600 bg-gray-100"
+                                  : "border-amber-300 text-amber-700 hover:bg-amber-50"
+                              }`}
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              {resetLoginTarget === sub.id ? "Cancel" : "Reset"}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={deletingSubAccount === sub.id}
+                              onClick={() => handleDeleteSubAccount(c.id, sub.id)}
+                              className="h-6 px-2 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 flex items-center gap-1"
+                            >
+                              {deletingSubAccount === sub.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            title="Require password change on next login"
-                            disabled={resettingLogin === sub.id}
-                            onClick={() => handleResetLogin(sub.id)}
-                            className="h-6 px-2 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50 flex items-center gap-1"
-                          >
-                            {resettingLogin === sub.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <RotateCcw className="w-3 h-3" />}
-                            Reset
-                          </button>
-                          <button
-                            type="button"
-                            disabled={deletingSubAccount === sub.id}
-                            onClick={() => handleDeleteSubAccount(c.id, sub.id)}
-                            className="h-6 px-2 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 flex items-center gap-1"
-                          >
-                            {deletingSubAccount === sub.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
-                          </button>
-                        </div>
+                        {resetLoginTarget === sub.id && (
+                          <div className="mt-2 flex gap-2 items-center">
+                            <Input
+                              type="text"
+                              placeholder="Temporary password (min 6 chars)"
+                              value={resetLoginPassword}
+                              onChange={(e) => setResetLoginPassword(e.target.value)}
+                              className="h-7 text-xs flex-1"
+                            />
+                            <button
+                              type="button"
+                              disabled={savingReset}
+                              onClick={() => handleSaveReset(sub.id)}
+                              className="h-7 px-3 text-xs bg-amber-500 hover:bg-amber-600 text-white rounded flex items-center gap-1 shrink-0"
+                            >
+                              {savingReset ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                              Set &amp; Reset
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                     {/* Add sub-account form */}
