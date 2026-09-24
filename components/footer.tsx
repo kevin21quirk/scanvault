@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, Linkedin } from "lucide-react";
 
 export function Footer() {
   return (
@@ -64,6 +64,17 @@ export function Footer() {
               <li className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
                 <span>+44 7359 969266</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Linkedin className="h-4 w-4" />
+                <a
+                  href="https://www.linkedin.com/company/scanvault-limited/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  LinkedIn
+                </a>
               </li>
             </ul>
           </div>

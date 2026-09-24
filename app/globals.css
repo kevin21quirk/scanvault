@@ -241,6 +241,35 @@
     animation: modalZoomOut 0.3s ease-out forwards;
   }
 
+  /* Vertical scan line sweeping down a section */
+  @keyframes scanVertical {
+    0%   { top: -2px; opacity: 1; }
+    90%  { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  .animate-scan-vertical {
+    animation: scanVertical 6s linear infinite;
+    position: absolute;
+  }
+
+  /* Neon border pulse */
+  @keyframes neonPulse {
+    0%, 100% { opacity: 0.35; }
+    50%       { opacity: 1; }
+  }
+  .animate-neon-pulse {
+    animation: neonPulse 2.4s ease-in-out infinite;
+  }
+
+  /* Gentle float */
+  @keyframes floatY {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-12px); }
+  }
+  .animate-float {
+    animation: floatY 4s ease-in-out infinite;
+  }
+
   /* Mux Player background video styling */
   mux-player {
     width: 100% !important;

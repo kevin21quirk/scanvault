@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2, X, Info, Mail, Phone } from "lucide-react";
+import { Shield, Zap, Database, Lock, CheckCircle, ArrowRight, FileArchive, Star, Sparkles, TrendingUp, Cloud, Layers, Trash2, FileCheck, ClipboardCheck, Share2, X, Info, Mail, Phone, Linkedin } from "lucide-react";
 import { useState, useEffect } from "react";
 import MuxPlayer from "@mux/mux-player-react";
 
@@ -295,61 +295,64 @@ export default function Home() {
         </div>
       </section>
 
-      <section data-sidebar-theme="white" className="relative py-32 bg-white overflow-hidden">
+      <section data-sidebar-theme="dark" className="relative py-32 bg-[#07080f] overflow-hidden">
+        {/* Animated dot grid */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: 'radial-gradient(circle, rgba(229,62,62,0.18) 1px, transparent 1px)',
+          backgroundSize: '44px 44px'
+        }}></div>
+        {/* Ambient glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-scanvault-red rounded-full blur-[120px] opacity-[0.06] pointer-events-none"></div>
+
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-scanvault-red to-transparent"></div>
-        
-        <div className="container mx-auto px-4">
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 rounded-full mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
+                 style={{background: 'rgba(229,62,62,0.08)', border: '1px solid rgba(229,62,62,0.22)'}}>
               <TrendingUp className="h-4 w-4 text-scanvault-red" />
               <span className="text-sm font-medium text-scanvault-red">Industry Leading</span>
             </div>
-            <h2 className="text-5xl md:text-6xl font-bold text-scanvault-black mb-6">
+            <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
               Why Choose ScanVault?
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-xl">
+            <p className="text-gray-400 max-w-2xl mx-auto text-xl">
               We specialize in transforming paper archives into organized, searchable digital workflows.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-16 relative">
-            <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent hidden md:block"></div>
-            
-            <div className="group text-center relative">
-              <div className="inline-flex w-24 h-24 bg-gradient-to-br from-scanvault-red to-red-600 items-center justify-center mb-6 relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                <Shield className="h-12 w-12 text-white" />
-                <div className="absolute inset-0 bg-scanvault-red blur-2xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
-              </div>
-              <h3 className="text-3xl font-bold text-scanvault-black mb-4 group-hover:text-scanvault-red transition-colors">Secure & Compliant</h3>
-              <p className="text-gray-600 leading-relaxed text-lg">
-                Enterprise-grade security with full compliance to data protection regulations and industry standards.
-              </p>
-            </div>
+          <div className="grid md:grid-cols-3 gap-10 relative">
+            {/* Horizontal connecting line */}
+            <div className="absolute top-[52px] left-[16.66%] right-[16.66%] h-px hidden md:block"
+                 style={{background: 'linear-gradient(to right, transparent, rgba(229,62,62,0.25) 20%, rgba(229,62,62,0.25) 80%, transparent)'}}></div>
 
-            <div className="group text-center relative">
-              <div className="inline-flex w-24 h-24 bg-gradient-to-br from-scanvault-red to-red-600 items-center justify-center mb-6 relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                <Zap className="h-12 w-12 text-white" />
-                <div className="absolute inset-0 bg-scanvault-red blur-2xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+            {[
+              { icon: <Shield className="h-10 w-10 text-white" />, title: 'Secure & Compliant', desc: 'Enterprise-grade security with full compliance to data protection regulations and industry standards.' },
+              { icon: <Zap className="h-10 w-10 text-white" />, title: 'Lightning Fast', desc: 'Efficient digitalisation processes powered by AI that get your documents online in record time.' },
+              { icon: <Database className="h-10 w-10 text-white" />, title: 'Smart Workflows', desc: 'Intelligent categorisation and AI-powered workflow systems for seamless access and management.' },
+            ].map((feature, i) => (
+              <div key={i} className="group text-center relative">
+                {/* Multi-ring glowing icon */}
+                <div className="relative inline-flex w-[104px] h-[104px] items-center justify-center mb-8">
+                  {/* Outer pulsing ring */}
+                  <div className="absolute w-[104px] h-[104px] rounded-full border border-scanvault-red/20 animate-neon-pulse"></div>
+                  {/* Mid ring */}
+                  <div className="absolute w-[84px] h-[84px] rounded-full border border-scanvault-red/30 group-hover:border-scanvault-red/60 transition-colors duration-500"></div>
+                  {/* Glow halo */}
+                  <div className="absolute w-16 h-16 rounded-full bg-scanvault-red blur-2xl opacity-30 group-hover:opacity-60 transition-opacity duration-500"></div>
+                  {/* Icon circle */}
+                  <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-scanvault-red to-red-700 flex items-center justify-center z-10
+                                  group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-red-900/40">
+                    {feature.icon}
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-scanvault-red transition-colors duration-300">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed text-base max-w-xs mx-auto">{feature.desc}</p>
               </div>
-              <h3 className="text-3xl font-bold text-scanvault-black mb-4 group-hover:text-scanvault-red transition-colors">Lightning Fast</h3>
-              <p className="text-gray-600 leading-relaxed text-lg">
-                Efficient digitalisation processes powered by AI that get your documents online in record time.
-              </p>
-            </div>
-
-            <div className="group text-center relative">
-              <div className="inline-flex w-24 h-24 bg-gradient-to-br from-scanvault-red to-red-600 items-center justify-center mb-6 relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                <Database className="h-12 w-12 text-white" />
-                <div className="absolute inset-0 bg-scanvault-red blur-2xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
-              </div>
-              <h3 className="text-3xl font-bold text-scanvault-black mb-4 group-hover:text-scanvault-red transition-colors">Smart Workflows</h3>
-              <p className="text-gray-600 leading-relaxed text-lg">
-                Intelligent categorisation and AI-powered workflow systems for seamless access and management.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
-        
+
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-scanvault-red to-transparent"></div>
       </section>
 
@@ -554,225 +557,193 @@ export default function Home() {
       })()}
 
       {/* Comprehensive Scanning Services Section */}
-      <section data-sidebar-theme="white" className="py-20 bg-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-red-50 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gray-50 rounded-full blur-3xl"></div>
-        
+      <section data-sidebar-theme="dark" className="relative py-24 bg-[#060810] overflow-hidden">
+        {/* Animated grid background */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px)',
+          backgroundSize: '60px 60px'
+        }}></div>
+
+        {/* Ambient glow orbs */}
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-scanvault-red rounded-full blur-[160px] opacity-[0.045] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-700 rounded-full blur-[140px] opacity-[0.035] pointer-events-none"></div>
+
+        {/* Scan line sweeping down */}
+        <div className="animate-scan-vertical absolute left-0 right-0 h-[1px] z-10 pointer-events-none"
+             style={{background: 'linear-gradient(to right, transparent 5%, rgba(229,62,62,0.55) 50%, transparent 95)'}}></div>
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 rounded-full mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
+                 style={{background: 'rgba(229,62,62,0.08)', border: '1px solid rgba(229,62,62,0.22)'}}>
               <Layers className="h-4 w-4 text-scanvault-red" />
               <span className="text-sm font-medium text-scanvault-red">Complete Solutions</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-scanvault-black mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
               Professional Scanning Services
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-400">
               From digitization to secure destruction, we provide end-to-end document management solutions tailored to your needs.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {/* Scan to SharePoint */}
-            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-              <div className="w-16 h-16 bg-gradient-to-br from-scanvault-red to-red-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Share2 className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-scanvault-black mb-4">Scan to SharePoint</h3>
-              <p className="text-gray-600 leading-relaxed mb-4">
-                Seamlessly integrate your digitised documents directly into Microsoft SharePoint for instant collaboration and accessibility across your organisation.
-              </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-scanvault-red flex-shrink-0 mt-0.5" />
-                  <span>Direct SharePoint integration</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-scanvault-red flex-shrink-0 mt-0.5" />
-                  <span>Automated folder structure</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-scanvault-red flex-shrink-0 mt-0.5" />
-                  <span>Metadata tagging included</span>
-                </li>
-              </ul>
-              <button
-                onClick={() => setSelectedService('sharepoint')}
-                className="mt-6 w-full bg-scanvault-red hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 group-hover:shadow-lg"
-              >
-                <Info className="h-5 w-5" />
-                More Info
-              </button>
-            </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-7xl mx-auto">
 
-            {/* Scan to Cloud */}
-            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Cloud className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-scanvault-black mb-4">Scan to Cloud</h3>
-              <p className="text-gray-600 leading-relaxed mb-4">
-                Upload your documents to popular cloud platforms including Google Drive, Dropbox, OneDrive, and more for flexible access anywhere.
-              </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                  <span>Multi-platform support</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                  <span>Secure encrypted transfer</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                  <span>Automatic synchronization</span>
-                </li>
-              </ul>
-              <button
-                onClick={() => setSelectedService('cloud')}
-                className="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 group-hover:shadow-lg"
+            {/* Helper to render a service card */}
+            {([
+              {
+                key: 'sharepoint',
+                icon: <Share2 className="h-7 w-7" />,
+                accentColor: '#e53e3e',
+                accentRgb: '229,62,62',
+                title: 'Scan to SharePoint',
+                desc: 'Seamlessly integrate your digitised documents directly into Microsoft SharePoint for instant collaboration.',
+                bullets: ['Direct SharePoint integration', 'Automated folder structure', 'Metadata tagging included'],
+                exclusive: false,
+              },
+              {
+                key: 'cloud',
+                icon: <Cloud className="h-7 w-7" />,
+                accentColor: '#3b82f6',
+                accentRgb: '59,130,246',
+                title: 'Scan to Cloud',
+                desc: 'Upload your documents to Google Drive, Dropbox, OneDrive, and more for flexible access anywhere.',
+                bullets: ['Multi-platform support', 'Secure encrypted transfer', 'Automatic synchronization'],
+                exclusive: false,
+              },
+              {
+                key: 'platform',
+                icon: <Database className="h-7 w-7" />,
+                accentColor: '#e53e3e',
+                accentRgb: '229,62,62',
+                title: 'ScanVault Platform',
+                desc: 'Access our proprietary document management platform, custom-built for maximum security and workflow automation.',
+                bullets: ['AI-powered search', 'Custom workflows', 'Advanced analytics'],
+                exclusive: true,
+              },
+              {
+                key: 'shredding',
+                icon: <Trash2 className="h-7 w-7" />,
+                accentColor: '#6b7280',
+                accentRgb: '107,114,128',
+                title: 'Secure Shredding',
+                desc: 'Professional document destruction with full chain of custody. We handle the shredding so you can focus on business.',
+                bullets: ['On-site or off-site shredding', 'GDPR compliant', 'Eco-friendly recycling'],
+                exclusive: false,
+              },
+              {
+                key: 'certificate',
+                icon: <FileCheck className="h-7 w-7" />,
+                accentColor: '#22c55e',
+                accentRgb: '34,197,94',
+                title: 'Certificate of Destruction',
+                desc: 'Receive official documentation certifying secure destruction, ensuring compliance and complete peace of mind.',
+                bullets: ['Legal proof of destruction', 'Audit trail documentation', 'Digital certificate delivery'],
+                exclusive: false,
+              },
+              {
+                key: 'assessment',
+                icon: <ClipboardCheck className="h-7 w-7" />,
+                accentColor: '#f97316',
+                accentRgb: '249,115,22',
+                title: 'Risk Assessment',
+                desc: 'Comprehensive pre-work risk assessment forms agreed upon by both parties before any project commences.',
+                bullets: ['Detailed risk analysis', 'Mutual agreement required', 'Signed documentation'],
+                exclusive: false,
+              },
+            ] as Array<{key: string; icon: React.ReactNode; accentColor: string; accentRgb: string; title: string; desc: string; bullets: string[]; exclusive: boolean}>).map((svc) => (
+              <div
+                key={svc.key}
+                className="group relative rounded-2xl p-7 overflow-hidden transition-all duration-500 hover:-translate-y-1 cursor-default"
+                style={{
+                  background: svc.exclusive
+                    ? `linear-gradient(135deg, rgba(${svc.accentRgb},0.14) 0%, rgba(${svc.accentRgb},0.04) 100%)`
+                    : 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+                  border: svc.exclusive
+                    ? `1px solid rgba(${svc.accentRgb},0.30)`
+                    : '1px solid rgba(255,255,255,0.07)',
+                  boxShadow: '0 4px 28px rgba(0,0,0,0.45)',
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.borderColor = `rgba(${svc.accentRgb},0.45)`;
+                  el.style.boxShadow = `0 8px 48px rgba(${svc.accentRgb},0.14), 0 4px 28px rgba(0,0,0,0.45)`;
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.borderColor = svc.exclusive ? `rgba(${svc.accentRgb},0.30)` : 'rgba(255,255,255,0.07)';
+                  el.style.boxShadow = '0 4px 28px rgba(0,0,0,0.45)';
+                }}
               >
-                <Info className="h-5 w-5" />
-                More Info
-              </button>
-            </div>
+                {/* Top scan accent line */}
+                <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700"
+                     style={{background: `linear-gradient(to right, ${svc.accentColor}, rgba(${svc.accentRgb},0.15))`}}></div>
 
-            {/* Bespoke Platform */}
-            <div className="group bg-gradient-to-br from-scanvault-red to-red-600 text-white rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-              <div className="relative">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Database className="h-8 w-8 text-white" />
+                {/* Corner glow */}
+                <div className="absolute top-0 right-0 w-24 h-24 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                     style={{background: `radial-gradient(circle at top right, rgba(${svc.accentRgb},0.18), transparent 70%)`}}></div>
+
+                {/* Exclusive badge */}
+                {svc.exclusive && (
+                  <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-0.5 rounded-full"
+                       style={{background: `rgba(${svc.accentRgb},0.15)`, border: `1px solid rgba(${svc.accentRgb},0.35)`}}>
+                    <Star className="h-3 w-3" style={{color: svc.accentColor}} />
+                    <span className="text-[10px] font-bold tracking-widest uppercase" style={{color: svc.accentColor}}>Exclusive</span>
+                  </div>
+                )}
+
+                {/* Icon */}
+                <div className="relative mb-6 w-14 h-14">
+                  <div className="absolute inset-0 rounded-xl blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
+                       style={{background: svc.accentColor}}></div>
+                  <div className="relative w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                       style={{
+                         background: `rgba(${svc.accentRgb},0.12)`,
+                         border: `1px solid rgba(${svc.accentRgb},0.25)`,
+                         color: svc.accentColor,
+                       }}>
+                    {svc.icon}
+                  </div>
                 </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full mb-3">
-                  <Star className="h-3 w-3" />
-                  <span className="text-xs font-semibold">EXCLUSIVE</span>
-                </div>
-                <h3 className="text-2xl font-bold mb-4">ScanVault Platform</h3>
-                <p className="leading-relaxed mb-4 text-white/90">
-                  Access our proprietary document management platform, custom-built for maximum security, searchability, and workflow automation.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                    <span>AI-powered search</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                    <span>Custom workflows</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                    <span>Advanced analytics</span>
-                  </li>
+
+                <h3 className="text-lg font-bold text-white mb-3">{svc.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed mb-5">{svc.desc}</p>
+
+                <ul className="space-y-2 mb-6">
+                  {svc.bullets.map(b => (
+                    <li key={b} className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="w-1 h-1 rounded-full flex-shrink-0" style={{background: svc.accentColor}}></div>
+                      {b}
+                    </li>
+                  ))}
                 </ul>
+
                 <button
-                  onClick={() => setSelectedService('platform')}
-                  className="mt-6 w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300"
+                  onClick={() => setSelectedService(svc.key)}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300"
+                  style={{
+                    background: `rgba(${svc.accentRgb},0.07)`,
+                    border: `1px solid rgba(${svc.accentRgb},0.22)`,
+                    color: svc.accentColor,
+                  }}
+                  onMouseEnter={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.background = svc.accentColor;
+                    el.style.color = '#ffffff';
+                    el.style.borderColor = svc.accentColor;
+                  }}
+                  onMouseLeave={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.background = `rgba(${svc.accentRgb},0.07)`;
+                    el.style.color = svc.accentColor;
+                    el.style.borderColor = `rgba(${svc.accentRgb},0.22)`;
+                  }}
                 >
-                  <Info className="h-5 w-5" />
-                  More Info
+                  <Info className="h-4 w-4" /> More Info
                 </button>
               </div>
-            </div>
-
-            {/* Secure Shredding */}
-            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-              <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Trash2 className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-scanvault-black mb-4">Secure Shredding</h3>
-              <p className="text-gray-600 leading-relaxed mb-4">
-                Professional document destruction services with full chain of custody. We handle the shredding so you can focus on your business.
-              </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
-                  <span>On-site or off-site shredding</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
-                  <span>GDPR compliant</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-gray-700 flex-shrink-0 mt-0.5" />
-                  <span>Eco-friendly recycling</span>
-                </li>
-              </ul>
-              <button
-                onClick={() => setSelectedService('shredding')}
-                className="mt-6 w-full bg-gray-700 hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 group-hover:shadow-lg"
-              >
-                <Info className="h-5 w-5" />
-                More Info
-              </button>
-            </div>
-
-            {/* Certificate of Destruction */}
-            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <FileCheck className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-scanvault-black mb-4">Certificate of Destruction</h3>
-              <p className="text-gray-600 leading-relaxed mb-4">
-                Receive official documentation certifying the secure destruction of your sensitive documents, ensuring compliance and peace of mind.
-              </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span>Legal proof of destruction</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span>Audit trail documentation</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span>Digital certificate delivery</span>
-                </li>
-              </ul>
-              <button
-                onClick={() => setSelectedService('certificate')}
-                className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 group-hover:shadow-lg"
-              >
-                <Info className="h-5 w-5" />
-                More Info
-              </button>
-            </div>
-
-            {/* Risk Assessment */}
-            <div className="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-scanvault-red hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <ClipboardCheck className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-scanvault-black mb-4">Risk Assessment</h3>
-              <p className="text-gray-600 leading-relaxed mb-4">
-                Comprehensive pre-work risk assessment forms provided and agreed upon by both parties before any project commences.
-              </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span>Detailed risk analysis</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span>Mutual agreement required</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span>Signed documentation</span>
-                </li>
-              </ul>
-              <button
-                onClick={() => setSelectedService('assessment')}
-                className="mt-6 w-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 group-hover:shadow-lg"
-              >
-                <Info className="h-5 w-5" />
-                More Info
-              </button>
-            </div>
+            ))}
           </div>
-
         </div>
       </section>
 
@@ -1068,6 +1039,30 @@ export default function Home() {
                     <Phone className={contactIconCls} />
                   </div>
                   <p className="text-[10px] text-center leading-snug" style={contactTextStyle}>+44 7359 969266</p>
+                </div>
+              )}
+            </a>
+
+            {/* — LinkedIn panel — */}
+            <a href="https://www.linkedin.com/company/scanvault-limited/" target="_blank" rel="noopener noreferrer" className="block rounded-2xl p-4 transition-all duration-300 hover:scale-[1.04] hover:brightness-110"
+              style={panelStyle}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 28px rgba(255,255,255,0.18), inset 0 1px 0 rgba(255,255,255,0.25)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.35)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = (panelStyle.boxShadow as string) || 'none'; (e.currentTarget as HTMLElement).style.borderColor = ''; }}
+            >
+              <p className={labelClass} style={labelStyle}>LinkedIn</p>
+              {isCarousel ? (
+                <div className="flex flex-row items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={contactIconStyle}>
+                    <Linkedin className="h-4 w-4 text-white" />
+                  </div>
+                  <p className="text-[9px] leading-snug" style={contactTextStyle}>ScanVault Ltd</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={contactIconStyle}>
+                    <Linkedin className={contactIconCls} />
+                  </div>
+                  <p className="text-[10px] text-center leading-snug" style={contactTextStyle}>ScanVault Ltd</p>
                 </div>
               )}
             </a>
