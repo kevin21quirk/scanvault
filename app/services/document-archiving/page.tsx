@@ -10,7 +10,7 @@ export default function DocumentArchiving() {
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl font-bold mb-6">Document Archiving Services</h1>
             <p className="text-xl text-gray-300 mb-8">
-              Secure, organized, and compliant document archiving solutions for businesses of all sizes.
+              Secure, organised, and compliant document archiving solutions for businesses of all sizes.
             </p>
             <Link href="/quote">
               <Button size="lg" className="bg-scanvault-red hover:bg-red-700 text-white px-8 py-6 text-lg">
@@ -77,7 +77,7 @@ export default function DocumentArchiving() {
                 <div className="w-16 h-16 bg-scanvault-red/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Archive className="h-8 w-8 text-scanvault-red" />
                 </div>
-                <h3 className="text-xl font-bold text-scanvault-black mb-3">Organized Storage</h3>
+                <h3 className="text-xl font-bold text-scanvault-black mb-3">Organised Storage</h3>
                 <p className="text-gray-600">
                   Systematic organisation for easy document retrieval and management.
                 </p>

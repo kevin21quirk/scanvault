@@ -260,7 +260,7 @@ export default function Home() {
             </h1>
             
             <p className="text-xl md:text-2xl mb-12 text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Transform your paper archives into organized, searchable digital assets with AI-powered solutions.
+              Transform your paper archives into organised, searchable digital assets with AI-powered solutions.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -280,7 +280,7 @@ export default function Home() {
             <div className="mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto">
               <div className="text-center">
                 <div className="text-4xl font-bold text-white mb-2">10K+</div>
-                <div className="text-sm text-gray-400">Documents Digitized</div>
+                <div className="text-sm text-gray-400">Documents Digitised</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-white mb-2">99.9%</div>
@@ -317,7 +317,7 @@ export default function Home() {
               Why Choose ScanVault?
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto text-xl">
-              We specialize in transforming paper archives into organized, searchable digital workflows.
+              We specialise in transforming paper archives into organised, searchable digital workflows.
             </p>
           </div>
 
@@ -371,7 +371,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-4xl font-bold text-scanvault-black mb-6">Human Resources Management</h3>
                 <p className="text-gray-600 text-lg leading-relaxed mb-6">
-                  Digitalize and organize employee files, contracts, and personnel documentation with military-grade security and instant accessibility.
+                  Digitalise and organise employee files, contracts, and personnel documentation with military-grade security and instant accessibility.
                 </p>
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-1 bg-gradient-to-r from-scanvault-red to-transparent"></div>
@@ -420,7 +420,7 @@ export default function Home() {
                 </p>
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-1 bg-gradient-to-r from-scanvault-red to-transparent"></div>
-                  <span className="text-sm text-gray-500">Organized • Efficient • Smart</span>
+                  <span className="text-sm text-gray-500">Organised • Efficient • Smart</span>
                 </div>
               </div>
             </div>
@@ -578,7 +578,7 @@ export default function Home() {
               <span className="text-sm font-medium text-scanvault-red">Complete Solutions</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Professional Scanning Services</h2>
-            <p className="text-xl text-gray-400">From digitization to secure destruction — end-to-end document management built for your business.</p>
+            <p className="text-xl text-gray-400">From digitisation to secure destruction — end-to-end document management built for your business.</p>
           </div>
 
           {/* ── BENTO GRID ── */}

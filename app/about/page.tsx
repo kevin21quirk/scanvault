@@ -32,7 +32,7 @@ export default function About() {
             <p className="text-gray-600 mb-4">
               Today, we serve businesses across various sectors, providing comprehensive solutions for HR records, administrative 
               documentation, client files, resident records, and financial accounts. Our expertise lies not just in digitalisation, 
-              but in creating organized, workflow-oriented systems that make information retrieval effortless.
+              but in creating organised, workflow-oriented systems that make information retrieval effortless.
             </p>
             <p className="text-gray-600">
               With state-of-the-art technology and a commitment to security and compliance, we've become the trusted partner 

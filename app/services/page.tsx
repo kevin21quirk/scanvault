@@ -82,7 +82,7 @@ export default function Services() {
               <CardHeader>
                 <DollarSign className="h-12 w-12 text-scanvault-red mb-4" />
                 <CardTitle className="text-2xl">Accounts & Financial</CardTitle>
-                <CardDescription>Organized financial document management</CardDescription>
+                <CardDescription>Organised financial document management</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-gray-600">

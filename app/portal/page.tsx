@@ -530,7 +530,7 @@ export default function Portal() {
                   <FolderOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600">No documents found</p>
                   <p className="text-sm text-gray-500 mt-2">
-                    Your digitalized documents will appear here
+                    Your digitalised documents will appear here
                   </p>
                 </div>
               ) : (

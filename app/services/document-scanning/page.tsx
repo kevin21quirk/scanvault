@@ -91,7 +91,7 @@ export default function DocumentScanning() {
                 </div>
                 <h3 className="text-xl font-bold text-scanvault-black mb-3">Instant Access</h3>
                 <p className="text-gray-600">
-                  Find any document in seconds with powerful search capabilities and organized filing.
+                  Find any document in seconds with powerful search capabilities and organised filing.
                 </p>
               </div>
               <div className="text-center p-6">

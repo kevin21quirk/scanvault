@@ -10,7 +10,7 @@ export default function ClientRecords() {
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl font-bold mb-6">Client Records Management</h1>
             <p className="text-xl text-gray-300 mb-8">
-              Secure, organized management of sensitive client information with enterprise-level protection.
+              Secure, organised management of sensitive client information with enterprise-level protection.
             </p>
             <Link href="/quote">
               <Button size="lg" className="bg-scanvault-red hover:bg-red-700 text-white px-8 py-6 text-lg">

@@ -65,7 +65,7 @@ export default function FinancialDocuments() {
                     <CheckCircle className="h-6 w-6 text-scanvault-red flex-shrink-0 mt-1" />
                     <div>
                       <p className="font-semibold">Financial Reports</p>
-                      <p className="text-sm text-gray-600">Organized storage and easy retrieval</p>
+                      <p className="text-sm text-gray-600">Organised storage and easy retrieval</p>
                     </div>
                   </li>
                 </ul>

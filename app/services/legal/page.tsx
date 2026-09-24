@@ -88,7 +88,7 @@ export default function Legal() {
                 </div>
                 <h3 className="text-xl font-bold text-scanvault-black mb-3">Court Ready</h3>
                 <p className="text-gray-600">
-                  Documents formatted and organized for court submission.
+                  Documents formatted and organised for court submission.
                 </p>
               </div>
               <div className="text-center p-6">

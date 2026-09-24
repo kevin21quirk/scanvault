@@ -10,7 +10,7 @@ export default function HRRecords() {
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl font-bold mb-6">HR Records Management</h1>
             <p className="text-xl text-gray-300 mb-8">
-              Secure, compliant, and organized management of all your human resources documentation.
+              Secure, compliant, and organised management of all your human resources documentation.
             </p>
             <Link href="/quote">
               <Button size="lg" className="bg-scanvault-red hover:bg-red-700 text-white px-8 py-6 text-lg">
@@ -30,7 +30,7 @@ export default function HRRecords() {
                 <h2 className="text-3xl font-bold text-scanvault-black mb-6">Professional HR Document Management</h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">
                   Streamline your HR operations with our comprehensive records management solution. From employee files 
-                  to contracts, performance reviews to training records, we digitalize and organize everything.
+                  to contracts, performance reviews to training records, we digitalise and organise everything.
                 </p>
                 <p className="text-gray-600 mb-6 leading-relaxed">
                   Our secure system ensures GDPR compliance while providing instant access to critical HR information 
