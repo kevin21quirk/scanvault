@@ -295,14 +295,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section data-sidebar-theme="dark" className="relative py-32 bg-[#07080f] overflow-hidden">
+      <section data-sidebar-theme="dark" className="relative py-32 overflow-hidden" style={{background: '#07080f'}}>
         {/* Animated dot grid */}
         <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: 'radial-gradient(circle, rgba(229,62,62,0.18) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgba(220,38,38,0.18) 1px, transparent 1px)',
           backgroundSize: '44px 44px'
         }}></div>
         {/* Ambient glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-scanvault-red rounded-full blur-[120px] opacity-[0.06] pointer-events-none"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none" style={{width:'700px',height:'300px',background:'radial-gradient(ellipse, rgba(220,38,38,0.12) 0%, transparent 70%)'}}></div>
 
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-scanvault-red to-transparent"></div>
 
@@ -556,193 +556,208 @@ export default function Home() {
         );
       })()}
 
-      {/* Comprehensive Scanning Services Section */}
-      <section data-sidebar-theme="dark" className="relative py-24 bg-[#060810] overflow-hidden">
-        {/* Animated grid background */}
+      {/* Comprehensive Scanning Services — Bento Grid */}
+      <section data-sidebar-theme="dark" className="relative py-24 overflow-hidden" style={{background: '#060810'}}>
+        {/* Grid background */}
         <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
           backgroundSize: '60px 60px'
         }}></div>
-
-        {/* Ambient glow orbs */}
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-scanvault-red rounded-full blur-[160px] opacity-[0.045] pointer-events-none"></div>
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-700 rounded-full blur-[140px] opacity-[0.035] pointer-events-none"></div>
-
-        {/* Scan line sweeping down */}
-        <div className="animate-scan-vertical absolute left-0 right-0 h-[1px] z-10 pointer-events-none"
-             style={{background: 'linear-gradient(to right, transparent 5%, rgba(229,62,62,0.55) 50%, transparent 95)'}}></div>
+        {/* Ambient glows */}
+        <div className="absolute top-0 left-0 pointer-events-none" style={{width:'500px',height:'500px',background:'radial-gradient(circle, rgba(220,38,38,0.08) 0%, transparent 70%)'}}></div>
+        <div className="absolute bottom-0 right-0 pointer-events-none" style={{width:'500px',height:'500px',background:'radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%)'}}></div>
+        {/* Sweep line */}
+        <div className="animate-scan-vertical absolute left-0 right-0 h-px z-10 pointer-events-none"
+             style={{background:'linear-gradient(to right,transparent 5%,rgba(220,38,38,0.6) 50%,transparent 95%)'}}></div>
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-                 style={{background: 'rgba(229,62,62,0.08)', border: '1px solid rgba(229,62,62,0.22)'}}>
+                 style={{background:'rgba(220,38,38,0.08)',border:'1px solid rgba(220,38,38,0.22)'}}>
               <Layers className="h-4 w-4 text-scanvault-red" />
               <span className="text-sm font-medium text-scanvault-red">Complete Solutions</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Professional Scanning Services
-            </h2>
-            <p className="text-xl text-gray-400">
-              From digitization to secure destruction, we provide end-to-end document management solutions tailored to your needs.
-            </p>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Professional Scanning Services</h2>
+            <p className="text-xl text-gray-400">From digitization to secure destruction — end-to-end document management built for your business.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-7xl mx-auto">
+          {/* ── BENTO GRID ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
 
-            {/* Helper to render a service card */}
-            {([
-              {
-                key: 'sharepoint',
-                icon: <Share2 className="h-7 w-7" />,
-                accentColor: '#e53e3e',
-                accentRgb: '229,62,62',
-                title: 'Scan to SharePoint',
-                desc: 'Seamlessly integrate your digitised documents directly into Microsoft SharePoint for instant collaboration.',
-                bullets: ['Direct SharePoint integration', 'Automated folder structure', 'Metadata tagging included'],
-                exclusive: false,
-              },
-              {
-                key: 'cloud',
-                icon: <Cloud className="h-7 w-7" />,
-                accentColor: '#3b82f6',
-                accentRgb: '59,130,246',
-                title: 'Scan to Cloud',
-                desc: 'Upload your documents to Google Drive, Dropbox, OneDrive, and more for flexible access anywhere.',
-                bullets: ['Multi-platform support', 'Secure encrypted transfer', 'Automatic synchronization'],
-                exclusive: false,
-              },
-              {
-                key: 'platform',
-                icon: <Database className="h-7 w-7" />,
-                accentColor: '#e53e3e',
-                accentRgb: '229,62,62',
-                title: 'ScanVault Platform',
-                desc: 'Access our proprietary document management platform, custom-built for maximum security and workflow automation.',
-                bullets: ['AI-powered search', 'Custom workflows', 'Advanced analytics'],
-                exclusive: true,
-              },
-              {
-                key: 'shredding',
-                icon: <Trash2 className="h-7 w-7" />,
-                accentColor: '#6b7280',
-                accentRgb: '107,114,128',
-                title: 'Secure Shredding',
-                desc: 'Professional document destruction with full chain of custody. We handle the shredding so you can focus on business.',
-                bullets: ['On-site or off-site shredding', 'GDPR compliant', 'Eco-friendly recycling'],
-                exclusive: false,
-              },
-              {
-                key: 'certificate',
-                icon: <FileCheck className="h-7 w-7" />,
-                accentColor: '#22c55e',
-                accentRgb: '34,197,94',
-                title: 'Certificate of Destruction',
-                desc: 'Receive official documentation certifying secure destruction, ensuring compliance and complete peace of mind.',
-                bullets: ['Legal proof of destruction', 'Audit trail documentation', 'Digital certificate delivery'],
-                exclusive: false,
-              },
-              {
-                key: 'assessment',
-                icon: <ClipboardCheck className="h-7 w-7" />,
-                accentColor: '#f97316',
-                accentRgb: '249,115,22',
-                title: 'Risk Assessment',
-                desc: 'Comprehensive pre-work risk assessment forms agreed upon by both parties before any project commences.',
-                bullets: ['Detailed risk analysis', 'Mutual agreement required', 'Signed documentation'],
-                exclusive: false,
-              },
-            ] as Array<{key: string; icon: React.ReactNode; accentColor: string; accentRgb: string; title: string; desc: string; bullets: string[]; exclusive: boolean}>).map((svc) => (
-              <div
-                key={svc.key}
-                className="group relative rounded-2xl p-7 overflow-hidden transition-all duration-500 hover:-translate-y-1 cursor-default"
-                style={{
-                  background: svc.exclusive
-                    ? `linear-gradient(135deg, rgba(${svc.accentRgb},0.14) 0%, rgba(${svc.accentRgb},0.04) 100%)`
-                    : 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
-                  border: svc.exclusive
-                    ? `1px solid rgba(${svc.accentRgb},0.30)`
-                    : '1px solid rgba(255,255,255,0.07)',
-                  boxShadow: '0 4px 28px rgba(0,0,0,0.45)',
-                }}
-                onMouseEnter={e => {
-                  const el = e.currentTarget as HTMLElement;
-                  el.style.borderColor = `rgba(${svc.accentRgb},0.45)`;
-                  el.style.boxShadow = `0 8px 48px rgba(${svc.accentRgb},0.14), 0 4px 28px rgba(0,0,0,0.45)`;
-                }}
-                onMouseLeave={e => {
-                  const el = e.currentTarget as HTMLElement;
-                  el.style.borderColor = svc.exclusive ? `rgba(${svc.accentRgb},0.30)` : 'rgba(255,255,255,0.07)';
-                  el.style.boxShadow = '0 4px 28px rgba(0,0,0,0.45)';
-                }}
-              >
-                {/* Top scan accent line */}
-                <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700"
-                     style={{background: `linear-gradient(to right, ${svc.accentColor}, rgba(${svc.accentRgb},0.15))`}}></div>
-
-                {/* Corner glow */}
-                <div className="absolute top-0 right-0 w-24 h-24 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                     style={{background: `radial-gradient(circle at top right, rgba(${svc.accentRgb},0.18), transparent 70%)`}}></div>
-
-                {/* Exclusive badge */}
-                {svc.exclusive && (
-                  <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-0.5 rounded-full"
-                       style={{background: `rgba(${svc.accentRgb},0.15)`, border: `1px solid rgba(${svc.accentRgb},0.35)`}}>
-                    <Star className="h-3 w-3" style={{color: svc.accentColor}} />
-                    <span className="text-[10px] font-bold tracking-widest uppercase" style={{color: svc.accentColor}}>Exclusive</span>
+            {/* ── FEATURED: ScanVault Platform (col-span-2) ── */}
+            <div
+              className="group relative md:col-span-2 rounded-3xl p-8 overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-1"
+              style={{background:'linear-gradient(135deg,rgba(220,38,38,0.18) 0%,rgba(10,10,20,0.9) 60%)',border:'1px solid rgba(220,38,38,0.30)',boxShadow:'0 8px 48px rgba(220,38,38,0.1)'}}
+              onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.boxShadow='0 12px 64px rgba(220,38,38,0.22)';(e.currentTarget as HTMLElement).style.borderColor='rgba(220,38,38,0.55)';}}
+              onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.boxShadow='0 8px 48px rgba(220,38,38,0.1)';(e.currentTarget as HTMLElement).style.borderColor='rgba(220,38,38,0.30)';}}
+            >
+              {/* Glow orb inside card */}
+              <div className="absolute top-0 right-0 w-64 h-64 pointer-events-none" style={{background:'radial-gradient(circle at top right,rgba(220,38,38,0.18),transparent 65%)'}}></div>
+              {/* Top accent */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-3xl" style={{background:'linear-gradient(to right,#DC2626,rgba(220,38,38,0.2))'}}></div>
+              <div className="relative flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{background:'rgba(220,38,38,0.2)',border:'1px solid rgba(220,38,38,0.4)'}}>
+                    <Database className="h-7 w-7 text-scanvault-red" />
                   </div>
-                )}
-
-                {/* Icon */}
-                <div className="relative mb-6 w-14 h-14">
-                  <div className="absolute inset-0 rounded-xl blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
-                       style={{background: svc.accentColor}}></div>
-                  <div className="relative w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-                       style={{
-                         background: `rgba(${svc.accentRgb},0.12)`,
-                         border: `1px solid rgba(${svc.accentRgb},0.25)`,
-                         color: svc.accentColor,
-                       }}>
-                    {svc.icon}
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full" style={{background:'rgba(220,38,38,0.15)',border:'1px solid rgba(220,38,38,0.3)'}}>
+                    <Star className="h-3 w-3 text-scanvault-red" />
+                    <span className="text-xs font-bold tracking-widest uppercase text-scanvault-red">Exclusive</span>
                   </div>
                 </div>
-
-                <h3 className="text-lg font-bold text-white mb-3">{svc.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-5">{svc.desc}</p>
-
-                <ul className="space-y-2 mb-6">
-                  {svc.bullets.map(b => (
-                    <li key={b} className="flex items-center gap-2 text-xs text-gray-500">
-                      <div className="w-1 h-1 rounded-full flex-shrink-0" style={{background: svc.accentColor}}></div>
-                      {b}
-                    </li>
+                <h3 className="text-2xl font-bold text-white mb-3">ScanVault Platform</h3>
+                <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-lg">Access our proprietary document management platform, custom-built for maximum security, AI-powered searchability, and workflow automation — purpose-built for UK businesses.</p>
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  {[['AI Search','Instant full-text retrieval'],['Workflows','Custom approval flows'],['Analytics','Real-time dashboards']].map(([label,sub])=>(
+                    <div key={label} className="rounded-xl p-3" style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)'}}>
+                      <p className="text-white text-xs font-bold mb-1">{label}</p>
+                      <p className="text-gray-500 text-[10px] leading-snug">{sub}</p>
+                    </div>
                   ))}
-                </ul>
-
-                <button
-                  onClick={() => setSelectedService(svc.key)}
-                  className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300"
-                  style={{
-                    background: `rgba(${svc.accentRgb},0.07)`,
-                    border: `1px solid rgba(${svc.accentRgb},0.22)`,
-                    color: svc.accentColor,
-                  }}
-                  onMouseEnter={e => {
-                    const el = e.currentTarget as HTMLElement;
-                    el.style.background = svc.accentColor;
-                    el.style.color = '#ffffff';
-                    el.style.borderColor = svc.accentColor;
-                  }}
-                  onMouseLeave={e => {
-                    const el = e.currentTarget as HTMLElement;
-                    el.style.background = `rgba(${svc.accentRgb},0.07)`;
-                    el.style.color = svc.accentColor;
-                    el.style.borderColor = `rgba(${svc.accentRgb},0.22)`;
-                  }}
-                >
-                  <Info className="h-4 w-4" /> More Info
+                </div>
+                <button onClick={()=>setSelectedService('platform')}
+                  className="mt-auto w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 text-white transition-all duration-300 hover:opacity-90"
+                  style={{background:'linear-gradient(135deg,#DC2626,#991b1b)'}}>
+                  <Info className="h-4 w-4" /> Learn More
                 </button>
               </div>
-            ))}
+            </div>
+
+            {/* ── Scan to SharePoint ── */}
+            <div
+              className="group relative rounded-3xl p-6 overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-1"
+              style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',boxShadow:'0 4px 24px rgba(0,0,0,0.4)'}}
+              onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(220,38,38,0.4)';(e.currentTarget as HTMLElement).style.boxShadow='0 8px 40px rgba(220,38,38,0.12)';}}
+              onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,0.08)';(e.currentTarget as HTMLElement).style.boxShadow='0 4px 24px rgba(0,0,0,0.4)';}}
+            >
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-3xl origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700" style={{background:'linear-gradient(to right,#DC2626,transparent)'}}></div>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{background:'rgba(220,38,38,0.12)',border:'1px solid rgba(220,38,38,0.22)'}}>
+                <Share2 className="h-6 w-6 text-scanvault-red" />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">Scan to SharePoint</h3>
+              <p className="text-gray-500 text-xs leading-relaxed mb-4">Seamlessly push digitised documents into Microsoft SharePoint with automated metadata and folder structures.</p>
+              <ul className="space-y-1.5 mb-5">
+                {['Direct SharePoint integration','Automated folder structure','Metadata tagging'].map(b=>(
+                  <li key={b} className="flex items-center gap-2 text-xs text-gray-500"><div className="w-1 h-1 rounded-full bg-scanvault-red flex-shrink-0"></div>{b}</li>
+                ))}
+              </ul>
+              <button onClick={()=>setSelectedService('sharepoint')}
+                className="w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 text-scanvault-red transition-all duration-300 hover:bg-scanvault-red hover:text-white"
+                style={{background:'rgba(220,38,38,0.06)',border:'1px solid rgba(220,38,38,0.2)'}}>
+                <Info className="h-3.5 w-3.5" /> More Info
+              </button>
+            </div>
+
+            {/* ── Scan to Cloud ── */}
+            <div
+              className="group relative rounded-3xl p-6 overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-1"
+              style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',boxShadow:'0 4px 24px rgba(0,0,0,0.4)'}}
+              onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(59,130,246,0.45)';(e.currentTarget as HTMLElement).style.boxShadow='0 8px 40px rgba(59,130,246,0.12)';}}
+              onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,0.08)';(e.currentTarget as HTMLElement).style.boxShadow='0 4px 24px rgba(0,0,0,0.4)';}}
+            >
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-3xl origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700" style={{background:'linear-gradient(to right,#3b82f6,transparent)'}}></div>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{background:'rgba(59,130,246,0.12)',border:'1px solid rgba(59,130,246,0.22)'}}>
+                <Cloud className="h-6 w-6" style={{color:'#3b82f6'}} />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">Scan to Cloud</h3>
+              <p className="text-gray-500 text-xs leading-relaxed mb-4">Upload to Google Drive, Dropbox, OneDrive and more with encrypted, secure transfers from anywhere.</p>
+              <ul className="space-y-1.5 mb-5">
+                {['Multi-platform support','Encrypted transfer','Auto sync'].map(b=>(
+                  <li key={b} className="flex items-center gap-2 text-xs text-gray-500"><div className="w-1 h-1 rounded-full flex-shrink-0" style={{background:'#3b82f6'}}></div>{b}</li>
+                ))}
+              </ul>
+              <button onClick={()=>setSelectedService('cloud')}
+                className="w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-300"
+                style={{background:'rgba(59,130,246,0.06)',border:'1px solid rgba(59,130,246,0.2)',color:'#3b82f6'}}
+                onMouseEnter={e=>{const el=e.currentTarget as HTMLElement;el.style.background='#3b82f6';el.style.color='#fff';}}
+                onMouseLeave={e=>{const el=e.currentTarget as HTMLElement;el.style.background='rgba(59,130,246,0.06)';el.style.color='#3b82f6';}}>
+                <Info className="h-3.5 w-3.5" /> More Info
+              </button>
+            </div>
+
+            {/* ── Secure Shredding ── */}
+            <div
+              className="group relative rounded-3xl p-6 overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-1"
+              style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',boxShadow:'0 4px 24px rgba(0,0,0,0.4)'}}
+              onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(107,114,128,0.5)';(e.currentTarget as HTMLElement).style.boxShadow='0 8px 40px rgba(107,114,128,0.1)';}}
+              onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,0.08)';(e.currentTarget as HTMLElement).style.boxShadow='0 4px 24px rgba(0,0,0,0.4)';}}
+            >
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-3xl origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700" style={{background:'linear-gradient(to right,#6b7280,transparent)'}}></div>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{background:'rgba(107,114,128,0.12)',border:'1px solid rgba(107,114,128,0.22)'}}>
+                <Trash2 className="h-6 w-6 text-gray-400" />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">Secure Shredding</h3>
+              <p className="text-gray-500 text-xs leading-relaxed mb-4">GDPR-compliant document destruction with full chain of custody — on-site or off-site.</p>
+              <ul className="space-y-1.5 mb-5">
+                {['On-site or off-site','GDPR compliant','Eco recycling'].map(b=>(
+                  <li key={b} className="flex items-center gap-2 text-xs text-gray-500"><div className="w-1 h-1 rounded-full bg-gray-500 flex-shrink-0"></div>{b}</li>
+                ))}
+              </ul>
+              <button onClick={()=>setSelectedService('shredding')}
+                className="w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 text-gray-400 transition-all duration-300 hover:bg-gray-600 hover:text-white"
+                style={{background:'rgba(107,114,128,0.06)',border:'1px solid rgba(107,114,128,0.2)'}}>
+                <Info className="h-3.5 w-3.5" /> More Info
+              </button>
+            </div>
+
+            {/* ── Bottom row: Certificate + Risk Assessment (wide) ── */}
+            <div
+              className="group relative rounded-3xl p-6 overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-1"
+              style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',boxShadow:'0 4px 24px rgba(0,0,0,0.4)'}}
+              onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(34,197,94,0.4)';(e.currentTarget as HTMLElement).style.boxShadow='0 8px 40px rgba(34,197,94,0.1)';}}
+              onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,0.08)';(e.currentTarget as HTMLElement).style.boxShadow='0 4px 24px rgba(0,0,0,0.4)';}}
+            >
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-3xl origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700" style={{background:'linear-gradient(to right,#22c55e,transparent)'}}></div>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{background:'rgba(34,197,94,0.12)',border:'1px solid rgba(34,197,94,0.22)'}}>
+                <FileCheck className="h-6 w-6" style={{color:'#22c55e'}} />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">Certificate of Destruction</h3>
+              <p className="text-gray-500 text-xs leading-relaxed mb-4">Official COD issued after every shredding job — legally binding proof and complete audit trail.</p>
+              <ul className="space-y-1.5 mb-5">
+                {['Legal proof','Audit trail','Digital delivery'].map(b=>(
+                  <li key={b} className="flex items-center gap-2 text-xs text-gray-500"><div className="w-1 h-1 rounded-full flex-shrink-0" style={{background:'#22c55e'}}></div>{b}</li>
+                ))}
+              </ul>
+              <button onClick={()=>setSelectedService('certificate')}
+                className="w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-300"
+                style={{background:'rgba(34,197,94,0.06)',border:'1px solid rgba(34,197,94,0.2)',color:'#22c55e'}}
+                onMouseEnter={e=>{const el=e.currentTarget as HTMLElement;el.style.background='#22c55e';el.style.color='#fff';}}
+                onMouseLeave={e=>{const el=e.currentTarget as HTMLElement;el.style.background='rgba(34,197,94,0.06)';el.style.color='#22c55e';}}>
+                <Info className="h-3.5 w-3.5" /> More Info
+              </button>
+            </div>
+
+            {/* ── Risk Assessment (wide, 2-col) ── */}
+            <div
+              className="group relative md:col-span-2 rounded-3xl p-6 overflow-hidden cursor-default transition-all duration-500 hover:-translate-y-1"
+              style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',boxShadow:'0 4px 24px rgba(0,0,0,0.4)'}}
+              onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(249,115,22,0.4)';(e.currentTarget as HTMLElement).style.boxShadow='0 8px 40px rgba(249,115,22,0.1)';}}
+              onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,0.08)';(e.currentTarget as HTMLElement).style.boxShadow='0 4px 24px rgba(0,0,0,0.4)';}}
+            >
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-3xl origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700" style={{background:'linear-gradient(to right,#f97316,transparent)'}}></div>
+              <div className="flex flex-col md:flex-row md:items-center gap-6">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'rgba(249,115,22,0.12)',border:'1px solid rgba(249,115,22,0.22)'}}>
+                  <ClipboardCheck className="h-6 w-6" style={{color:'#f97316'}} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base font-bold text-white mb-1">Risk Assessment</h3>
+                  <p className="text-gray-500 text-xs leading-relaxed">Comprehensive pre-work risk assessment forms agreed and signed by both parties before any project commences — ensuring complete transparency.</p>
+                </div>
+                <div className="flex flex-wrap gap-2 md:flex-col md:items-end">
+                  {['Risk analysis','Mutual agreement','Signed docs'].map(b=>(
+                    <span key={b} className="text-[10px] px-2 py-1 rounded-full" style={{background:'rgba(249,115,22,0.1)',border:'1px solid rgba(249,115,22,0.2)',color:'#f97316'}}>{b}</span>
+                  ))}
+                </div>
+                <button onClick={()=>setSelectedService('assessment')}
+                  className="flex-shrink-0 px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all duration-300"
+                  style={{background:'rgba(249,115,22,0.08)',border:'1px solid rgba(249,115,22,0.25)',color:'#f97316'}}
+                  onMouseEnter={e=>{const el=e.currentTarget as HTMLElement;el.style.background='#f97316';el.style.color='#fff';}}
+                  onMouseLeave={e=>{const el=e.currentTarget as HTMLElement;el.style.background='rgba(249,115,22,0.08)';el.style.color='#f97316';}}>
+                  <Info className="h-3.5 w-3.5" /> More Info
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
